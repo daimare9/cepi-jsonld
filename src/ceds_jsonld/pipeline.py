@@ -117,8 +117,7 @@ class _DeadLetterWriter:
             import json as _json
 
             safe_row = {
-                k: repr(v) if not isinstance(v, (str, int, float, bool, type(None))) else v
-                for k, v in raw_row.items()
+                k: repr(v) if not isinstance(v, (str, int, float, bool, type(None))) else v for k, v in raw_row.items()
             }
             safe_entry = {"_error": error, "_record": safe_row, "_serialization_fallback": True}
             data = _json.dumps(safe_entry, ensure_ascii=False, default=str).encode("utf-8")
