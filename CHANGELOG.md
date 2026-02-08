@@ -17,6 +17,22 @@ Release cadence: **monthly** (first week of each month), with ad-hoc patch relea
 
 ---
 
+## [0.9.4] — 2026-02-08
+
+### Summary
+
+Patch release with 5 bug fixes hardening the pipeline against non-finite floats, booleans, None values, and empty lists across the mapper, builder, and serializer. 526 tests passing.
+
+### Fixed
+
+- **Pipeline** — `validate()` no longer double-counts errors and warnings; `add_issue()` already increments counters internally (#21)
+- **Mapping** — `_ensure_scalar()` now rejects `bool` values and non-finite floats (`inf`, `-inf`, `nan`) with actionable error messages instead of silently coercing them to strings (#22)
+- **Builder** — `_typed_literal()` returns `None` for `None`, `NaN`, and `Infinity` inputs instead of producing `@value: "None"` string literals; lists are filtered to remove non-finite entries (#23)
+- **Builder** — `_build_sub_nodes()` guards against empty list values that previously caused `IndexError` on the single-element unwrap logic (#24)
+- **Serializer** — `dumps()` now rejects `NaN`/`Infinity`/`-Infinity` floats with a `SerializationError` for both orjson and stdlib backends, preventing invalid JSON output (#25)
+
+---
+
 ## [0.9.3] — 2026-02-08
 
 ### Summary
@@ -126,6 +142,7 @@ First public release. All core functionality complete across 7 development phase
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 0.9.4 | 2026-02-08 | Patch: 5 bug fixes (non-finite floats, booleans, None handling, empty lists). |
 | 0.9.3 | 2026-02-08 | Patch: 5 bug fixes (transform precision, adapter edges, DLQ reliability). |
 | 0.9.2 | 2026-02-08 | Patch: 5 bug fixes (validation counting, Cosmos prep, serialization, PII). |
 | 0.9.1 | 2026-02-08 | Patch: 8 bug fixes (validation, mapping, sanitization, sample data). |
@@ -133,7 +150,8 @@ First public release. All core functionality complete across 7 development phase
 
 ---
 
-[Unreleased]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.3...HEAD
+[Unreleased]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.4...HEAD
+[0.9.4]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.3...v0.9.4
 [0.9.3]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.2...v0.9.3
 [0.9.2]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.0...v0.9.1

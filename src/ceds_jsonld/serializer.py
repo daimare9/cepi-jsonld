@@ -34,6 +34,7 @@ def _reject_non_finite(obj: Any) -> None:
         for v in obj:
             _reject_non_finite(v)
 
+
 # ---------------------------------------------------------------------------
 # Backend selection
 # ---------------------------------------------------------------------------
@@ -97,7 +98,10 @@ except ImportError:
             _reject_non_finite(obj)
             indent = 2 if pretty else None
             return _json.dumps(
-                obj, indent=indent, ensure_ascii=False, allow_nan=False,
+                obj,
+                indent=indent,
+                ensure_ascii=False,
+                allow_nan=False,
             ).encode("utf-8")
         except Exception as exc:
             msg = f"Failed to serialize object: {exc}"

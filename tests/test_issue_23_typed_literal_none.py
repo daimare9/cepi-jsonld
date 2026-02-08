@@ -6,8 +6,6 @@ the string "None" and float('nan') became "nan".
 
 from __future__ import annotations
 
-import math
-
 from ceds_jsonld import JSONLDBuilder, ShapeRegistry
 
 
@@ -63,7 +61,5 @@ class TestTypedLiteralNoneHandling:
 
     def test_list_with_nan_filters_nan(self) -> None:
         builder = _get_builder()
-        result = builder._typed_literal(
-            [float("nan"), "hello", float("inf")], "xsd:string"
-        )
+        result = builder._typed_literal([float("nan"), "hello", float("inf")], "xsd:string")
         assert result == [{"@type": "xsd:string", "@value": "hello"}]

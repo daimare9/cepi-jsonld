@@ -10,7 +10,7 @@ from __future__ import annotations
 import pytest
 
 from ceds_jsonld.exceptions import SerializationError
-from ceds_jsonld.serializer import dumps, get_backend
+from ceds_jsonld.serializer import dumps
 
 
 class TestSerializerRejectsNonFiniteFloats:

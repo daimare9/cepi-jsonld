@@ -32,12 +32,7 @@ class TestValidateCountAccuracy:
         pipeline = _make_pipeline([row])
         result = pipeline.validate(mode=ValidationMode.REPORT)
 
-        actual_errors = sum(
-            1
-            for issues in result.issues.values()
-            for i in issues
-            if i.severity == "error"
-        )
+        actual_errors = sum(1 for issues in result.issues.values() for i in issues if i.severity == "error")
         assert actual_errors > 0, "Test expects at least one error"
         assert result.error_count == actual_errors, (
             f"error_count ({result.error_count}) != actual error issues ({actual_errors})"
@@ -56,12 +51,7 @@ class TestValidateCountAccuracy:
         pipeline = _make_pipeline([row])
         result = pipeline.validate(mode=ValidationMode.REPORT)
 
-        actual_warnings = sum(
-            1
-            for issues in result.issues.values()
-            for i in issues
-            if i.severity == "warning"
-        )
+        actual_warnings = sum(1 for issues in result.issues.values() for i in issues if i.severity == "warning")
         assert result.warning_count == actual_warnings, (
             f"warning_count ({result.warning_count}) != actual warning issues ({actual_warnings})"
         )
@@ -89,12 +79,7 @@ class TestValidateCountAccuracy:
         pipeline = _make_pipeline(rows)
         result = pipeline.validate(mode=ValidationMode.REPORT)
 
-        actual_errors = sum(
-            1
-            for issues in result.issues.values()
-            for i in issues
-            if i.severity == "error"
-        )
+        actual_errors = sum(1 for issues in result.issues.values() for i in issues if i.severity == "error")
         assert result.error_count == actual_errors
 
     def test_valid_row_zero_counts(self) -> None:
@@ -127,11 +112,6 @@ class TestValidateCountAccuracy:
         pipeline = _make_pipeline([row])
         result = pipeline.validate(mode=ValidationMode.REPORT)
 
-        actual_errors = sum(
-            1
-            for issues in result.issues.values()
-            for i in issues
-            if i.severity == "error"
-        )
+        actual_errors = sum(1 for issues in result.issues.values() for i in issues if i.severity == "error")
         # The summary must contain the accurate count, not 2x
         assert f"{actual_errors} errors" in result.summary()

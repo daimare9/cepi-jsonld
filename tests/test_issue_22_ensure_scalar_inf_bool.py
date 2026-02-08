@@ -7,8 +7,6 @@ coerced to nonsensical strings like "inf", "True".
 
 from __future__ import annotations
 
-import math
-
 import pytest
 
 from ceds_jsonld import DictAdapter, Pipeline, ShapeRegistry

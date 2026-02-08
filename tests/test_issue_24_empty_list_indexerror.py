@@ -6,10 +6,7 @@ when value is an empty list (len == 0 falls into else, value[0] on []).
 
 from __future__ import annotations
 
-import pytest
-
 from ceds_jsonld import JSONLDBuilder, ShapeRegistry
-from ceds_jsonld.exceptions import BuildError
 
 
 def _get_builder() -> JSONLDBuilder:
