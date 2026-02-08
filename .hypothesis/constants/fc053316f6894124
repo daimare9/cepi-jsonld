@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pyshacl\validator.py
+# hypothesis_version: 6.151.5
+
+['Results ({}):\n', 'abort_on_first', 'advanced', 'allow_infos', 'allow_warnings', 'assets', 'core', 'dash.pickle', 'debug', 'file:', 'focus_nodes', 'frozen', 'functions', 'http:', 'https:', 'inference', 'inplace', 'iterate_rules', 'js', 'logger', 'max_validation_depth', 'none', 'pre_inferenced', 'rules', 'schema.pickle', 'shacl', 'shacl-shacl.pickle', 'shacl.pickle', 'sparql_mode', 'urn:', 'use_js', 'use_shapes']

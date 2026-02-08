@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\openpyxl\chart\series.py
+# hypothesis_version: 6.151.5
+
+['area', 'bar', 'box', 'bubble', 'bubble3D', 'bubbleSize', 'cat', 'cone', 'coneToMax', 'cylinder', 'dLbls', 'dPt', 'errBars', 'explosion', 'idx', 'invertIfNegative', 'line', 'marker', 'order', 'pictureOptions', 'pie', 'pyramid', 'pyramidToMax', 'radar', 'scatter', 'ser', 'shape', 'smooth', 'spPr', 'strRef', 'surface', 'trendline', 'tx', 'v', 'val', 'xVal', 'yVal']

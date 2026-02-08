@@ -1,0 +1,236 @@
+{
+  "@context": "https://cepi-dev.state.mi.us/ontology/context-person.json",
+  "@id": "cepi:person/989897099",
+  "@type": "Person",
+  "hasPersonDemographicRace": [
+    {
+      "@type": "PersonDemographicRace",
+      "hasRaceAndEthnicity": [
+        "RaceAndEthnicity_White",
+        "RaceAndEthnicity_Black"
+      ],
+      "hasRecordStatus": {
+        "@type": "RecordStatus",
+        "RecordStartDateTime": {
+          "@type": "xsd:dateTime",
+          "@value": "1900-01-01T00:00:00"
+        },
+        "RecordEndDateTime": {
+          "@type": "xsd:dateTime",
+          "@value": "9999-12-31T00:00:00"
+        },
+        "CommittedByOrganization": {
+          "@id": "cepi:organization/3000000789"
+        }
+      },
+      "hasDataCollection": {
+        "@id": "http://example.org/dataCollection/45678",
+        "@type": "DataCollection"
+      }
+    },
+    {
+      "@type": "PersonDemographicRace",
+      "hasRaceAndEthnicity": "RaceAndEthnicity_AmericanIndianOrAlaskaNative",
+      "hasRecordStatus": {
+        "@type": "RecordStatus",
+        "RecordStartDateTime": {
+          "@type": "xsd:dateTime",
+          "@value": "1900-01-01T00:00:00"
+        },
+        "RecordEndDateTime": {
+          "@type": "xsd:dateTime",
+          "@value": "9999-12-31T00:00:00"
+        },
+        "CommittedByOrganization": {
+          "@id": "cepi:organization/3000000789"
+        }
+      },
+      "hasDataCollection": {
+        "@id": "http://example.org/dataCollection/45678",
+        "@type": "DataCollection"
+      }
+    }
+  ],
+  "hasPersonIdentification": [
+    {
+      "@type": "PersonIdentification",
+      "hasPersonIdentificationSystem": "PersonIdentificationSystem_SSN",
+      "PersonIdentifier": {
+        "@type": "xsd:token",
+        "@value": "989897099"
+      },
+      "hasPersonIdentifierType": "PersonIdentifierType_PersonIdentifier",
+      "hasRecordStatus": {
+        "@type": "RecordStatus",
+        "RecordStartDateTime": {
+          "@type": "xsd:dateTime",
+          "@value": "1900-01-01T00:00:00"
+        },
+        "RecordEndDateTime": {
+          "@type": "xsd:dateTime",
+          "@value": "9999-12-31T00:00:00"
+        },
+        "CommittedByOrganization": {
+          "@id": "cepi:organization/3000000789"
+        }
+      },
+      "hasDataCollection": {
+        "@id": "http://example.org/dataCollection/45678",
+        "@type": "DataCollection"
+      }
+    },
+    {
+      "@type": "PersonIdentification",
+      "hasPersonIdentificationSystem": "PersonIdentificationSystem_EducatorID",
+      "PersonIdentifier": {
+        "@type": "xsd:token",
+        "@value": "40420"
+      },
+      "hasPersonIdentifierType": "PersonIdentifierType_StaffMemberIdentifier",
+      "hasRecordStatus": {
+        "@type": "RecordStatus",
+        "RecordStartDateTime": {
+          "@type": "xsd:dateTime",
+          "@value": "1900-01-01T00:00:00"
+        },
+        "RecordEndDateTime": {
+          "@type": "xsd:dateTime",
+          "@value": "9999-12-31T00:00:00"
+        },
+        "CommittedByOrganization": {
+          "@id": "cepi:organization/3000000789"
+        }
+      },
+      "hasDataCollection": {
+        "@id": "http://example.org/dataCollection/45678",
+        "@type": "DataCollection"
+      }
+    },
+    {
+      "@type": "PersonIdentification",
+      "hasPersonIdentificationSystem": "PersonIdentificationSystem_State",
+      "PersonIdentifier": {
+        "@type": "xsd:token",
+        "@value": "6202378625"
+      },
+      "hasPersonIdentifierType": "PersonIdentifierType_StudentIdentifier",
+      "hasRecordStatus": {
+        "@type": "RecordStatus",
+        "RecordStartDateTime": {
+          "@type": "xsd:dateTime",
+          "@value": "1900-01-01T00:00:00"
+        },
+        "RecordEndDateTime": {
+          "@type": "xsd:dateTime",
+          "@value": "9999-12-31T00:00:00"
+        },
+        "CommittedByOrganization": {
+          "@id": "cepi:organization/3000000789"
+        }
+      },
+      "hasDataCollection": {
+        "@id": "http://example.org/dataCollection/45678",
+        "@type": "DataCollection"
+      }
+    },
+    {
+      "@type": "PersonIdentification",
+      "hasPersonIdentificationSystem": "PersonIdentificationSystem_SSN",
+      "PersonIdentifier": {
+        "@type": "xsd:token",
+        "@value": "124031"
+      },
+      "hasPersonIdentifierType": "PersonIdentifierType_StaffMemberIdentifier",
+      "hasRecordStatus": {
+        "@type": "RecordStatus",
+        "RecordStartDateTime": {
+          "@type": "xsd:dateTime",
+          "@value": "1900-01-01T00:00:00"
+        },
+        "RecordEndDateTime": {
+          "@type": "xsd:dateTime",
+          "@value": "9999-12-31T00:00:00"
+        },
+        "CommittedByOrganization": {
+          "@id": "cepi:organization/3000000789"
+        }
+      },
+      "hasDataCollection": {
+        "@id": "http://example.org/dataCollection/45678",
+        "@type": "DataCollection"
+      }
+    }
+  ],
+  "hasPersonBirth": {
+    "@type": "PersonBirth",
+    "Birthdate": {
+      "@type": "xsd:date",
+      "@value": "1965-05-15"
+    },
+    "hasRecordStatus": {
+      "@type": "RecordStatus",
+      "RecordStartDateTime": {
+        "@type": "xsd:dateTime",
+        "@value": "1900-01-01T00:00:00"
+      },
+      "RecordEndDateTime": {
+        "@type": "xsd:dateTime",
+        "@value": "9999-12-31T00:00:00"
+      },
+      "CommittedByOrganization": {
+        "@id": "cepi:organization/3000000789"
+      }
+    },
+    "hasDataCollection": {
+      "@id": "http://example.org/dataCollection/45678",
+      "@type": "DataCollection"
+    }
+  },
+  "hasPersonName": {
+    "@type": "PersonName",
+    "FirstName": "EDITH",
+    "GenerationCodeOrSuffix": "III",
+    "LastOrSurname": "ADAMS",
+    "MiddleName": "M",
+    "hasRecordStatus": {
+      "@type": "RecordStatus",
+      "RecordStartDateTime": {
+        "@type": "xsd:dateTime",
+        "@value": "1900-01-01T00:00:00"
+      },
+      "RecordEndDateTime": {
+        "@type": "xsd:dateTime",
+        "@value": "9999-12-31T00:00:00"
+      },
+      "CommittedByOrganization": {
+        "@id": "cepi:organization/3000000789"
+      }
+    },
+    "hasDataCollection": {
+      "@id": "http://example.org/dataCollection/45678",
+      "@type": "DataCollection"
+    }
+  },
+  "hasPersonSexGender": {
+    "@type": "PersonSexGender",
+    "hasSex": "Sex_Female",
+    "hasRecordStatus": {
+      "@type": "RecordStatus",
+      "RecordStartDateTime": {
+        "@type": "xsd:dateTime",
+        "@value": "1900-01-01T00:00:00"
+      },
+      "RecordEndDateTime": {
+        "@type": "xsd:dateTime",
+        "@value": "9999-12-31T00:00:00"
+      },
+      "CommittedByOrganization": {
+        "@id": "cepi:organization/3000000789"
+      }
+    },
+    "hasDataCollection": {
+      "@id": "http://example.org/dataCollection/45678",
+      "@type": "DataCollection"
+    }
+  }
+}

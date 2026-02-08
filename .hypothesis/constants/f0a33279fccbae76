@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pandas\compat\_constants.py
+# hypothesis_version: 6.151.5
+
+['HOST_GNU_TYPE', 'IS64', 'ISMUSL', 'PY312', 'PY314', 'PYPY', 'PyPy', 'WASM', 'emscripten', 'musl', 'wasm32', 'wasm64']

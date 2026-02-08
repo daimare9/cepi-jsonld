@@ -1,0 +1,4 @@
+# file: C:\Github\CEDS-JSONLD-Generator\src\ceds_jsonld\cosmos\loader.py
+# hypothesis_version: 6.151.5
+
+[0.0, '/"@type"/?', '/*', '/id/?', '/partitionKey', '/partitionKey/?', 'CosmosLoader', 'automatic', 'consistent', 'cosmos.bulk_complete', 'cosmos.upsert_failed', 'cosmos.upserted', 'error', 'excludedPaths', 'get_response_headers', 'id', 'includedPaths', 'indexingMode', 'partitionKey', 'path', 'success', 'unknown', 'x-ms-request-charge']

@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pandas\core\internals\blocks.py
+# hypothesis_version: 6.151.5
+
+[' x ', 'DataFrame', 'Mm', 'O', 'Series', 'asfreq', 'backward', 'both', 'fciub', 'forward', 'inplace', 'inside', 'iub', 'limit', 'limit must be None', 'limit_area', 'linear', 'method', 'nan', 'need to split', 'numpy_nullable', 'object', 'outside', 'raise', 'string']

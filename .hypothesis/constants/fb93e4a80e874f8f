@@ -1,0 +1,4 @@
+# file: C:\Github\CEDS-JSONLD-Generator\src\ceds_jsonld\adapters\__init__.py
+# hypothesis_version: 6.151.5
+
+['APIAdapter', 'CSVAdapter', 'DatabaseAdapter', 'DictAdapter', 'ExcelAdapter', 'NDJSONAdapter', 'SourceAdapter']

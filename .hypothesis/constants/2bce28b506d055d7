@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\html5rdf\serializer.py
+# hypothesis_version: 6.151.5
+
+[' %s%s%s', ' /', ' PUBLIC "%s"', ' SYSTEM', '"', '"\'=<>`', '&', '&#39;', '&#x%s;', '&%s;', '&amp;', '&lt;', '&quot;', "'", '--', '/', ';', '<', '<!--%s-->', '<!DOCTYPE %s', '<%s', '</', '</%s>', '=', '>', 'Characters', 'Comment', 'Comment contains --', 'Doctype', 'EmptyTag', 'EndTag', 'Entity', 'SpaceCharacters', 'StartTag', '[', ']', 'always', 'data', 'escape_lt_in_attrs', 'escape_rcdata', 'etree', 'htmlentityreplace', 'inject_meta_charset', 'legacy', 'name', 'omit_optional_tags', 'publicId', 'quote_attr_values', 'quote_char', 'resolve_entities', 'spec', 'strict', 'strip_whitespace', 'systemId', 'type', 'use_best_quote_char', 'use_trailing_solidus', '\U0010ffff']

@@ -1,0 +1,4 @@
+# file: C:\Github\CEDS-JSONLD-Generator\src\ceds_jsonld\mapping.py
+# hypothesis_version: 6.151.5
+
+['FieldMapper', '__id__', 'cardinality', 'fields', 'id_source', 'id_transform', 'multi_value_split', 'multiple', 'optional', 'properties', 'single', 'source', 'split_on', 'target', 'transform', '|']

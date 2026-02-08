@@ -1,0 +1,4 @@
+# file: C:\Github\CEDS-JSONLD-Generator\src\ceds_jsonld\registry.py
+# hypothesis_version: 6.151.5
+
+['*.csv', '*SHACL*.ttl', '*context*.json', '*example*.json', '*mapping*.yaml', '.cache', 'Downloading %s → %s', 'JSON-LD context', 'SHACL Turtle', 'base', 'mapping YAML', 'ontologies', 'utf-8']

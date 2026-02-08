@@ -1,0 +1,4 @@
+# file: C:\Github\CEDS-JSONLD-Generator\src\ceds_jsonld\serializer.py
+# hypothesis_version: 6.151.5
+
+['json', 'orjson', 'utf-8']

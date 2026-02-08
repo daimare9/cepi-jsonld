@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\openpyxl\styles\styleable.py
+# hypothesis_version: 6.151.5
+
+['General', '_alignments', '_borders', '_fills', '_fonts', '_named_styles', '_number_formats', '_protections', '_style', 'alignmentId', 'borderId', 'fillId', 'fontId', 'numFmtId', 'parent', 'pivotButton', 'protectionId', 'quotePrefix', 'xfId']

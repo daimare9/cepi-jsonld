@@ -1,0 +1,4 @@
+# file: C:\Github\CEDS-JSONLD-Generator\src\ceds_jsonld\builder.py
+# hypothesis_version: 6.151.5
+
+['@context', '@id', '@type', '@value', 'DataCollection', 'RecordStatus', '__id__', 'builder.initialized', 'context_url', 'datatype', 'fields', 'hasDataCollection', 'hasRecordStatus', 'properties', 'target', 'type', 'value', 'value_id']

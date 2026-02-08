@@ -1,0 +1,77 @@
+@prefix ceds: <http://ceds.ed.gov/terms#> .
+@prefix cepi: <http://cepi-dev.state.mi.us/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+ceds:P001917 schema:domainIncludes ceds:C200411 .
+
+ceds:P001918 schema:domainIncludes ceds:C200411 .
+
+cepi:NI000603100001 a ceds:C000603,
+        owl:NamedIndividual,
+        skos:Concept ;
+    rdfs:label "Count Day" ;
+    dc:creator "Center for Educational Performance and Information" ;
+    dc:description "The official day when data is scheduled to be counted; the data is counted as of this day." ;
+    dc:identifier "cepi:NI000603100001" ;
+    skos:definition "The official day when data is scheduled to be counted; the data is counted as of this day." ;
+    skos:inScheme ceds:C000603 ;
+    skos:notation "CountDay" ;
+    skos:prefLabel "Count Day" .
+
+cepi:NI001301000001 a ceds:C002175,
+        owl:NamedIndividual,
+        skos:Concept ;
+    rdfs:label "Developmental Kindergarten" ;
+    dc:creator "Center for Educational Performance and Information" ;
+    dc:description "Developmental Kindergarten is a grade offered by the education institution.  It is the first year of a defined two-year kindergarten program that precedes entry into first grade." ;
+    dc:identifier "cepi:NI001301000001" ;
+    skos:definition "Developmental Kindergarten is a grade offered by the education institution.  It is the first year of a defined two-year kindergarten program that precedes entry into first grade." ;
+    skos:inScheme ceds:C002175 ;
+    skos:notation "DK" ;
+    skos:prefLabel "Developmental Kindergarten" .
+
+cepi:P000001 a rdf:Property ;
+    rdfs:label "Data Corrections End Date " ;
+    dc:creator "Center for Educational Performance and Information" ;
+    dc:description "The latest date (YYYY-MM-DD) that data  were allowed to be corrected." ;
+    dc:identifier "cepi:P000001" ;
+    rdfs:comment "The latest date (YYYY-MM-DD) that data  were allowed to be corrected." ;
+    skos:notation "DataCorrectionsEndDate" ;
+    skos:prefLabel "Data Corrections End Date " ;
+    schema:domainIncludes ceds:C200410 .
+
+cepi:P000006 a rdf:Property ;
+    rdfs:label "Data Collection Certification Open Date" ;
+    dc:creator "Center for Educational Performance and Information" ;
+    dc:description "The date and time the window for certifying a data collection opens or commences." ;
+    dc:identifier "cepi:P000006" ;
+    rdfs:comment "The date and time the window for certifying a data collection opens or commences." ;
+    skos:notation "DataCollectionCertificationOpenDate" ;
+    skos:prefLabel "Data Collection Certification Open Date" ;
+    schema:domainIncludes ceds:C200410 .
+
+cepi:P000007 a rdf:Property ;
+    rdfs:label "Data Collection Certification Close Date" ;
+    dc:creator "Center for Educational Performance and Information" ;
+    dc:description "The date and time the window for certifying a data collection closes or ends." ;
+    dc:identifier "cepi:P000007" ;
+    rdfs:comment "The date and time the window for certifying a data collection closes or ends." ;
+    skos:notation "DataCollectionCertificationCloseDate" ;
+    skos:prefLabel "Data Collection Certification Close Date" ;
+    schema:domainIncludes ceds:C200410 .
+
+cepi:P200072 a rdf:Property ;
+    rdfs:label "Grade Level Range Title" ;
+    dc:creator "Center for Educational Performance and Information" ;
+    dc:description "The title or name given to refer to a specific grade and/or grade range." ;
+    dc:identifier "cepi:P200072" ;
+    rdfs:comment "The title or name given to refer to a specific grade and/or grade range." ;
+    skos:notation "GradeLevelRangeTitle" ;
+    skos:prefLabel "Grade Level Range Title" ;
+    schema:domainIncludes ceds:C200418 .
+

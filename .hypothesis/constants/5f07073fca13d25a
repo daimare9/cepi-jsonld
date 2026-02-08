@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pyshacl\constraints\core\value_range_constraints.py
+# hypothesis_version: 6.151.5
+
+[', ', 'Value is not < {}', 'Value is not <= {}', 'Value is not > {}', 'Value is not >= {}']

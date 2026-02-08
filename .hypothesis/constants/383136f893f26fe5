@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pandas\_config\__init__.py
+# hypothesis_version: 6.151.5
+
+['config', 'describe_option', 'future', 'get_option', 'infer_string', 'option_context', 'options', 'python_scalars', 'reset_option', 'set_option']

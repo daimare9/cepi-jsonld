@@ -1,0 +1,206 @@
+"""JSON-LD builder — construct JSON-LD documents from mapped data.
+
+Uses direct dict construction (161x faster than rdflib+PyLD, proven in benchmarks).
+Driven by mapping configs and shape definitions, not hand-coded per shape.
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+from ceds_jsonld.exceptions import BuildError
+from ceds_jsonld.logging import get_logger
+from ceds_jsonld.registry import ShapeDefinition
+from ceds_jsonld.sanitize import sanitize_iri_component
+
+_log = get_logger(__name__)
+
+
+class JSONLDBuilder:
+    """Build JSON-LD documents from mapped data rows.
+
+    Example:
+        >>> builder = JSONLDBuilder(person_shape_def)
+        >>> doc = builder.build_one(mapped_row)
+        >>> doc["@type"]
+        'Person'
+        >>> len(builder.build_many([row1, row2, row3]))
+        3
+    """
+
+    def __init__(self, shape_def: ShapeDefinition) -> None:
+        """Initialize the builder with a shape definition.
+
+        Args:
+            shape_def: A loaded ShapeDefinition from the registry.
+        """
+        self._shape = shape_def
+        self._config = shape_def.mapping_config
+
+        # Pre-build static sub-shapes for performance
+        self._record_status_template: dict[str, Any] | None = None
+        self._data_collection_template: dict[str, Any] | None = None
+        self._init_templates()
+        _log.debug("builder.initialized", shape=shape_def.name)
+
+    def build_one(self, mapped_row: dict[str, Any]) -> dict[str, Any]:
+        """Build a single JSON-LD document from a mapped data row.
+
+        Args:
+            mapped_row: Output of FieldMapper.map() — structured dict with
+                ``"__id__"`` and property-name keys.
+
+        Returns:
+            A complete JSON-LD document as a plain Python dict.
+
+        Raises:
+            BuildError: If the document cannot be constructed.
+        """
+        doc_id = mapped_row.get("__id__")
+        if not doc_id:
+            msg = "Mapped row is missing '__id__' — was FieldMapper.map() used?"
+            raise BuildError(msg)
+
+        # Sanitize the ID component to prevent IRI injection
+        safe_id = sanitize_iri_component(str(doc_id))
+
+        doc: dict[str, Any] = {
+            "@context": self._config.get("context_url", ""),
+            "@id": f"{self._config['base_uri']}{safe_id}",
+            "@type": self._config["type"],
+        }
+
+        for prop_name, prop_def in self._config.get("properties", {}).items():
+            instances = mapped_row.get(prop_name)
+            if not instances:
+                continue
+
+            nodes = self._build_sub_nodes(instances, prop_def)
+            # Single instance → unwrap from array
+            doc[prop_name] = nodes if len(nodes) > 1 else nodes[0]
+
+        return doc
+
+    def build_many(self, mapped_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """Build JSON-LD documents for a batch of mapped rows.
+
+        Args:
+            mapped_rows: List of mapped data dicts.
+
+        Returns:
+            List of JSON-LD documents.
+        """
+        return [self.build_one(row) for row in mapped_rows]
+
+    # ------------------------------------------------------------------
+    # Internal
+    # ------------------------------------------------------------------
+
+    def _init_templates(self) -> None:
+        """Pre-build record status and data collection templates."""
+        rs_defaults = self._config.get("record_status_defaults")
+        if rs_defaults:
+            self._record_status_template = self._build_record_status_template(rs_defaults)
+
+        dc_defaults = self._config.get("data_collection_defaults")
+        if dc_defaults:
+            self._data_collection_template = self._build_data_collection_template(dc_defaults)
+
+    def _build_sub_nodes(
+        self,
+        instances: list[dict[str, Any]],
+        prop_def: dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        """Build typed sub-shape nodes from mapped instances."""
+        nodes: list[dict[str, Any]] = []
+
+        for instance in instances:
+            node: dict[str, Any] = {"@type": prop_def["type"]}
+
+            # Add mapped fields with optional typed literals
+            for _field_key, field_def in prop_def.get("fields", {}).items():
+                target = field_def.get("target", _field_key)
+                if target not in instance:
+                    continue
+
+                value = instance[target]
+                datatype = field_def.get("datatype")
+
+                if datatype:
+                    node[target] = self._typed_literal(value, datatype)
+                else:
+                    # Plain value — unwrap single-element lists
+                    if isinstance(value, list):
+                        node[target] = value if len(value) > 1 else value[0]
+                    else:
+                        node[target] = value
+
+            # Inject record status
+            if prop_def.get("include_record_status") and self._record_status_template:
+                node["hasRecordStatus"] = self._copy_template(self._record_status_template)
+
+            # Inject data collection
+            if prop_def.get("include_data_collection") and self._data_collection_template:
+                node["hasDataCollection"] = self._copy_template(self._data_collection_template)
+
+            nodes.append(node)
+
+        return nodes
+
+    @staticmethod
+    def _typed_literal(value: Any, datatype: str) -> dict[str, str] | list[dict[str, str]]:
+        """Wrap a value as a JSON-LD typed literal.
+
+        Args:
+            value: The value or list of values.
+            datatype: The XSD datatype (e.g. "xsd:date").
+
+        Returns:
+            ``{"@type": datatype, "@value": value}`` or a list of such dicts.
+        """
+        if isinstance(value, list):
+            return [{"@type": datatype, "@value": str(v)} for v in value]
+        return {"@type": datatype, "@value": str(value)}
+
+    @staticmethod
+    def _build_record_status_template(defaults: dict[str, Any]) -> dict[str, Any]:
+        """Build a record status dict from defaults config."""
+        node: dict[str, Any] = {"@type": defaults.get("type", "RecordStatus")}
+
+        for key, val_def in defaults.items():
+            if key == "type":
+                continue
+            if isinstance(val_def, dict):
+                if "value_id" in val_def:
+                    node[key] = {"@id": val_def["value_id"]}
+                elif "value" in val_def:
+                    datatype = val_def.get("datatype")
+                    if datatype:
+                        node[key] = {"@type": datatype, "@value": val_def["value"]}
+                    else:
+                        node[key] = val_def["value"]
+
+        return node
+
+    @staticmethod
+    def _build_data_collection_template(defaults: dict[str, Any]) -> dict[str, Any]:
+        """Build a data collection dict from defaults config."""
+        node: dict[str, Any] = {}
+        if "value_id" in defaults:
+            node["@id"] = defaults["value_id"]
+        node["@type"] = defaults.get("type", "DataCollection")
+        return node
+
+    @staticmethod
+    def _copy_template(template: dict[str, Any]) -> dict[str, Any]:
+        """Shallow-copy a template dict (one level of nesting).
+
+        Faster than copy.deepcopy for our fixed-structure templates.
+        """
+        result: dict[str, Any] = {}
+        for k, v in template.items():
+            if isinstance(v, dict):
+                result[k] = dict(v)
+            else:
+                result[k] = v
+        return result

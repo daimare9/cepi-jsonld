@@ -1,0 +1,244 @@
+{
+    "@context": "https://cepi-dev.state.mi.us/ontology/context-person.json",
+    "@type": "Person",
+    "@id": "http://cepi-dev.state.mi.us/person/38330",
+
+    "hasPersonDemographicRace": [
+        {
+            "@type": "PersonDemographicRace", 
+            "hasRaceAndEthnicity": [
+                "RaceAndEthnicity_Asian",
+                "RaceAndEthnicity_HispanicOrLatinoEthnicity"
+            ],
+            "hasRecordStatus": {
+                "@type": "RecordStatus",
+                "CommittedByOrganization": { "@id": "http://cepi-dev.state.mi.us/organization/1000000001" },
+                "RecordStartDateTime": {
+                    "@value": "2002-06-24T15:33:00.403",
+                    "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+                },
+                "RecordEndDateTime": {
+                    "@value": "9999-12-31T00:00:00.000",
+                    "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+                }
+            },
+            "hasDataCollection": {
+                "@id": "http://example.org/dataCollection/45678",
+                "@type": "DataCollection"
+            }
+        },
+        {
+            "@type": "PersonDemographicRace", 
+            "hasRaceAndEthnicity": [
+                "RaceAndEthnicity_White",
+                "RaceAndEthnicity_BlackOrAfricanAmerican"
+            ],
+            "hasRecordStatus": {
+                "@type": "RecordStatus",
+                "CommittedByOrganization": { "@id": "http://cepi-dev.state.mi.us/organization/2000000045" },
+                "RecordStartDateTime": {
+                    "@value": "2002-06-24T15:33:00.403",
+                    "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+                },
+                "RecordEndDateTime": {
+                    "@value": "9999-12-31T00:00:00.000",
+                    "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+                }
+            },
+            "hasDataCollection": {
+                "@id": "http://example.org/dataCollection/45678",
+                "@type": "DataCollection"
+            }
+        },
+        {
+            "@type": "PersonDemographicRace", 
+            "hasRaceAndEthnicity": [
+                "RaceAndEthnicity_AmericanIndianOrAlaskaNative"
+            ],
+            "hasRecordStatus": {
+                "@type": "RecordStatus",
+                "CommittedByOrganization": { "@id": "http://cepi-dev.state.mi.us/organization/3000000789" },
+                "RecordStartDateTime": {
+                    "@value": "2002-06-24T15:33:00.403",
+                    "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+                },
+                "RecordEndDateTime": {
+                    "@value": "9999-12-31T00:00:00.000",
+                    "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+                }
+            },
+            "hasDataCollection": {
+                "@id": "http://example.org/dataCollection/45678",
+                "@type": "DataCollection"
+            }
+        }
+    ],
+    "hasPersonIdentification": [
+        {
+            "@type": "PersonIdentification",
+            "PersonIdentifier": {
+                "@value": "989897099",
+                "@type": "http://www.w3.org/2001/XMLSchema#token"
+            },
+            "hasPersonIdentificationSystem": "PersonIdentificationSystem_SSN",
+            "hasPersonIdentifierType": "PersonIdentifierType_PersonIdentifier",
+            "hasRecordStatus": {
+                "@type": "RecordStatus",
+                "CommittedByOrganization": { "@id": "http://cepi-dev.state.mi.us/organization/3000000789" },
+                "RecordStartDateTime": {
+                    "@value": "2002-06-24T15:33:00.403",
+                    "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+                },
+                "RecordEndDateTime": {
+                    "@value": "9999-12-31T00:00:00.000",
+                    "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+                }
+            },
+            "hasDataCollection": {
+                "@id": "http://example.org/dataCollection/45678",
+                "@type": "DataCollection"
+            }
+        },
+        {
+            "@type": "PersonIdentification",
+            "PersonIdentifier": {
+                "@value": "40420",
+                "@type": "http://www.w3.org/2001/XMLSchema#token"
+            },
+            "hasPersonIdentificationSystem": "PersonIdentificationSystem_EducatorID",
+            "hasPersonIdentifierType": "PersonIdentifierType_StaffMemberIdentifier",
+            "hasRecordStatus": {
+                "@type": "RecordStatus",
+                "CommittedByOrganization": { "@id": "http://cepi-dev.state.mi.us/organization/3000000789" },
+                "RecordStartDateTime": {
+                    "@value": "2002-06-24T15:33:00.403",
+                    "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+                },
+                "RecordEndDateTime": {
+                    "@value": "9999-12-31T00:00:00.000",
+                    "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+                }
+            },
+            "hasDataCollection": {
+                "@id": "http://example.org/dataCollection/45678",
+                "@type": "DataCollection"
+            }
+        },
+        {
+            "@type": "PersonIdentification",
+            "PersonIdentifier": {
+                "@value": "6202378625",
+                "@type": "http://www.w3.org/2001/XMLSchema#token"
+            },
+            "hasPersonIdentificationSystem": "PersonIdentificationSystem_State",
+            "hasPersonIdentifierType": "PersonIdentifierType_StudentIdentifier",
+            "hasRecordStatus": {
+                "@type": "RecordStatus",
+                "CommittedByOrganization": { "@id": "http://cepi-dev.state.mi.us/organization/3000000789" },
+                "RecordStartDateTime": {
+                    "@value": "1900-01-01T00:00:00.000",
+                    "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+                },
+                "RecordEndDateTime": {
+                    "@value": "9999-12-31T00:00:00.000",
+                    "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+                }
+            },
+            "hasDataCollection": {
+                "@id": "http://example.org/dataCollection/45678",
+                "@type": "DataCollection"
+            }
+        },
+        {
+            "@type": "PersonIdentification",
+            "PersonIdentifier": {
+                "@value": "124031",
+                "@type": "http://www.w3.org/2001/XMLSchema#token"
+            },
+            "hasPersonIdentificationSystem": "PersonIdentificationSystem_SSN",
+            "hasPersonIdentifierType": "PersonIdentifierType_StaffMemberIdentifier",
+            "hasRecordStatus": {
+                "@type": "RecordStatus",
+                "CommittedByOrganization": { "@id": "http://cepi-dev.state.mi.us/organization/3000000789" },
+                "RecordStartDateTime": {
+                    "@value": "1900-01-01T00:00:00.000",
+                    "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+                },
+                "RecordEndDateTime": {
+                    "@value": "9999-12-31T00:00:00.000",
+                    "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+                }
+            },
+            "hasDataCollection": {
+                "@id": "http://example.org/dataCollection/45678",
+                "@type": "DataCollection"
+            }
+        }
+    ],
+    "hasPersonBirth": {
+        "@type": "PersonBirth",
+        "Birthdate": {
+            "@value": "1965-05-15",
+            "@type": "http://www.w3.org/2001/XMLSchema#date"
+        },
+        "hasRecordStatus": {
+            "@type": "RecordStatus",
+            "CommittedByOrganization": { "@id": "http://cepi-dev.state.mi.us/organization/3000000789" },
+            "RecordStartDateTime": {
+                "@value": "1900-01-01T00:00:00.000",
+                "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+                },
+            "RecordEndDateTime": {
+                "@value": "9999-12-31T00:00:00.000",
+                "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+            }
+        },
+        "hasDataCollection": {
+            "@id": "http://example.org/dataCollection/45678",
+            "@type": "DataCollection"
+        }
+    },
+    "hasPersonName": {
+        "@type": "PersonName",
+        "FirstName": "EDITH",
+        "LastOrSurname": "ADAMS",
+        "MiddleName": "M",
+        "GenerationCodeOrSuffix": "III",
+        "hasRecordStatus": {
+            "@type": "RecordStatus",
+            "CommittedByOrganization": { "@id": "http://cepi-dev.state.mi.us/organization/3000000789" },
+            "RecordStartDateTime": {
+                "@value": "1900-01-01T00:00:00.000",
+                "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+                },
+            "RecordEndDateTime": {
+                "@value": "9999-12-31T00:00:00.000",
+                "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+            }
+        },
+        "hasDataCollection": {
+            "@id": "http://example.org/dataCollection/45678",
+            "@type": "DataCollection"
+        }
+    },
+    "hasPersonSexGender": {
+        "@type": "PersonSexGender",
+        "hasSex": "Sex_Female",
+        "hasRecordStatus": {
+            "@type": "RecordStatus",
+            "CommittedByOrganization": { "@id": "http://cepi-dev.state.mi.us/organization/3000000789" },
+            "RecordStartDateTime": {
+                "@value": "1900-01-01T00:00:00.000",
+                "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+                },
+            "RecordEndDateTime": {
+                "@value": "9999-12-31T00:00:00.000",
+                "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+            }
+        },
+        "hasDataCollection": {
+            "@id": "http://example.org/dataCollection/45678",
+            "@type": "DataCollection"
+        }
+    }
+}

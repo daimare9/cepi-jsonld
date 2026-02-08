@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pandas\core\col.py
+# hypothesis_version: 6.151.5
+
+['!=', '%', '&', '(', ')', '*', '+', ', ', '-', '...]', '/', '//', '<', '<=', '==', '>', '>=', 'Expr(...)', 'Expression', '^', '__add__', '__and__', '__eq__', '__floordiv__', '__ge__', '__getitem__', '__gt__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__or__', '__radd__', '__rand__', '__rfloordiv__', '__rmod__', '__rmul__', '__ror__', '__rsub__', '__rtruediv__', '__rxor__', '__sub__', '__truediv__', '__xor__', 'col', 'pandas', 'pandas.api.typing', '|']

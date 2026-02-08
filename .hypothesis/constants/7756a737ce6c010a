@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\openpyxl\chart\marker.py
+# hypothesis_version: 6.151.5
+
+['auto', 'bubble3D', 'circle', 'dPt', 'dash', 'diamond', 'dot', 'explosion', 'idx', 'invertIfNegative', 'marker', 'picture', 'pictureOptions', 'plus', 'size', 'spPr', 'square', 'star', 'symbol', 'triangle', 'x']

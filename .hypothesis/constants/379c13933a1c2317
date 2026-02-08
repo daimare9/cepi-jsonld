@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pyshacl\run_type.py
+# hypothesis_version: 6.151.5
+
+['GraphLike', 'URIRef', 'all', 'both', 'owlrl', 'rdfs', 'rdfsowlrl']

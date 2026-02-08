@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\openpyxl\chart\picture.py
+# hypothesis_version: 6.151.5
+
+['applyToEnd', 'applyToFront', 'applyToSides', 'pictureFormat', 'pictureOptions', 'pictureStackUnit', 'stack', 'stackScale', 'stretch']

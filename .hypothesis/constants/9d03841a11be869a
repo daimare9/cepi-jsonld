@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pyshacl\consts.py
+# hypothesis_version: 6.151.5
+
+['1', 'T', 'TRUE', 'True', 'Y', 'YES', 't', 'true', 'y', 'yes']

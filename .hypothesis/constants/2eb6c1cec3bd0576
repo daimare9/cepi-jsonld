@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pyshacl\shape.py
+# hypothesis_version: 6.151.5
+
+[0.0, ' -> ', '$implicitClass', '$targetClass', '$targetObjectsOf', '$targetSubjectsOf', ',', '0.0', '<Shape p={} node={}>', '<{} {}>', 'CONSTRAINT_PARAMS', 'ConstraintComponent', 'False', 'JSTarget', 'NodeShape', 'PropertyShape', 'ShapesGraph', 'True', 'UNDEF', '_advanced', '_deactivated', '_descriptions', '_messages', '_names', '_p', '_path', '_severity', 'implicitClass', 'logger', 'node', 'qh', 'qt', 'sg', 'targetClass', 'targetObjectsOf', 'targetSubjectsOf', 'targeter', 'this', 'type', '{VALUES_CLAUSE}', '}']

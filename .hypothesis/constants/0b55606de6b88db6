@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\util\compat.py
+# hypothesis_version: 6.151.5
+
+[' -> ', '(', ')', '*', '**', ', ', '.', ': ', '=', 'CPython', 'PyPy', 'Py_GIL_DISABLED', '_T_co', '__module__', 'aarch', 'ascii', 'backslashreplace', 'beta', 'builtins', 'darwin', 'latin-1', 'return', 'select', 'typing', 'typing.', 'win', '~']

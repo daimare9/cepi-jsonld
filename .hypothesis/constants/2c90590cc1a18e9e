@@ -1,0 +1,4 @@
+# file: C:\Github\CEDS-JSONLD-Generator\src\ceds_jsonld\adapters\api_adapter.py
+# hypothesis_version: 6.151.5
+
+[30.0, 100, ',', '<', '>', 'GET', 'cursor', 'limit', 'link', 'next_cursor', 'none', 'offset', 'rel="next"', "rel='next'"]

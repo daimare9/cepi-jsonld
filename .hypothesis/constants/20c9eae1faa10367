@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\rdflib\parser.py
+# hypothesis_version: 6.151.5
+
+[',', ', ', '-', '/', ';', '<>', 'Accept', 'FileInputSource', 'InputSource', 'Link', 'Parser', 'PythonInputSource', 'StringInputSource', 'URLInputSource', 'User-agent', '_', '_bytes_per_char', '_fileno', '_isatty', '_leftover', '_name', '_text_bytes_offset', 'application/ld+json', 'ascii', 'close', 'content-type', 'cp65001', 'enc_str', 'encoder', 'encoding', 'file:///', 'file:///dev/stdin', 'has_read1', 'has_seek', 'iso-8859-1', 'iso8859-1', 'json-ld', 'latin-1', 'latin1', 'n3', 'name', 'nt', 'rb', 'read', 'read1', 'rel="alternate"', 'seek', 'stream', 'string', 'text/n3, */*;q=0.1', 'text_str', 'trig', 'trix', 'ttl', 'turtle', 'u8', 'us-ascii', 'utf-16', 'utf-32', 'utf-8', 'utf16', 'utf32', 'utf8', 'wrapped', 'xml']

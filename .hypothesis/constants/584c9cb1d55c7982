@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\openpyxl\styles\fonts.py
+# hypothesis_version: 6.151.5
+
+['Calibri', 'b', 'baseline', 'charset', 'color', 'condense', 'double', 'doubleAccounting', 'extend', 'family', 'font', 'i', 'major', 'minor', 'name', 'outline', 'scheme', 'shadow', 'single', 'singleAccounting', 'strike', 'subscript', 'superscript', 'sz', 'u', 'val', 'vertAlign', '{%s}u']

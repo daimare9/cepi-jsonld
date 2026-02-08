@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\openpyxl\styles\numbers.py
+# hypothesis_version: 6.151.5
+
+[164, '"$"#,##0.00_-', '".*?"', '# ?/?', '# ??/??', '##0.0E+0', '#,##0', '#,##0.00', '#,##0.00_-', '#,##0_);(#,##0)', '#,##0_);[Red](#,##0)', '$#,##0_-', '0', '0%', '0.00', '0.00%', '0.00E+00', ';', '@', 'General', '[$EUR ]#,##0.00_-', '[h]:mm:ss', '[hh]:mm:ss', 'count', 'd-m', 'd-m-y', 'd-mmm', 'd-mmm-yy', 'd/m/y', 'date', 'datetime', 'dd/mm/yy', 'dy', 'h:mm', 'h:mm AM/PM', 'h:mm:ss', 'h:mm:ss AM/PM', 'h:mm:ss@', 'hs', 'i:s.S', 'm-y', 'm/d/yy h:mm', 'mm-dd-yy', 'mm:ss', 'mmm-yy', 'mmss.0', 'numFmt', 'time', 'yy-mm-dd', 'yy/mm/dd@', 'yyyy-mm-dd', 'yyyy-mm-dd h:mm:ss']

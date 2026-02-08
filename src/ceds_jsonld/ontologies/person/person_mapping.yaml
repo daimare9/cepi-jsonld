@@ -1,0 +1,106 @@
+# Person Shape — Declarative Field Mapping Configuration
+# Drives FieldMapper + JSONLDBuilder to produce JSON-LD from source data
+# See .github/instructions/yaml-mapping.instructions.md for schema docs
+
+shape: PersonShape
+context_url: "https://cepi-dev.state.mi.us/ontology/context-person.json"
+context_file: person_context.json
+base_uri: "cepi:person/"
+id_source: PersonIdentifiers
+id_transform: first_pipe_split
+
+type: Person
+
+properties:
+  hasPersonDemographicRace:
+    type: PersonDemographicRace
+    cardinality: multiple
+    split_on: "|"
+    include_record_status: true
+    include_data_collection: true
+    fields:
+      hasRaceAndEthnicity:
+        source: RaceEthnicity
+        target: hasRaceAndEthnicity
+        transform: race_prefix
+        multi_value_split: ","
+        optional: true
+
+  hasPersonIdentification:
+    type: PersonIdentification
+    cardinality: multiple
+    split_on: "|"
+    include_record_status: true
+    include_data_collection: true
+    fields:
+      PersonIdentifier:
+        source: PersonIdentifiers
+        target: PersonIdentifier
+        datatype: "xsd:token"
+        transform: int_clean
+      hasPersonIdentificationSystem:
+        source: IdentificationSystems
+        target: hasPersonIdentificationSystem
+        optional: true
+      hasPersonIdentifierType:
+        source: PersonIdentifierTypes
+        target: hasPersonIdentifierType
+        optional: true
+
+  hasPersonBirth:
+    type: PersonBirth
+    cardinality: single
+    include_record_status: true
+    include_data_collection: true
+    fields:
+      Birthdate:
+        source: Birthdate
+        target: Birthdate
+        datatype: "xsd:date"
+
+  hasPersonName:
+    type: PersonName
+    cardinality: single
+    include_record_status: true
+    include_data_collection: true
+    fields:
+      FirstName:
+        source: FirstName
+        target: FirstName
+      MiddleName:
+        source: MiddleName
+        target: MiddleName
+        optional: true
+      LastOrSurname:
+        source: LastName
+        target: LastOrSurname
+      GenerationCodeOrSuffix:
+        source: GenerationCodeOrSuffix
+        target: GenerationCodeOrSuffix
+        optional: true
+
+  hasPersonSexGender:
+    type: PersonSexGender
+    cardinality: single
+    include_record_status: true
+    include_data_collection: true
+    fields:
+      hasSex:
+        source: Sex
+        target: hasSex
+        transform: sex_prefix
+
+record_status_defaults:
+  type: RecordStatus
+  RecordStartDateTime:
+    value: "1900-01-01T00:00:00"
+    datatype: "xsd:dateTime"
+  RecordEndDateTime:
+    value: "9999-12-31T00:00:00"
+    datatype: "xsd:dateTime"
+  CommittedByOrganization:
+    value_id: "cepi:organization/3000000789"
+
+data_collection_defaults:
+  type: DataCollection
+  value_id: "http://example.org/dataCollection/45678"

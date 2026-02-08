@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pyshacl\target.py
+# hypothesis_version: 6.151.5
+
+['SHACLTargetType', 'SPARQLTargetType', 'ShapesGraph', 'label_template', 'node', 'param_vals', 'parameters', 'query_helper', 'select', 'sg', 'target_declaration', 'target_type']

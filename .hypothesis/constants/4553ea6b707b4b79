@@ -1,0 +1,4 @@
+# file: C:\Github\CEDS-JSONLD-Generator\src\ceds_jsonld\transforms.py
+# hypothesis_version: 6.151.5
+
+['date_format', 'first_pipe_split', 'int_clean', 'race_prefix', 'sex_prefix', '|']

@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\openpyxl\xml\constants.py
+# hypothesis_version: 6.151.5
+
+[16384, 1048576, '/', '/.rels', '/app.xml', '/comments', '/core.xml', '/custom.xml', '/externalLink', '/image', '/sharedStrings.xml', '/styles.xml', '/theme1.xml', '/vmlDrawing', '/workbook.xml', '/workbook.xml.rels', 'Data Validation', 'Ignored Error', 'Protected Range', 'Slicer List', 'Sparkline Group', 'Timeline Ref', 'Web Extension', '[Content_Types].xml', '_rels', 'charts', 'chartsheet', 'chartsheets', 'comments', 'content-types', 'cp', 'cust', 'custom-properties', 'dc', 'dcmitype', 'dcterms', 'docProps', 'docPropsVTypes', 'drawings', 'extended-properties', 'externalLink', 'main', 'media', 'pivotCache', 'pivotTables', 'relationships', 'sharedStrings', 'sheet', 'styles', 'template', 'theme', 'vt', 'worksheet', 'worksheets', 'xl', 'xml', 'xsi']

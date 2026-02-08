@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\werkzeug\security.py
+# hypothesis_version: 6.151.5
+
+[132, 1000000, '$', '.', '..', '../', '/', '123456789¹²³', ':', 'AUX', 'CON', 'CONIN$', 'CONOUT$', 'NUL', 'PRN', 'nt', 'pbkdf2', 'scrypt', 'sha256']

@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\openpyxl\formula\tokenizer.py
+# hypothesis_version: 6.151.5
+
+['!', '"', '"\'', '#', '#DIV/0!', '#GETTING_DATA', '#N/A', '#NAME?', '#NULL!', '#NUM!', '#REF!', '#VALUE!', '%', '%*/^&=><+-', "'", '(', '()', ')', ')}', '*/^&=><', '+-', '+-*/^&=><%', ',', ',;}) +-*/^&=><%', '.+\\(|\\)', ':', ';', ';,', '<=', '<>', '=', '>=', 'ARG', 'ARRAY', 'CLOSE', 'ERROR', 'FALSE', 'FUNC', 'LITERAL', 'LOGICAL', 'NUMBER', 'OPEN', 'OPERAND', 'OPERATOR-INFIX', 'OPERATOR-POSTFIX', 'OPERATOR-PREFIX', 'PAREN', 'RANGE', 'ROW', 'SEP', 'TEXT', 'TRUE', 'WHITE-SPACE', '[', '[ \\n]+', '\\[', '\\]', 'link', 'string', 'subtype', 'type', 'value', '{', '{(', '{0} {1} {2}:', '{}', '}']

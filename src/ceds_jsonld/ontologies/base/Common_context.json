@@ -1,0 +1,19 @@
+{
+    "@context": {
+        "@vocab": "http://cepi-dev.state.mi.us/",
+        "@base": "http://cepi-dev.state.mi.us/",
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "owl": "http://www.w3.org/2002/07/owl#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "dc": "http://purl.org/dc/elements/1.1/",
+        "cepi": "http://cepi-dev.state.mi.us/",
+        "ceds": "http://ceds.ed.gov/terms#",
+        "schema": "https://schema.org/",
+        "GradeLevelRangeTitle": "cepi:P200072",
+        "DataCollectionCertificationCloseDate": "cepi:P000007",
+        "DataCollectionCertificationOpenDate": "cepi:P000006",
+        "DataCorrectionsEndDate": "cepi:P000001"
+    }
+}

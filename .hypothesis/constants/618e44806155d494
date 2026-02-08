@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pyshacl\constraints\constraint_component.py
+# hypothesis_version: 6.151.5
+
+['\tMessage: {}\n', '\tResult Path: {}\n', '\tValue Node: {}\n', '<{} on {}>', 'Constraint Violation', 'RDFNode', 'Shape', 'ShapesGraph', 'Validation Result', 'node', 'node_validators', 'parameters', 'path', 'property_validators', 'sg', 'shape', 'this', 'urn:notimplemented', 'validators', 'value', '{{[?$]{}}}']

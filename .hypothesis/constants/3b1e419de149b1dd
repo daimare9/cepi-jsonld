@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\openpyxl\styles\alignment.py
+# hypothesis_version: 6.151.5
+
+[-255, 181, 255, 'alignment', 'bottom', 'center', 'centerContinuous', 'distributed', 'fill', 'general', 'justify', 'left', 'right', 'shrinkToFit', 'textRotation', 'top', 'wrapText']

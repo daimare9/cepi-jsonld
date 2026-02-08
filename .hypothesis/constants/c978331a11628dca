@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\structlog\dev.py
+# hypothesis_version: 6.151.5
+
+[100, '\x1b[0m', '\x1b[1m', '\x1b[2m', '\x1b[31m', '\x1b[32m', '\x1b[33m', '\x1b[34m', '\x1b[35m', '\x1b[36m', '\x1b[41m', '"', "'", '256', '=', 'ConsoleRenderer', '[', ']', 'auto', 'better_traceback', 'code_width', 'colorama', 'colors', 'critical', 'debug', 'error', 'event', 'event_key', 'exc_info', 'exception', 'force_colors', 'info', 'level', 'level_styles', 'logger', 'logger_name', 'notset', 'pad_event_to', 'plain_traceback', 'processors', 'repr_native_str', 'rich', 'rich_traceback', 'stack', 'standard', 'timestamp', 'timestamp_key', 'truecolor', 'warn', 'warning', 'win32', 'windows']

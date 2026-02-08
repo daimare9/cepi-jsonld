@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\rdflib\namespace\_ODRL2.py
+# hypothesis_version: 6.151.5
+
+['#actionConcepts', '#actions', '#actionsCommon', '#assetConcepts', '#assetParty', '#assetRelations', '#conflictConcepts', '#constraints', '#deprecatedTerms', '#duties', '#logicalConstraints', '#partyConcepts', '#partyRoles', '#partyRolesCommon', '#permissions', '#policyConcepts', '#policySubClasses', '#prohibitions', '#ruleConcepts', 'and', 'or']

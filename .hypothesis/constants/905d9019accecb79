@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pyshacl\constraints\core\other_constraints.py
+# hypothesis_version: 6.151.5
+
+[' && ', '(', ')', 'FILTER ', 'FILTER (', 'UNDEF', 'in', 'item = %r.', 'list_item = %r.', 'type(item) = %r.', '{P}']

@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pandas\core\computation\scope.py
+# hypothesis_version: 6.151.5
+
+['@P', 'False', 'Inf', 'Timestamp', 'True', '_KT', '_VT', 'datetime', 'inf', 'level', 'list', 'locals', 'resolvers', 'scope', 'target', 'temps', 'tuple']

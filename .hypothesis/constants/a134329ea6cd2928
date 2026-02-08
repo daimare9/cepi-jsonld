@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\openpyxl\comments\shape_writer.py
+# hypothesis_version: 6.151.5
+
+[1026, '#_x0000_t202', '#ffffe1', '1', '202', '21600,21600', 'False', 'Note', 'ObjectType', '_x0000_s%04d', '_x0000_t202', 'auto', 'black', 'color', 'color2', 'coordsize', 'data', 'div', 'edit', 'fillcolor', 'findall', 'gradientshapeok', 'id', 'joinstyle', 'miter', 'none', 'obscured', 'path', 'rect', 'style', 't', 'text-align:left', 'type', 'xml', '{%s}AutoFill', '{%s}ClientData', '{%s}Column', '{%s}MoveWithCells', '{%s}Row', '{%s}SizeWithCells', '{%s}connecttype', '{%s}ext', '{%s}fill', '{%s}idmap', '{%s}insetmode', '{%s}path', '{%s}shadow', '{%s}shape', '{%s}shapelayout', '{%s}shapetype', '{%s}spt', '{%s}stroke', '{%s}textbox']

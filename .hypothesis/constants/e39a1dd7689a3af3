@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\structlog\_native.py
+# hypothesis_version: 6.151.5
+
+['acritical', 'aexception', 'afatal', 'ainfo', 'alog', 'amsg', 'awarn', 'awarning', 'critical', 'exc_info', 'exception', 'fatal', 'get_effective_level', 'info', 'is_enabled_for', 'log', 'msg', 'warn', 'warning']

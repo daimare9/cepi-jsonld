@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\openpyxl\worksheet\header_footer.py
+# hypothesis_version: 6.151.5
+
+['&"(?P<font>.+)"', '&"{0}"', '&(?P<size>\\d+\\s?)', '&A', '&D', '&F', '&G', '&K{0}', '&N', '&P', '&T', '&Z', '&[Date]', '&[File]', '&[Page]', '&[Pages]', '&[Path]', '&[Picture]', '&[Tab]', '&[Time]', '&{0} ', '&{0}{1}', '({0})', 'C', 'L', 'R', '^[A-Fa-f0-9]{6}$', 'center', 'color', 'evenFooter', 'evenHeader', 'firstFooter', 'firstHeader', 'font', 'headerFooter', 'left', 'oddFooter', 'oddHeader', 'right', 'size', 'text', '{0}|{1}|{2}', '|']

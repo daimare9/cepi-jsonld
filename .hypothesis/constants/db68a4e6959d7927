@@ -1,0 +1,4 @@
+# file: C:\Github\CEDS-JSONLD-Generator\src\ceds_jsonld\cosmos\__init__.py
+# hypothesis_version: 6.151.5
+
+['CosmosLoader', 'prepare_for_cosmos']

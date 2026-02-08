@@ -1,0 +1,657 @@
+"""Command-line interface for ceds-jsonld.
+
+Provides the ``ceds-jsonld`` CLI with commands for converting data to JSON-LD,
+validating documents, introspecting SHACL shapes, generating mapping templates,
+listing available shapes, and running performance benchmarks.
+
+Requires the ``[cli]`` extra: ``pip install ceds-jsonld[cli]``.
+"""
+
+from __future__ import annotations
+
+import sys
+import time
+from pathlib import Path
+from typing import Any
+
+try:
+    import click
+except ImportError:
+    _msg = (
+        "The ceds-jsonld CLI requires the 'click' package. "
+        "Install it with: pip install ceds-jsonld[cli]"
+    )
+    print(_msg, file=sys.stderr)  # noqa: T201
+    sys.exit(1)
+
+from ceds_jsonld.exceptions import (
+    CEDSJSONLDError,
+    PipelineError,
+    ShapeLoadError,
+    ValidationError,
+)
+from ceds_jsonld.registry import ShapeRegistry
+from ceds_jsonld.serializer import dumps
+
+
+# ---------------------------------------------------------------------------
+# Shared helpers
+# ---------------------------------------------------------------------------
+
+
+def _load_registry(
+    shape: str,
+    *,
+    shapes_dir: str | None = None,
+) -> tuple[ShapeRegistry, Any]:
+    """Load a registry and shape definition.
+
+    Args:
+        shape: Shape name.
+        shapes_dir: Optional extra directory to search for shapes.
+
+    Returns:
+        Tuple of (registry, shape_definition).
+    """
+    registry = ShapeRegistry()
+    if shapes_dir is not None:
+        registry.add_search_dir(shapes_dir)
+    try:
+        shape_def = registry.load_shape(shape)
+    except ShapeLoadError as exc:
+        available = registry.list_available()
+        raise click.ClickException(
+            f"Shape '{shape}' not found. Available shapes: {available}\n{exc}"
+        ) from exc
+    return registry, shape_def
+
+
+def _make_adapter(
+    input_path: str, *, sheet: str | None = None
+) -> Any:
+    """Create the appropriate adapter for the given file extension.
+
+    Args:
+        input_path: Path to the input data file.
+        sheet: Optional sheet name for Excel files.
+
+    Returns:
+        A SourceAdapter instance.
+
+    Raises:
+        click.ClickException: If the file type is unsupported or the adapter
+            dependency is missing.
+    """
+    from ceds_jsonld.adapters.csv_adapter import CSVAdapter
+    from ceds_jsonld.adapters.ndjson_adapter import NDJSONAdapter
+
+    p = Path(input_path)
+    if not p.exists():
+        raise click.ClickException(f"Input file not found: {p}")
+
+    suffix = p.suffix.lower()
+
+    if suffix == ".csv":
+        return CSVAdapter(input_path)
+    elif suffix == ".ndjson" or suffix == ".jsonl":
+        return NDJSONAdapter(input_path)
+    elif suffix in (".xlsx", ".xls"):
+        try:
+            from ceds_jsonld.adapters.excel_adapter import ExcelAdapter
+
+            kwargs: dict[str, Any] = {}
+            if sheet is not None:
+                kwargs["sheet_name"] = sheet
+            return ExcelAdapter(input_path, **kwargs)
+        except ImportError as exc:
+            raise click.ClickException(
+                "Excel support requires openpyxl. Install with: pip install ceds-jsonld[excel]"
+            ) from exc
+    else:
+        raise click.ClickException(
+            f"Unsupported file extension '{suffix}'. "
+            "Supported: .csv, .ndjson, .jsonl, .xlsx, .xls"
+        )
+
+
+# ---------------------------------------------------------------------------
+# Main CLI group
+# ---------------------------------------------------------------------------
+
+
+@click.group(context_settings={"help_option_names": ["-h", "--help"]})
+@click.version_option(package_name="ceds-jsonld")
+def cli() -> None:
+    """ceds-jsonld — Convert education data to CEDS-compliant JSON-LD."""
+
+
+# ---------------------------------------------------------------------------
+# convert
+# ---------------------------------------------------------------------------
+
+
+@cli.command()
+@click.option(
+    "-s",
+    "--shape",
+    required=True,
+    help="Shape name (e.g. 'person').",
+)
+@click.option(
+    "-i",
+    "--input",
+    "input_path",
+    required=True,
+    type=click.Path(exists=True),
+    help="Path to input data file (CSV, Excel, or NDJSON).",
+)
+@click.option(
+    "-o",
+    "--output",
+    "output_path",
+    required=True,
+    type=click.Path(),
+    help="Path to output file (.json or .ndjson).",
+)
+@click.option(
+    "-f",
+    "--format",
+    "output_format",
+    type=click.Choice(["json", "ndjson"], case_sensitive=False),
+    default=None,
+    help="Output format. Inferred from extension if omitted.",
+)
+@click.option(
+    "--shapes-dir",
+    type=click.Path(exists=True, file_okay=False),
+    default=None,
+    help="Additional directory to search for shape definitions.",
+)
+@click.option(
+    "--sheet",
+    default=None,
+    help="Sheet name for Excel files.",
+)
+@click.option(
+    "--validate/--no-validate",
+    default=False,
+    help="Run pre-build validation before building.",
+)
+@click.option(
+    "--pretty/--compact",
+    default=True,
+    help="Pretty-print JSON output (default: pretty).",
+)
+def convert(
+    shape: str,
+    input_path: str,
+    output_path: str,
+    output_format: str | None,
+    shapes_dir: str | None,
+    sheet: str | None,
+    validate: bool,
+    pretty: bool,
+) -> None:
+    """Convert a data file to JSON-LD.
+
+    Reads data from a CSV, Excel, or NDJSON file, maps it to the specified
+    SHACL shape, and writes JSON-LD output to a file.
+
+    Examples:
+
+        ceds-jsonld convert -s person -i students.csv -o students.json
+
+        ceds-jsonld convert -s person -i data.xlsx --sheet Sheet1 -o out.ndjson
+
+        ceds-jsonld convert -s person -i data.csv -o out.json --validate --compact
+    """
+    from ceds_jsonld.pipeline import Pipeline
+
+    # Resolve output format
+    if output_format is None:
+        ext = Path(output_path).suffix.lower()
+        if ext == ".ndjson" or ext == ".jsonl":
+            output_format = "ndjson"
+        else:
+            output_format = "json"
+
+    registry, _ = _load_registry(shape, shapes_dir=shapes_dir)
+    adapter = _make_adapter(input_path, sheet=sheet)
+
+    pipeline = Pipeline(source=adapter, shape=shape, registry=registry)
+
+    try:
+        if output_format == "ndjson":
+            result = pipeline.to_ndjson(output_path)
+        else:
+            result = pipeline.to_json(output_path, pretty=pretty)
+    except PipelineError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    click.echo(
+        f"Wrote {result.bytes_written:,} bytes ({result.records_out} records) "
+        f"to {output_path} ({result.elapsed_seconds:.2f}s, "
+        f"{result.records_per_second:.0f} rec/s)"
+    )
+
+
+# ---------------------------------------------------------------------------
+# validate
+# ---------------------------------------------------------------------------
+
+
+@cli.command()
+@click.option(
+    "-s",
+    "--shape",
+    required=True,
+    help="Shape name (e.g. 'person').",
+)
+@click.option(
+    "-i",
+    "--input",
+    "input_path",
+    required=True,
+    type=click.Path(exists=True),
+    help="Path to input data file.",
+)
+@click.option(
+    "--shapes-dir",
+    type=click.Path(exists=True, file_okay=False),
+    default=None,
+    help="Additional directory to search for shape definitions.",
+)
+@click.option(
+    "--sheet",
+    default=None,
+    help="Sheet name for Excel files.",
+)
+@click.option(
+    "--mode",
+    type=click.Choice(["strict", "report", "sample"], case_sensitive=False),
+    default="report",
+    help="Validation mode (default: report).",
+)
+@click.option(
+    "--shacl/--no-shacl",
+    default=False,
+    help="Also run full SHACL validation (slow).",
+)
+@click.option(
+    "--sample-rate",
+    type=float,
+    default=0.01,
+    help="SHACL sample rate in sample mode (default: 0.01 = 1%%).",
+)
+def validate(
+    shape: str,
+    input_path: str,
+    shapes_dir: str | None,
+    sheet: str | None,
+    mode: str,
+    shacl: bool,
+    sample_rate: float,
+) -> None:
+    """Validate data against a SHACL shape.
+
+    Runs pre-build validation on every record. Optionally also runs full
+    SHACL round-trip validation (expensive).
+
+    Examples:
+
+        ceds-jsonld validate -s person -i students.csv
+
+        ceds-jsonld validate -s person -i students.csv --shacl --mode sample
+    """
+    from ceds_jsonld.pipeline import Pipeline
+
+    registry, _ = _load_registry(shape, shapes_dir=shapes_dir)
+    adapter = _make_adapter(input_path, sheet=sheet)
+
+    pipeline = Pipeline(source=adapter, shape=shape, registry=registry)
+
+    t0 = time.perf_counter()
+    try:
+        result = pipeline.validate(mode=mode, shacl=shacl, sample_rate=sample_rate)
+    except (PipelineError, ValidationError) as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    elapsed = time.perf_counter() - t0
+
+    if result.conforms:
+        click.secho(
+            f"PASSED — {result.record_count} records validated ({elapsed:.2f}s)",
+            fg="green",
+        )
+    else:
+        click.secho(
+            f"FAILED — {result.error_count} errors, {result.warning_count} warnings "
+            f"across {result.record_count} records ({elapsed:.2f}s)",
+            fg="red",
+        )
+        for rec_id, issues in result.issues.items():
+            click.echo(f"\n  Record: {rec_id}")
+            for issue in issues:
+                color = "red" if issue.severity == "error" else "yellow"
+                click.secho(f"    [{issue.severity}] {issue.property_path}: {issue.message}", fg=color)
+
+        sys.exit(1)
+
+
+# ---------------------------------------------------------------------------
+# introspect
+# ---------------------------------------------------------------------------
+
+
+@cli.command()
+@click.option(
+    "--shacl",
+    "shacl_path",
+    required=True,
+    type=click.Path(exists=True),
+    help="Path to a SHACL Turtle (.ttl) file.",
+)
+@click.option(
+    "--json",
+    "as_json",
+    is_flag=True,
+    default=False,
+    help="Output as JSON instead of human-readable text.",
+)
+def introspect(shacl_path: str, as_json: bool) -> None:
+    """Inspect a SHACL shape file and display its structure.
+
+    Shows the shape tree including property names, datatypes, cardinalities,
+    and nested sub-shapes.
+
+    Examples:
+
+        ceds-jsonld introspect --shacl ontologies/person/Person_SHACL.ttl
+
+        ceds-jsonld introspect --shacl Person_SHACL.ttl --json
+    """
+    from ceds_jsonld.introspector import SHACLIntrospector
+
+    try:
+        intro = SHACLIntrospector(shacl_path)
+    except ShapeLoadError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if as_json:
+        data = intro.to_dict()
+        click.echo(dumps(data, pretty=True).decode())
+    else:
+        tree = intro.shape_tree()
+        _print_shape_tree(tree, indent=0)
+
+
+def _print_shape_tree(shape: Any, indent: int = 0) -> None:
+    """Print a human-readable representation of a shape tree."""
+    prefix = "  " * indent
+    target = f" → {shape.target_class_local}" if shape.target_class_local else ""
+    closed = " (closed)" if shape.is_closed else ""
+    click.echo(f"{prefix}{shape.local_name}{target}{closed}")
+
+    for prop in shape.properties:
+        req = " [required]" if prop.min_count and prop.min_count > 0 else ""
+        dtype = f" : {prop.datatype.split('#')[-1] if prop.datatype else 'object'}"
+
+        if prop.allowed_values:
+            values = ", ".join(v.split("/")[-1].split("#")[-1] for v in prop.allowed_values[:5])
+            extra = ", ..." if len(prop.allowed_values) > 5 else ""
+            dtype += f" [{values}{extra}]"
+
+        name = prop.name or prop.path_local
+        click.echo(f"{prefix}  ├─ {name}{dtype}{req}")
+
+    for _name, child in shape.children.items():
+        _print_shape_tree(child, indent=indent + 1)
+
+
+# ---------------------------------------------------------------------------
+# generate-mapping
+# ---------------------------------------------------------------------------
+
+
+@cli.command("generate-mapping")
+@click.option(
+    "--shacl",
+    "shacl_path",
+    required=True,
+    type=click.Path(exists=True),
+    help="Path to a SHACL Turtle (.ttl) file.",
+)
+@click.option(
+    "-o",
+    "--output",
+    "output_path",
+    default=None,
+    type=click.Path(),
+    help="Output YAML file path. Prints to stdout if omitted.",
+)
+@click.option(
+    "--context-url",
+    default="",
+    help="JSON-LD @context URL for the generated mapping.",
+)
+@click.option(
+    "--base-uri",
+    default="",
+    help="Base URI prefix for document @id values.",
+)
+@click.option(
+    "--context-file",
+    type=click.Path(exists=True),
+    default=None,
+    help="Path to a JSON-LD context file for human-readable property names.",
+)
+def generate_mapping(
+    shacl_path: str,
+    output_path: str | None,
+    context_url: str,
+    base_uri: str,
+    context_file: str | None,
+) -> None:
+    """Generate a mapping YAML template from a SHACL shape.
+
+    Creates a skeleton mapping configuration with all properties from the
+    SHACL shape. Fill in the ``source`` fields for your data.
+
+    Examples:
+
+        ceds-jsonld generate-mapping --shacl Person_SHACL.ttl -o person_mapping.yaml
+
+        ceds-jsonld generate-mapping --shacl Person_SHACL.ttl --context-file person_context.json
+    """
+    import json as json_mod
+
+    import yaml
+
+    from ceds_jsonld.introspector import SHACLIntrospector
+
+    try:
+        intro = SHACLIntrospector(shacl_path)
+    except ShapeLoadError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    # Load context lookup if provided
+    context_lookup: dict[str, str] | None = None
+    if context_file is not None:
+        try:
+            ctx_data = json_mod.loads(Path(context_file).read_text(encoding="utf-8"))
+            if isinstance(ctx_data, dict) and "@context" in ctx_data:
+                ctx_inner = ctx_data["@context"]
+                if isinstance(ctx_inner, dict):
+                    context_lookup = ctx_inner
+        except Exception as exc:
+            raise click.ClickException(
+                f"Failed to parse context file: {exc}"
+            ) from exc
+
+    template = intro.generate_mapping_template(
+        context_url=context_url,
+        base_uri=base_uri,
+        context_lookup=context_lookup,
+    )
+
+    yaml_str = yaml.dump(template, default_flow_style=False, sort_keys=False, allow_unicode=True)
+
+    if output_path:
+        out = Path(output_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(yaml_str, encoding="utf-8")
+        click.echo(f"Mapping template written to {output_path}")
+    else:
+        click.echo(yaml_str)
+
+
+# ---------------------------------------------------------------------------
+# list-shapes
+# ---------------------------------------------------------------------------
+
+
+@cli.command("list-shapes")
+@click.option(
+    "--shapes-dir",
+    type=click.Path(exists=True, file_okay=False),
+    default=None,
+    help="Additional directory to search for shapes.",
+)
+def list_shapes(shapes_dir: str | None) -> None:
+    """List all available shapes.
+
+    Shows shapes that can be loaded from the built-in ontologies directory
+    and any additional directories specified.
+
+    Examples:
+
+        ceds-jsonld list-shapes
+
+        ceds-jsonld list-shapes --shapes-dir ./my-shapes
+    """
+    registry = ShapeRegistry()
+    if shapes_dir is not None:
+        registry.add_search_dir(shapes_dir)
+
+    available = registry.list_available()
+
+    if not available:
+        click.echo("No shapes found.")
+        return
+
+    click.echo(f"Available shapes ({len(available)}):")
+    for name in available:
+        click.echo(f"  - {name}")
+
+
+# ---------------------------------------------------------------------------
+# benchmark
+# ---------------------------------------------------------------------------
+
+
+@cli.command()
+@click.option(
+    "-s",
+    "--shape",
+    required=True,
+    help="Shape name (e.g. 'person').",
+)
+@click.option(
+    "-n",
+    "--records",
+    type=int,
+    default=100_000,
+    help="Number of records to benchmark (default: 100,000).",
+)
+@click.option(
+    "--shapes-dir",
+    type=click.Path(exists=True, file_okay=False),
+    default=None,
+    help="Additional directory to search for shapes.",
+)
+def benchmark(shape: str, records: int, shapes_dir: str | None) -> None:
+    """Run a performance benchmark for a shape.
+
+    Builds N records using sample data repeated, measuring throughput
+    for mapping, building, and serialization.
+
+    Examples:
+
+        ceds-jsonld benchmark -s person
+
+        ceds-jsonld benchmark -s person -n 1000000
+    """
+    from ceds_jsonld.builder import JSONLDBuilder
+    from ceds_jsonld.mapping import FieldMapper
+
+    registry, shape_def = _load_registry(shape, shapes_dir=shapes_dir)
+
+    # Load sample data for the shape
+    if shape_def.sample_path is None:
+        raise click.ClickException(
+            f"Shape '{shape}' has no sample data file. "
+            "Cannot run benchmark without sample data."
+        )
+
+    import pandas as pd
+
+    sample_df = pd.read_csv(shape_def.sample_path)
+    sample_rows = sample_df.to_dict(orient="records")
+
+    if not sample_rows:
+        raise click.ClickException("Sample data file is empty.")
+
+    click.echo(f"Benchmarking shape '{shape}' with {records:,} records...")
+    click.echo(f"Sample file: {shape_def.sample_path} ({len(sample_rows)} rows)")
+    click.echo()
+
+    mapper = FieldMapper(shape_def.mapping_config)
+    builder = JSONLDBuilder(shape_def)
+
+    # Generate rows by cycling through sample data
+    rows = [sample_rows[i % len(sample_rows)] for i in range(records)]
+
+    # --- Mapping benchmark ---
+    click.echo("Phase 1: Field mapping...")
+    t0 = time.perf_counter()
+    mapped = [mapper.map(row) for row in rows]
+    t_map = time.perf_counter() - t0
+
+    # --- Building benchmark ---
+    click.echo("Phase 2: JSON-LD building...")
+    t0 = time.perf_counter()
+    docs = [builder.build_one(m) for m in mapped]
+    t_build = time.perf_counter() - t0
+
+    # --- Serialization benchmark ---
+    click.echo("Phase 3: Serialization...")
+    t0 = time.perf_counter()
+    for doc in docs:
+        dumps(doc, pretty=False)
+    t_ser = time.perf_counter() - t0
+
+    t_total = t_map + t_build + t_ser
+
+    click.echo()
+    click.secho("Results:", bold=True)
+    click.echo(f"  Records:        {records:>12,}")
+    click.echo(f"  Mapping:        {t_map:>12.3f}s  ({records / t_map:>10,.0f} rec/s)")
+    click.echo(f"  Building:       {t_build:>12.3f}s  ({records / t_build:>10,.0f} rec/s)")
+    click.echo(f"  Serialization:  {t_ser:>12.3f}s  ({records / t_ser:>10,.0f} rec/s)")
+    click.echo(f"  ────────────────────────────────────────")
+    click.echo(f"  Total:          {t_total:>12.3f}s  ({records / t_total:>10,.0f} rec/s)")
+    click.echo(f"  Per record:     {t_total / records * 1000:>12.4f} ms")
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
+
+def main() -> None:
+    """Entry point for the ``ceds-jsonld`` console script."""
+    cli()
+
+
+if __name__ == "__main__":
+    main()

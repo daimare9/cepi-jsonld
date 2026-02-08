@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\openpyxl\worksheet\worksheet.py
+# hypothesis_version: 6.151.5
+
+[1048577, ',', '1', '10', '11', '2', '3', '4', '5', '6', '7', '8', '9', ':', 'A1', 'A1:A1', '__iter__', '_get_cell', 'bottomLeft', 'bottomRight', 'column', 'f', 'frozen', 'hidden', 'landscape', 'portrait', 'row', 'topRight', 'veryHidden', 'visible', 'worksheet', '{0}:{1}']

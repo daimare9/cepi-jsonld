@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\httpcore\_backends\anyio.py
+# hypothesis_version: 6.151.5
+
+['client_addr', 'is_readable', 'server_addr', 'socket', 'ssl_object']

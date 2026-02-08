@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\structlog\stdlib.py
+# hypothesis_version: 6.151.5
+
+['%(message)s', 'BoundLogger', 'ExtraAdder', 'LoggerFactory', 'ProcessorFormatter', '_copier', '_from_structlog', '_logger', '_loop', '_name', '_record', 'add_log_level', 'add_log_level_number', 'add_logger_name', 'critical', 'debug', 'error', 'event', 'exc_info', 'exception', 'extra', 'filter_by_level', 'fmt', 'force', 'get_logger', 'info', 'level_number', 'logger', 'logging', 'msg', 'name', 'pathname', 'positional_args', 'recreate_defaults', 'render_to_log_kwargs', 'stack_info', 'stacklevel', 'sync_bl', 'warning']

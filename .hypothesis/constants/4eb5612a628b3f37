@@ -1,0 +1,4 @@
+# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pyshacl\entrypoints.py
+# hypothesis_version: 6.151.5
+
+['GET', 'abort_on_error', 'abort_on_first', 'advanced', 'allow_infos', 'allow_warnings', 'assets', 'check_dash_result', 'combine', 'data_graph_format', 'debug', 'do_owl_imports', 'focus_nodes', 'frozen', 'graph_cache', 'http:', 'https:', 'inference', 'inplace', 'iterate_rules', 'js', 'logger', 'max_validation_depth', 'meta_shacl', 'name', 'ont_graph_format', 'pyshacl-rules', 'pyshacl-validate', 'rb', 'rdfs', 'shacl-shacl.pickle', 'shacl_graph_format', 'sparql_mode', 'trig', 'turtle', 'use_js', 'use_shapes', 'utf-8', 'validate_each']
