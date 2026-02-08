@@ -52,6 +52,34 @@ When the user asks you to do something, classify the request and follow the spec
 → Use the `/benchmark` prompt or read `.github/prompts/benchmark.prompt.md`
 → Always compare against baseline numbers from PERFORMANCE_REPORT.md
 
+### "Fix issues" or "Pick up an issue" or "Work on issue #X"
+→ Follow the **Issue Ticket Workflow** below — every step is mandatory.
+
+#### Issue Ticket Workflow
+
+1. **List open issues.** Run `gh issue list --state open` (ensure `C:\Program Files\GitHub CLI` is on `$env:PATH`).
+2. **Pick one issue.** If the user didn't specify which, choose the most impactful or security-relevant issue and state your choice.
+3. **View the issue.** Run `gh issue view <number>` to read the full description, repro steps, and expected behaviour.
+4. **Create a topic branch from `dev`.** Branch name must follow the git workflow convention:
+   - `fix/<issue#>-<kebab-case-summary>` for bugs (e.g. `fix/5-int-clean-precision-loss`)
+   - `feature/<issue#>-<summary>` for enhancements
+   - **Never make changes directly on `dev` or `main`.**
+   - `git checkout dev && git pull origin dev && git checkout -b fix/<issue#>-<summary>`
+5. **Read the relevant source code** to understand the root cause before writing any fix.
+6. **Implement the fix** on the topic branch, following coding standards in `.github/instructions/python-code.instructions.md`.
+7. **Add tests** that prove the bug is fixed, following `.github/instructions/testing.instructions.md`.
+8. **Run the full test suite once** (`python -m pytest tests/ -v --tb=short`). All tests must pass.
+9. **Commit** with a Conventional Commits message referencing the issue: `fix(scope): description\n\nCloses #<number>`.
+10. **Push the topic branch** to `origin`.
+11. **Merge into `dev`** with `--no-ff`: `git checkout dev && git merge --no-ff <branch>` (set `$env:GIT_EDITOR = "true"` to auto-accept the merge message).
+12. **Push `dev`** to `origin`.
+13. **Delete the topic branch** (local + remote):
+    - `git branch -d <branch>`
+    - `git push origin --delete <branch>`
+14. **Close the issue** with a summary comment: `gh issue close <number> --comment "..."`. Include: commit hash, what changed, tests added, pass count.
+
+> **Key guardrail:** Never skip step 4 (branch creation). If you catch yourself about to edit files on `dev`, stop and create the branch first.
+
 ### General coding / bug fixing / feature implementation
 → Follow the coding standards in `.github/instructions/python-code.instructions.md`
 → Follow the testing protocol in `.github/instructions/testing.instructions.md`
