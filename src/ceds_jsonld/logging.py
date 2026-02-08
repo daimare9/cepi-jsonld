@@ -89,7 +89,7 @@ try:
                 structlog.processors.TimeStamper(fmt="iso"),
                 structlog.processors.StackInfoRenderer(),
                 structlog.processors.format_exc_info,
-                _structlog_pii_processor,
+                _structlog_pii_processor,  # type: ignore[list-item]
                 structlog.dev.ConsoleRenderer() if sys.stderr.isatty() else structlog.processors.JSONRenderer(),
             ],
             wrapper_class=structlog.stdlib.BoundLogger,

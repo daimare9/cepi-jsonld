@@ -126,6 +126,24 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 
+[[tool.mypy.overrides]]
+module = [
+    "pandas",
+    "pandas.*",
+    "openpyxl",
+    "openpyxl.*",
+    "yaml",
+    "yaml.*",
+    "pyshacl",
+    "pyshacl.*",
+    "structlog",
+    "structlog.*",
+    "azure.*",
+    "tqdm",
+    "tqdm.*",
+]
+ignore_missing_imports = true
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/ceds_jsonld"]
 

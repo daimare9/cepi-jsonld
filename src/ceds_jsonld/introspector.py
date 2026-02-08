@@ -376,7 +376,7 @@ class SHACLIntrospector:
 
         # First pass: collect all NodeShapes
         for shape_iri in g.subjects(RDF.type, SH.NodeShape):
-            info = self._parse_node_shape(shape_iri)
+            info = self._parse_node_shape(shape_iri)  # type: ignore[arg-type]
             self._node_shapes[info.local_name] = info
 
         # Second pass: resolve children (properties with sh:node)
@@ -426,7 +426,7 @@ class SHACLIntrospector:
         # Properties
         properties: list[PropertyInfo] = []
         for prop_node in g.objects(shape_iri, SH.property):
-            prop_info = self._parse_property_shape(prop_node)
+            prop_info = self._parse_property_shape(prop_node)  # type: ignore[arg-type]
             properties.append(prop_info)
 
         # Sort properties by path for deterministic output
@@ -436,7 +436,7 @@ class SHACLIntrospector:
             iri=str(shape_iri),
             local_name=local_name,
             target_class=str(target_class) if target_class else None,
-            target_class_local=self._local_name(target_class) if target_class else None,
+            target_class_local=self._local_name(target_class) if target_class else None,  # type: ignore[arg-type]
             is_closed=is_closed,
             ignored_properties=ignored,
             properties=properties,
@@ -461,18 +461,18 @@ class SHACLIntrospector:
             allowed = [str(item) for item in Collection(g, in_list_node)]
 
         path_str = str(path) if path else ""
-        path_local = self._local_name(path) if path else ""
+        path_local = self._local_name(path) if path else ""  # type: ignore[arg-type]
 
         return PropertyInfo(
             path=path_str,
             path_local=path_local,
             name=path_local,  # will be refined with context lookup
             datatype=str(datatype) if datatype else None,
-            node_shape=self._local_name(node_ref) if node_ref else None,
+            node_shape=self._local_name(node_ref) if node_ref else None,  # type: ignore[arg-type]
             node_class=str(class_ref) if class_ref else None,
             node_kind=str(node_kind) if node_kind else None,
-            min_count=int(min_count) if min_count is not None else None,
-            max_count=int(max_count) if max_count is not None else None,
+            min_count=int(min_count) if min_count is not None else None,  # type: ignore[call-overload]
+            max_count=int(max_count) if max_count is not None else None,  # type: ignore[call-overload]
             allowed_values=allowed,
         )
 
