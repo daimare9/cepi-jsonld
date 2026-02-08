@@ -19,6 +19,7 @@ from ceds_jsonld.cosmos.loader import (
     UpsertResult,
 )
 from ceds_jsonld.cosmos.prepare import prepare_for_cosmos
+from ceds_jsonld.exceptions import CosmosError
 
 # =====================================================================
 # prepare_for_cosmos — pure function, real tests
@@ -85,6 +86,31 @@ class TestPrepareForCosmos:
         doc = {"customId": "cepi:org/789", "@type": "Organization"}
         result = prepare_for_cosmos(doc, id_field="customId")
         assert result["id"] == "789"
+
+    def test_deep_copy_isolates_nested_objects(self) -> None:
+        """Regression: mutating result must not corrupt original (issue #12)."""
+        doc = {"@id": "cepi:person/123", "@type": "Person", "hasPersonName": {"firstName": "Jane"}}
+        result = prepare_for_cosmos(doc)
+        result["hasPersonName"]["firstName"] = "MUTATED"
+        assert doc["hasPersonName"]["firstName"] == "Jane"
+
+    def test_empty_at_id_raises(self) -> None:
+        """Regression: empty @id must raise CosmosError (issue #13)."""
+        doc = {"@id": "", "@type": "Person"}
+        with pytest.raises(CosmosError, match="Cannot derive Cosmos 'id'"):
+            prepare_for_cosmos(doc)
+
+    def test_slash_only_at_id_raises(self) -> None:
+        """Regression: slash-only @id must raise CosmosError (issue #13)."""
+        doc = {"@id": "////", "@type": "Person"}
+        with pytest.raises(CosmosError, match="Cannot derive Cosmos 'id'"):
+            prepare_for_cosmos(doc)
+
+    def test_trailing_slash_at_id_raises(self) -> None:
+        """URI ending with slash yields empty id segment (issue #13)."""
+        doc = {"@id": "cepi:person/", "@type": "Person"}
+        with pytest.raises(CosmosError, match="Cannot derive Cosmos 'id'"):
+            prepare_for_cosmos(doc)
 
 
 # =====================================================================
