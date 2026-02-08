@@ -621,8 +621,7 @@ class SHACLIntrospector:
                             "level": "error",
                             "property": f"{parent_name}.{field_name}",
                             "message": (
-                                f"Required SHACL field '{field_name}'"
-                                f" (minCount={prop.min_count}) missing from YAML"
+                                f"Required SHACL field '{field_name}' (minCount={prop.min_count}) missing from YAML"
                             ),
                         }
                     )
