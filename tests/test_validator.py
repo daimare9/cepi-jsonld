@@ -197,6 +197,16 @@ class TestPreBuildValidatorInvalid:
         # Should check ~10 rows (sampling is random, so allow tolerance)
         assert 1 <= result.record_count <= 20
 
+    def test_batch_counts_not_doubled(self, pre_validator, invalid_row_missing_required):
+        """Regression: validate_batch must not double-count errors/warnings (issue #11)."""
+        rows = [invalid_row_missing_required] * 5
+        result = pre_validator.validate_batch(rows, mode=ValidationMode.REPORT)
+        assert result.record_count == 5
+        # Count expected issues per row via validate_row
+        single = pre_validator.validate_row(invalid_row_missing_required, mode=ValidationMode.REPORT)
+        assert result.error_count == single.error_count * 5
+        assert result.warning_count == single.warning_count * 5
+
 
 class TestPreBuildDateValidation:
     """Impossible and non-ISO dates must be caught (issues #2, #3)."""
@@ -406,6 +416,15 @@ class TestSHACLValidator:
         result = shacl_validator.validate_batch(docs, mode=ValidationMode.SAMPLE, sample_rate=0.05)
         # 5% of 100 = 5 docs ± sampling
         assert 1 <= result.record_count <= 10
+
+    def test_validate_batch_counts_not_doubled(self, shacl_validator, built_doc):
+        """Regression: SHACLValidator.validate_batch must not double-count (issue #11)."""
+        docs = [built_doc] * 3
+        result = shacl_validator.validate_batch(docs, mode=ValidationMode.REPORT)
+        assert result.record_count == 3
+        single = shacl_validator.validate_one(built_doc, mode=ValidationMode.REPORT)
+        assert result.error_count == single.error_count * 3
+        assert result.warning_count == single.warning_count * 3
 
     def test_validate_one_strict_mode_bad_doc(self, shacl_validator):
         """A clearly invalid doc (wrong @type) should raise in strict mode."""
