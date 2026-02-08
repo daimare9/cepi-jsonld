@@ -28,13 +28,15 @@ class NDJSONAdapter(SourceAdapter):
         self,
         path: str | Path,
         *,
-        encoding: str = "utf-8",
+        encoding: str = "utf-8-sig",
     ) -> None:
         """Initialize with a file path.
 
         Args:
             path: Path to the NDJSON file.
-            encoding: File encoding (default: utf-8).
+            encoding: File encoding (default: ``utf-8-sig``).  The
+                ``utf-8-sig`` codec transparently strips a UTF-8 BOM
+                if present and behaves identically to ``utf-8`` otherwise.
         """
         self._path = Path(path)
         if not self._path.exists():

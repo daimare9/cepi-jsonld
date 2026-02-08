@@ -38,6 +38,9 @@ def first_pipe_split(value: str) -> str:
     """Take the first value from a pipe-delimited string and clean numerics.
 
     Handles pandas float artifacts: "989897099.0" → "989897099".
+    Pure-digit strings are converted via ``int()`` directly to avoid IEEE 754
+    precision loss that would corrupt numbers with more than ~15 significant
+    digits.
 
     Args:
         value: Pipe-delimited string, e.g. "989897099|40420|6202378625".
@@ -46,6 +49,10 @@ def first_pipe_split(value: str) -> str:
         First value, cleaned of numeric artifacts.
     """
     first = str(value).split("|")[0].strip()
+    # Fast path for pure integers — avoids float() precision loss on large numbers.
+    bare = first.lstrip("-")
+    if bare.isdigit() and bare:
+        return str(int(first))
     try:
         return str(int(float(first)))
     except (ValueError, TypeError, OverflowError):
