@@ -77,6 +77,8 @@ class JSONLDBuilder:
                 continue
 
             nodes = self._build_sub_nodes(instances, prop_def)
+            if not nodes:
+                continue
             # Single instance → unwrap from array
             doc[prop_name] = nodes if len(nodes) > 1 else nodes[0]
 
@@ -134,6 +136,8 @@ class JSONLDBuilder:
                 else:
                     # Plain value — unwrap single-element lists
                     if isinstance(value, list):
+                        if not value:
+                            continue
                         node[target] = value if len(value) > 1 else value[0]
                     else:
                         node[target] = value
