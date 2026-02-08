@@ -144,6 +144,52 @@ class TestPIIMasking:
     def test_mask_pii_handles_empty(self) -> None:
         assert _mask_pii({}) == {}
 
+    def test_mask_pii_recurses_nested_dicts(self) -> None:
+        """Regression: nested PII fields must be redacted (issue #15)."""
+        event = {"event": "test", "person": {"ssn": "123-45-6789", "name": "safe"}}
+        masked = _mask_pii(event)
+        assert masked["person"]["ssn"] == _REDACTED
+        assert masked["person"]["name"] == "safe"
+
+    def test_mask_pii_recurses_deeply_nested(self) -> None:
+        """Deeply nested PII fields must be caught."""
+        event = {"event": "test", "outer": {"inner": {"birthdate": "1990-01-01"}}}
+        masked = _mask_pii(event)
+        assert masked["outer"]["inner"]["birthdate"] == _REDACTED
+
+    def test_mask_pii_recurses_lists(self) -> None:
+        """PII inside list items must be redacted."""
+        event = {"event": "test", "records": [{"firstname": "Jane"}, {"firstname": "John"}]}
+        masked = _mask_pii(event)
+        assert masked["records"][0]["firstname"] == _REDACTED
+        assert masked["records"][1]["firstname"] == _REDACTED
+
+    def test_mask_pii_detects_ssn_pattern_in_values(self) -> None:
+        """Regression: SSN patterns in values must be scrubbed (issue #15)."""
+        event = {"event": "test", "data": "Student SSN: 123-45-6789"}
+        masked = _mask_pii(event)
+        assert "123-45-6789" not in masked["data"]
+        assert _REDACTED in masked["data"]
+
+    def test_mask_pii_detects_email_pattern_in_values(self) -> None:
+        """Email patterns in values must be scrubbed."""
+        event = {"event": "test", "msg": "Contact: jane.doe@example.com for info"}
+        masked = _mask_pii(event)
+        assert "jane.doe@example.com" not in masked["msg"]
+        assert _REDACTED in masked["msg"]
+
+    def test_mask_pii_detects_ssn_in_nested_values(self) -> None:
+        """SSN patterns inside nested dicts must also be caught."""
+        event = {"event": "test", "detail": {"note": "ID is 999-88-7777"}}
+        masked = _mask_pii(event)
+        assert "999-88-7777" not in masked["detail"]["note"]
+
+    def test_mask_pii_no_false_positive_on_non_ssn(self) -> None:
+        """Numbers that aren't SSN format should not be masked."""
+        event = {"event": "test", "data": "Phone: 555-1234 and zip: 90210"}
+        masked = _mask_pii(event)
+        assert masked["data"] == event["data"]
+
 
 # =====================================================================
 # IRI Sanitization
