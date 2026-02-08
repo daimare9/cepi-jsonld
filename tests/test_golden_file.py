@@ -108,9 +108,7 @@ def _build_expected_person_row1() -> dict:
 class TestPersonGoldenFile:
     """Verify full Person JSON-LD exactly matches reference output."""
 
-    def test_full_person_row1_matches_expected(
-        self, person_shape_def, sample_person_row_full
-    ):
+    def test_full_person_row1_matches_expected(self, person_shape_def, sample_person_row_full):
         """Our generic pipeline must produce identical output to build_person_direct."""
         mapper = FieldMapper(person_shape_def.mapping_config)
         builder = JSONLDBuilder(person_shape_def)

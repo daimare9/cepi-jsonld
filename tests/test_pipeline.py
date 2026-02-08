@@ -20,12 +20,7 @@ from ceds_jsonld.pipeline import Pipeline
 from ceds_jsonld.registry import ShapeRegistry
 
 PERSON_CSV = (
-    Path(__file__).resolve().parent.parent
-    / "src"
-    / "ceds_jsonld"
-    / "ontologies"
-    / "person"
-    / "person_sample.csv"
+    Path(__file__).resolve().parent.parent / "src" / "ceds_jsonld" / "ontologies" / "person" / "person_sample.csv"
 )
 
 
@@ -81,9 +76,7 @@ def sample_rows() -> list[dict[str, Any]]:
 class TestPipelineConstruction:
     """Verify Pipeline initializes correctly and fails on bad shapes."""
 
-    def test_construct_with_dict_adapter(
-        self, registry: ShapeRegistry, sample_rows: list[dict]
-    ) -> None:
+    def test_construct_with_dict_adapter(self, registry: ShapeRegistry, sample_rows: list[dict]) -> None:
         source = DictAdapter(sample_rows)
         pipeline = Pipeline(source=source, shape="person", registry=registry)
         assert pipeline is not None
@@ -102,17 +95,13 @@ class TestPipelineConstruction:
 class TestStream:
     """Pipeline.stream() yields JSON-LD documents one at a time."""
 
-    def test_stream_yields_dicts(
-        self, registry: ShapeRegistry, sample_rows: list[dict]
-    ) -> None:
+    def test_stream_yields_dicts(self, registry: ShapeRegistry, sample_rows: list[dict]) -> None:
         source = DictAdapter(sample_rows)
         pipeline = Pipeline(source=source, shape="person", registry=registry)
         docs = list(pipeline.stream())
         assert len(docs) == 2
 
-    def test_stream_docs_have_context(
-        self, registry: ShapeRegistry, sample_rows: list[dict]
-    ) -> None:
+    def test_stream_docs_have_context(self, registry: ShapeRegistry, sample_rows: list[dict]) -> None:
         source = DictAdapter(sample_rows)
         pipeline = Pipeline(source=source, shape="person", registry=registry)
         doc = next(pipeline.stream())
@@ -120,9 +109,7 @@ class TestStream:
         assert "@type" in doc
         assert doc["@type"] == "Person"
 
-    def test_stream_doc_ids_unique(
-        self, registry: ShapeRegistry, sample_rows: list[dict]
-    ) -> None:
+    def test_stream_doc_ids_unique(self, registry: ShapeRegistry, sample_rows: list[dict]) -> None:
         source = DictAdapter(sample_rows)
         pipeline = Pipeline(source=source, shape="person", registry=registry)
         ids = [doc["@id"] for doc in pipeline.stream()]
@@ -142,18 +129,14 @@ class TestStream:
 class TestBuildAll:
     """Pipeline.build_all() returns a list of all JSON-LD documents."""
 
-    def test_build_all_returns_list(
-        self, registry: ShapeRegistry, sample_rows: list[dict]
-    ) -> None:
+    def test_build_all_returns_list(self, registry: ShapeRegistry, sample_rows: list[dict]) -> None:
         source = DictAdapter(sample_rows)
         pipeline = Pipeline(source=source, shape="person", registry=registry)
         docs = pipeline.build_all()
         assert isinstance(docs, list)
         assert len(docs) == 2
 
-    def test_build_all_matches_stream(
-        self, registry: ShapeRegistry, sample_rows: list[dict]
-    ) -> None:
+    def test_build_all_matches_stream(self, registry: ShapeRegistry, sample_rows: list[dict]) -> None:
         source = DictAdapter(sample_rows)
         pipeline = Pipeline(source=source, shape="person", registry=registry)
         streamed = list(pipeline.stream())
@@ -243,11 +226,7 @@ class TestToNDJSON:
         source = DictAdapter(sample_rows)
         pipeline = Pipeline(source=source, shape="person", registry=registry)
         pipeline.to_ndjson(out)
-        lines = [
-            line
-            for line in out.read_text(encoding="utf-8").strip().split("\n")
-            if line.strip()
-        ]
+        lines = [line for line in out.read_text(encoding="utf-8").strip().split("\n") if line.strip()]
         assert len(lines) == 2
         for line in lines:
             doc = json.loads(line)
@@ -274,9 +253,7 @@ class TestToNDJSON:
 class TestToCosmos:
     """Pipeline.to_cosmos() is now tested in test_cosmos.py (Phase 4)."""
 
-    def test_to_cosmos_requires_arguments(
-        self, registry: ShapeRegistry, sample_rows: list[dict]
-    ) -> None:
+    def test_to_cosmos_requires_arguments(self, registry: ShapeRegistry, sample_rows: list[dict]) -> None:
         """to_cosmos() now requires endpoint/credential/database args."""
         source = DictAdapter(sample_rows)
         pipeline = Pipeline(source=source, shape="person", registry=registry)
@@ -309,9 +286,7 @@ class TestPipelineMappingOverrides:
             },
         ]
 
-    def test_source_overrides_remap_columns(
-        self, registry: ShapeRegistry
-    ) -> None:
+    def test_source_overrides_remap_columns(self, registry: ShapeRegistry) -> None:
         rows = self._make_rows_with_renamed_cols()
         source = DictAdapter(rows)
         pipeline = Pipeline(
@@ -381,9 +356,7 @@ class TestPipelineMappingOverrides:
         assert len(docs) == 1
         assert "STU_999" in docs[0]["@id"]
 
-    def test_no_overrides_works_normally(
-        self, registry: ShapeRegistry, sample_rows: list[dict]
-    ) -> None:
+    def test_no_overrides_works_normally(self, registry: ShapeRegistry, sample_rows: list[dict]) -> None:
         """Passing no overrides should behave identically to the default Pipeline."""
         source = DictAdapter(sample_rows)
         pipeline = Pipeline(source=source, shape="person", registry=registry)
@@ -410,9 +383,7 @@ class TestCSVIntegration:
         # First record should be EDITH ADAMS
         assert "cepi:person/" in docs[0]["@id"]
 
-    def test_csv_to_json_file(
-        self, tmp_path: Path, registry: ShapeRegistry
-    ) -> None:
+    def test_csv_to_json_file(self, tmp_path: Path, registry: ShapeRegistry) -> None:
         if not PERSON_CSV.exists():
             pytest.skip("person_sample.csv not found")
         out = tmp_path / "persons.json"
@@ -423,9 +394,7 @@ class TestCSVIntegration:
         parsed = json.loads(out.read_text(encoding="utf-8"))
         assert len(parsed) == 90
 
-    def test_csv_to_ndjson_file(
-        self, tmp_path: Path, registry: ShapeRegistry
-    ) -> None:
+    def test_csv_to_ndjson_file(self, tmp_path: Path, registry: ShapeRegistry) -> None:
         if not PERSON_CSV.exists():
             pytest.skip("person_sample.csv not found")
         out = tmp_path / "persons.ndjson"

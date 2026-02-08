@@ -5,11 +5,15 @@ Requires the ``openpyxl`` optional dependency (``pip install ceds-jsonld[excel]`
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Iterator
+from typing import TYPE_CHECKING, Any
 
 from ceds_jsonld.adapters.base import SourceAdapter
 from ceds_jsonld.exceptions import AdapterError
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 
 class ExcelAdapter(SourceAdapter):
@@ -69,8 +73,7 @@ class ExcelAdapter(SourceAdapter):
             msg = f"Failed to read Excel '{self._path}': {exc}"
             raise AdapterError(msg) from exc
 
-        for record in df.to_dict(orient="records"):
-            yield record
+        yield from df.to_dict(orient="records")
 
     def count(self) -> int | None:
         """Return the number of data rows in the sheet."""
@@ -80,7 +83,7 @@ class ExcelAdapter(SourceAdapter):
         except Exception:
             return None
 
-    def _load_dataframe(self) -> "pd.DataFrame":
+    def _load_dataframe(self) -> pd.DataFrame:
         """Load the Excel sheet into a pandas DataFrame."""
         import pandas as pd
 

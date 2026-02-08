@@ -13,7 +13,6 @@ Covers:
 
 from __future__ import annotations
 
-import csv
 import sys
 from pathlib import Path
 from typing import Any
@@ -22,9 +21,7 @@ from unittest.mock import patch
 import pytest
 
 from ceds_jsonld.adapters.dict_adapter import DictAdapter
-from ceds_jsonld.builder import JSONLDBuilder
 from ceds_jsonld.exceptions import PipelineError, ValidationError
-from ceds_jsonld.mapping import FieldMapper
 from ceds_jsonld.pipeline import Pipeline
 from ceds_jsonld.registry import ShapeRegistry
 from ceds_jsonld.validator import (
@@ -34,7 +31,6 @@ from ceds_jsonld.validator import (
     ValidationMode,
     ValidationResult,
 )
-
 
 # =====================================================================
 # Fixtures
@@ -83,9 +79,7 @@ def invalid_row() -> dict[str, Any]:
 class TestPipelineValidateSHACL:
     """Exercise the Phase 2 (SHACL) validation inside Pipeline.validate()."""
 
-    def test_validate_shacl_true_valid_data(
-        self, registry: ShapeRegistry, valid_row: dict
-    ) -> None:
+    def test_validate_shacl_true_valid_data(self, registry: ShapeRegistry, valid_row: dict) -> None:
         """SHACL branch should execute and return a result."""
         source = DictAdapter([valid_row])
         pipeline = Pipeline(source=source, shape="person", registry=registry)
@@ -95,9 +89,7 @@ class TestPipelineValidateSHACL:
         # raw_report should be populated by the SHACL phase
         assert isinstance(result.raw_report, str)
 
-    def test_validate_shacl_true_multiple_rows(
-        self, registry: ShapeRegistry, valid_row: dict
-    ) -> None:
+    def test_validate_shacl_true_multiple_rows(self, registry: ShapeRegistry, valid_row: dict) -> None:
         """SHACL validates all built docs when pre-build passes."""
         rows = [valid_row.copy() for _ in range(3)]
         rows[0]["PersonIdentifiers"] = "AAA"
@@ -108,9 +100,7 @@ class TestPipelineValidateSHACL:
         result = pipeline.validate(mode="report", shacl=True)
         assert result.record_count >= 3
 
-    def test_validate_shacl_skipped_when_prebuild_fails(
-        self, registry: ShapeRegistry, invalid_row: dict
-    ) -> None:
+    def test_validate_shacl_skipped_when_prebuild_fails(self, registry: ShapeRegistry, invalid_row: dict) -> None:
         """When pre-build validation fails, SHACL phase is skipped."""
         source = DictAdapter([invalid_row])
         pipeline = Pipeline(source=source, shape="person", registry=registry)
@@ -119,9 +109,7 @@ class TestPipelineValidateSHACL:
         assert result.conforms is False
         assert result.error_count > 0
 
-    def test_validate_shacl_sample_mode(
-        self, registry: ShapeRegistry, valid_row: dict
-    ) -> None:
+    def test_validate_shacl_sample_mode(self, registry: ShapeRegistry, valid_row: dict) -> None:
         """Pipeline.validate with sample mode passes through to SHACLValidator."""
         rows = [valid_row.copy() for _ in range(10)]
         for i, r in enumerate(rows):
@@ -140,17 +128,13 @@ class TestPipelineValidateSHACL:
 class TestPipelineValidateStrict:
     """Strict mode should raise ValidationError on first failure."""
 
-    def test_validate_strict_raises_on_invalid(
-        self, registry: ShapeRegistry, invalid_row: dict
-    ) -> None:
+    def test_validate_strict_raises_on_invalid(self, registry: ShapeRegistry, invalid_row: dict) -> None:
         source = DictAdapter([invalid_row])
         pipeline = Pipeline(source=source, shape="person", registry=registry)
         with pytest.raises(ValidationError):
             pipeline.validate(mode="strict")
 
-    def test_validate_strict_passes_valid(
-        self, registry: ShapeRegistry, valid_row: dict
-    ) -> None:
+    def test_validate_strict_passes_valid(self, registry: ShapeRegistry, valid_row: dict) -> None:
         source = DictAdapter([valid_row])
         pipeline = Pipeline(source=source, shape="person", registry=registry)
         result = pipeline.validate(mode="strict")
@@ -172,46 +156,32 @@ class TestStreamWithValidation:
         rows = [valid_row, invalid_row, valid_row]
         source = DictAdapter(rows)
         pipeline = Pipeline(source=source, shape="person", registry=registry)
-        docs = list(
-            pipeline.stream(validate=True, validation_mode="report")
-        )
+        docs = list(pipeline.stream(validate=True, validation_mode="report"))
         # Only the 2 valid rows should come through
         assert len(docs) == 2
         for doc in docs:
             assert doc["@type"] == "Person"
 
-    def test_stream_validate_strict_raises(
-        self, registry: ShapeRegistry, valid_row: dict, invalid_row: dict
-    ) -> None:
+    def test_stream_validate_strict_raises(self, registry: ShapeRegistry, valid_row: dict, invalid_row: dict) -> None:
         """In strict mode, the first invalid row raises ValidationError."""
         rows = [valid_row, invalid_row]
         source = DictAdapter(rows)
         pipeline = Pipeline(source=source, shape="person", registry=registry)
         with pytest.raises(ValidationError):
-            list(
-                pipeline.stream(validate=True, validation_mode="strict")
-            )
+            list(pipeline.stream(validate=True, validation_mode="strict"))
 
-    def test_stream_validate_all_valid(
-        self, registry: ShapeRegistry, valid_row: dict
-    ) -> None:
+    def test_stream_validate_all_valid(self, registry: ShapeRegistry, valid_row: dict) -> None:
         """All valid rows pass through unchanged when validate=True."""
         source = DictAdapter([valid_row] * 5)
         pipeline = Pipeline(source=source, shape="person", registry=registry)
-        docs = list(
-            pipeline.stream(validate=True, validation_mode="report")
-        )
+        docs = list(pipeline.stream(validate=True, validation_mode="report"))
         assert len(docs) == 5
 
-    def test_stream_validate_accepts_enum_mode(
-        self, registry: ShapeRegistry, valid_row: dict
-    ) -> None:
+    def test_stream_validate_accepts_enum_mode(self, registry: ShapeRegistry, valid_row: dict) -> None:
         """stream() accepts ValidationMode enum directly."""
         source = DictAdapter([valid_row])
         pipeline = Pipeline(source=source, shape="person", registry=registry)
-        docs = list(
-            pipeline.stream(validate=True, validation_mode=ValidationMode.REPORT)
-        )
+        docs = list(pipeline.stream(validate=True, validation_mode=ValidationMode.REPORT))
         assert len(docs) == 1
 
 
@@ -247,9 +217,7 @@ class TestPipelineErrorWrapping:
         with pytest.raises(PipelineError, match="Validation failed"):
             pipeline.validate()
 
-    def test_to_json_wraps_write_error(
-        self, registry: ShapeRegistry, valid_row: dict
-    ) -> None:
+    def test_to_json_wraps_write_error(self, registry: ShapeRegistry, valid_row: dict) -> None:
         """to_json wraps write failures in PipelineError."""
         source = DictAdapter([valid_row])
         pipeline = Pipeline(source=source, shape="person", registry=registry)
@@ -265,9 +233,7 @@ class TestPipelineErrorWrapping:
         except PipelineError:
             pass  # Expected
 
-    def test_to_ndjson_wraps_write_error(
-        self, registry: ShapeRegistry, valid_row: dict
-    ) -> None:
+    def test_to_ndjson_wraps_write_error(self, registry: ShapeRegistry, valid_row: dict) -> None:
         """to_ndjson wraps write failures in PipelineError."""
         source = DictAdapter([valid_row])
         pipeline = Pipeline(source=source, shape="person", registry=registry)
@@ -596,7 +562,7 @@ class TestSHACLValidatorEdges:
         }
         # This may either raise or return non-conformant — both are fine
         try:
-            result = v.validate_one(bad_doc, mode=ValidationMode.STRICT)
+            v.validate_one(bad_doc, mode=ValidationMode.STRICT)
         except ValidationError:
             pass  # Expected
 
@@ -610,7 +576,7 @@ class TestSHACLValidatorEdges:
             "@type": "NotAPerson",
         }
         try:
-            result = v.validate_batch([bad_doc], mode=ValidationMode.STRICT)
+            v.validate_batch([bad_doc], mode=ValidationMode.STRICT)
         except ValidationError:
             pass  # Expected
 
@@ -625,7 +591,6 @@ class TestSerializerStdlibFallback:
 
     def test_stdlib_dumps(self) -> None:
         """When orjson is unavailable, stdlib json is used."""
-        import importlib
 
         import ceds_jsonld.serializer as ser_mod
 
@@ -703,9 +668,7 @@ class TestSerializerStdlibFallback:
 class TestToCosmosCoverage:
     """Cover the import-error branch in to_cosmos()."""
 
-    def test_to_cosmos_missing_azure_cosmos(
-        self, registry: ShapeRegistry, valid_row: dict
-    ) -> None:
+    def test_to_cosmos_missing_azure_cosmos(self, registry: ShapeRegistry, valid_row: dict) -> None:
         """When azure-cosmos import fails, PipelineError is raised."""
         source = DictAdapter([valid_row])
         pipeline = Pipeline(source=source, shape="person", registry=registry)
@@ -732,25 +695,19 @@ class TestToCosmosCoverage:
 class TestPipelineValidateModeParsing:
     """Validate mode string-to-enum conversion."""
 
-    def test_validate_accepts_string_mode(
-        self, registry: ShapeRegistry, valid_row: dict
-    ) -> None:
+    def test_validate_accepts_string_mode(self, registry: ShapeRegistry, valid_row: dict) -> None:
         source = DictAdapter([valid_row])
         pipeline = Pipeline(source=source, shape="person", registry=registry)
         result = pipeline.validate(mode="report")
         assert isinstance(result, ValidationResult)
 
-    def test_validate_accepts_enum_mode(
-        self, registry: ShapeRegistry, valid_row: dict
-    ) -> None:
+    def test_validate_accepts_enum_mode(self, registry: ShapeRegistry, valid_row: dict) -> None:
         source = DictAdapter([valid_row])
         pipeline = Pipeline(source=source, shape="person", registry=registry)
         result = pipeline.validate(mode=ValidationMode.REPORT)
         assert isinstance(result, ValidationResult)
 
-    def test_validate_sample_mode_string(
-        self, registry: ShapeRegistry, valid_row: dict
-    ) -> None:
+    def test_validate_sample_mode_string(self, registry: ShapeRegistry, valid_row: dict) -> None:
         source = DictAdapter([valid_row])
         pipeline = Pipeline(source=source, shape="person", registry=registry)
         result = pipeline.validate(mode="sample", sample_rate=1.0)
@@ -797,20 +754,20 @@ class TestValidationResultSummary:
 class TestPipelineValidateSHACLInitFailure:
     """Cover the SHACL-init exception wrapper in Pipeline.validate()."""
 
-    def test_shacl_init_failure_raises_pipeline_error(
-        self, registry: ShapeRegistry, valid_row: dict
-    ) -> None:
+    def test_shacl_init_failure_raises_pipeline_error(self, registry: ShapeRegistry, valid_row: dict) -> None:
         """When SHACLValidator fails to init, PipelineError is raised."""
         source = DictAdapter([valid_row])
         pipeline = Pipeline(source=source, shape="person", registry=registry)
 
         # Patch the SHACLValidator to raise on construction
-        with patch(
-            "ceds_jsonld.pipeline.SHACLValidator",
-            side_effect=RuntimeError("broken SHACL"),
+        with (
+            patch(
+                "ceds_jsonld.pipeline.SHACLValidator",
+                side_effect=RuntimeError("broken SHACL"),
+            ),
+            pytest.raises(PipelineError, match="initialise SHACL"),
         ):
-            with pytest.raises(PipelineError, match="initialise SHACL"):
-                pipeline.validate(mode="report", shacl=True)
+            pipeline.validate(mode="report", shacl=True)
 
 
 # =====================================================================
@@ -821,9 +778,7 @@ class TestPipelineValidateSHACLInitFailure:
 class TestFromIntrospectorFailure:
     """Cover the from_introspector exception fallback."""
 
-    def test_from_introspector_bad_introspector_falls_back(
-        self, registry: ShapeRegistry
-    ) -> None:
+    def test_from_introspector_bad_introspector_falls_back(self, registry: ShapeRegistry) -> None:
         """If introspector.root_shape() throws, a plain validator is returned."""
         shape_def = registry.get_shape("person")
 
@@ -832,9 +787,7 @@ class TestFromIntrospectorFailure:
                 msg = "broken"
                 raise RuntimeError(msg)
 
-        validator = PreBuildValidator.from_introspector(
-            shape_def.mapping_config, BrokenIntrospector()
-        )
+        validator = PreBuildValidator.from_introspector(shape_def.mapping_config, BrokenIntrospector())
         assert isinstance(validator, PreBuildValidator)
 
 

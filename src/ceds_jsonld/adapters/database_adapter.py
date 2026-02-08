@@ -7,7 +7,8 @@ Requires the ``sqlalchemy`` optional dependency
 
 from __future__ import annotations
 
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 from ceds_jsonld.adapters.base import SourceAdapter
 from ceds_jsonld.exceptions import AdapterError

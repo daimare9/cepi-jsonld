@@ -23,9 +23,10 @@ from ceds_jsonld.introspector import NodeShapeInfo, PropertyInfo, SHACLIntrospec
 # Paths
 # ---------------------------------------------------------------------------
 
-PERSON_SHACL = Path(__file__).resolve().parent.parent / "src" / "ceds_jsonld" / "ontologies" / "person" / "Person_SHACL.ttl"
-PERSON_CONTEXT = Path(__file__).resolve().parent.parent / "src" / "ceds_jsonld" / "ontologies" / "person" / "person_context.json"
-PERSON_MAPPING = Path(__file__).resolve().parent.parent / "src" / "ceds_jsonld" / "ontologies" / "person" / "person_mapping.yaml"
+_BASE = Path(__file__).resolve().parent.parent / "src" / "ceds_jsonld" / "ontologies" / "person"
+PERSON_SHACL = _BASE / "Person_SHACL.ttl"
+PERSON_CONTEXT = _BASE / "person_context.json"
+PERSON_MAPPING = _BASE / "person_mapping.yaml"
 
 
 @pytest.fixture()
@@ -166,14 +167,12 @@ class TestPropertyShapeDetails:
         assert "P000033" in paths  # Birthdate path
 
     def test_person_name_has_four_fields(self, introspector: SHACLIntrospector) -> None:
-        """PersonNameShape should have FirstName, MiddleName, LastOrSurname, GenerationCodeOrSuffix + injected shapes."""
+        """PersonNameShape should have FirstName, MiddleName, LastOrSurname, GenerationCodeOrSuffix."""
         name = introspector.get_shape("PersonNameShape")
         # 4 leaf properties + hasDataCollectionShape + hasRecordStatusShape = 6
         assert len(name.properties) == 6
 
-    def test_person_identification_system_has_allowed_values(
-        self, introspector: SHACLIntrospector
-    ) -> None:
+    def test_person_identification_system_has_allowed_values(self, introspector: SHACLIntrospector) -> None:
         """hasPersonIdentificationSystemShape should have 21 allowed values from sh:in."""
         ident = introspector.get_shape("PersonIdentificationShape")
         # Find the property that has allowed_values
@@ -181,9 +180,7 @@ class TestPropertyShapeDetails:
         assert len(sys_props) == 1
         assert len(sys_props[0].allowed_values) == 21
 
-    def test_record_status_committed_by_has_class(
-        self, introspector: SHACLIntrospector
-    ) -> None:
+    def test_record_status_committed_by_has_class(self, introspector: SHACLIntrospector) -> None:
         """CommittedByOrganization should have sh:class and sh:nodeKind."""
         rs = introspector.get_shape("RecordStatusShape")
         committed = [p for p in rs.properties if "P200999" in p.path]
@@ -192,9 +189,7 @@ class TestPropertyShapeDetails:
         assert committed[0].node_class.endswith("C200239")
         assert committed[0].node_kind is not None
 
-    def test_has_person_birth_references_sub_shape(
-        self, introspector: SHACLIntrospector
-    ) -> None:
+    def test_has_person_birth_references_sub_shape(self, introspector: SHACLIntrospector) -> None:
         """hasPersonBirth property on PersonShape should reference PersonBirthShape."""
         root = introspector.root_shape()
         birth_props = [p for p in root.properties if p.node_shape == "PersonBirthShape"]
@@ -256,25 +251,19 @@ class TestDictExport:
 class TestMappingTemplateGeneration:
     """Tests for generate_mapping_template()."""
 
-    def test_generates_template_for_person(
-        self, introspector: SHACLIntrospector, person_context: dict
-    ) -> None:
+    def test_generates_template_for_person(self, introspector: SHACLIntrospector, person_context: dict) -> None:
         """Template should contain all 5 top-level properties."""
         tpl = introspector.generate_mapping_template(context_lookup=person_context)
         assert tpl["shape"] == "PersonShape"
         assert "properties" in tpl
         assert len(tpl["properties"]) == 5
 
-    def test_template_has_correct_type(
-        self, introspector: SHACLIntrospector, person_context: dict
-    ) -> None:
+    def test_template_has_correct_type(self, introspector: SHACLIntrospector, person_context: dict) -> None:
         """Root type should be mapped through context to 'Person'."""
         tpl = introspector.generate_mapping_template(context_lookup=person_context)
         assert tpl["type"] == "Person"
 
-    def test_template_properties_have_fields(
-        self, introspector: SHACLIntrospector, person_context: dict
-    ) -> None:
+    def test_template_properties_have_fields(self, introspector: SHACLIntrospector, person_context: dict) -> None:
         """Each property should have 'type', 'fields', and 'cardinality'."""
         tpl = introspector.generate_mapping_template(context_lookup=person_context)
         for name, prop_def in tpl["properties"].items():
@@ -282,9 +271,7 @@ class TestMappingTemplateGeneration:
             assert "fields" in prop_def, f"'{name}' missing 'fields'"
             assert "cardinality" in prop_def, f"'{name}' missing 'cardinality'"
 
-    def test_template_name_fields(
-        self, introspector: SHACLIntrospector, person_context: dict
-    ) -> None:
+    def test_template_name_fields(self, introspector: SHACLIntrospector, person_context: dict) -> None:
         """PersonName property should have FirstName, MiddleName, LastOrSurname, GenerationCodeOrSuffix."""
         tpl = introspector.generate_mapping_template(context_lookup=person_context)
         name_prop = tpl["properties"]["hasPersonName"]
@@ -292,17 +279,13 @@ class TestMappingTemplateGeneration:
         assert "FirstName" in field_keys
         assert "LastOrSurname" in field_keys
 
-    def test_template_record_status_defaults(
-        self, introspector: SHACLIntrospector, person_context: dict
-    ) -> None:
+    def test_template_record_status_defaults(self, introspector: SHACLIntrospector, person_context: dict) -> None:
         """Template should include record_status_defaults."""
         tpl = introspector.generate_mapping_template(context_lookup=person_context)
         assert "record_status_defaults" in tpl
         assert tpl["record_status_defaults"]["type"] == "RecordStatus"
 
-    def test_template_is_yaml_serializable(
-        self, introspector: SHACLIntrospector, person_context: dict
-    ) -> None:
+    def test_template_is_yaml_serializable(self, introspector: SHACLIntrospector, person_context: dict) -> None:
         """Template should be serializable to YAML without errors."""
         tpl = introspector.generate_mapping_template(context_lookup=person_context)
         yaml_str = yaml.dump(tpl, default_flow_style=False)
@@ -311,9 +294,7 @@ class TestMappingTemplateGeneration:
         loaded = yaml.safe_load(yaml_str)
         assert loaded["shape"] == "PersonShape"
 
-    def test_template_without_context(
-        self, introspector: SHACLIntrospector
-    ) -> None:
+    def test_template_without_context(self, introspector: SHACLIntrospector) -> None:
         """Template should work without context — uses local IRI names."""
         tpl = introspector.generate_mapping_template()
         assert tpl["shape"] == "PersonShape"
@@ -326,11 +307,7 @@ class TestMappingTemplateGeneration:
         tpl = introspector.generate_mapping_template(context_lookup=person_context)
         ident = tpl["properties"]["hasPersonIdentification"]
         # Find the field that documents allowed values
-        has_allowed = any(
-            "# allowed_values" in f
-            for f in ident["fields"].values()
-            if isinstance(f, dict)
-        )
+        has_allowed = any("# allowed_values" in f for f in ident["fields"].values() if isinstance(f, dict))
         assert has_allowed, "Expected at least one field with allowed_values comment"
 
 
@@ -349,20 +326,14 @@ class TestMappingValidation:
         person_context: dict,
     ) -> None:
         """The real Person mapping YAML should produce no errors."""
-        issues = introspector.validate_mapping(
-            person_mapping_config, context_lookup=person_context
-        )
+        issues = introspector.validate_mapping(person_mapping_config, context_lookup=person_context)
         errors = [i for i in issues if i["level"] == "error"]
         assert len(errors) == 0, f"Unexpected errors: {errors}"
 
-    def test_missing_required_property_error(
-        self, introspector: SHACLIntrospector, person_context: dict
-    ) -> None:
+    def test_missing_required_property_error(self, introspector: SHACLIntrospector, person_context: dict) -> None:
         """A mapping with all properties removed should produce warnings."""
         empty_mapping: dict = {"properties": {}}
-        issues = introspector.validate_mapping(
-            empty_mapping, context_lookup=person_context
-        )
+        issues = introspector.validate_mapping(empty_mapping, context_lookup=person_context)
         # All 5 top-level properties are not required (no minCount) so should be warnings
         assert len(issues) > 0
         assert all(i["level"] in ("error", "warning") for i in issues)
@@ -375,12 +346,8 @@ class TestMappingValidation:
 
         bad_mapping = copy.deepcopy(person_mapping_config)
         bad_mapping["properties"]["fakeProperty"] = {"type": "FakeThing"}
-        issues = introspector.validate_mapping(
-            bad_mapping, context_lookup=person_context
-        )
-        fake_issues = [
-            i for i in issues if i["property"] == "fakeProperty"
-        ]
+        issues = introspector.validate_mapping(bad_mapping, context_lookup=person_context)
+        fake_issues = [i for i in issues if i["property"] == "fakeProperty"]
         assert len(fake_issues) == 1
         assert fake_issues[0]["level"] == "warning"
 
@@ -392,17 +359,11 @@ class TestMappingValidation:
 
         bad_mapping = copy.deepcopy(person_mapping_config)
         bad_mapping["properties"]["hasPersonName"]["type"] = "WrongType"
-        issues = introspector.validate_mapping(
-            bad_mapping, context_lookup=person_context
-        )
-        type_issues = [
-            i for i in issues if "Type mismatch" in i["message"]
-        ]
+        issues = introspector.validate_mapping(bad_mapping, context_lookup=person_context)
+        type_issues = [i for i in issues if "Type mismatch" in i["message"]]
         assert len(type_issues) >= 1
 
-    def test_validation_without_context(
-        self, introspector: SHACLIntrospector
-    ) -> None:
+    def test_validation_without_context(self, introspector: SHACLIntrospector) -> None:
         """Validation should work without context — uses IRI local names."""
         # Mapping using raw IRI local names
         issues = introspector.validate_mapping({"properties": {}})

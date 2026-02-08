@@ -1,0 +1,4 @@
+# file: C:\Projects\cepi_jsonld\src\ceds_jsonld\pipeline.py
+# hypothesis_version: 6.151.5
+
+[b'\n', 0.0, 0.01, 'Processing', '_error', '_record', 'count', 'dead_letter.closed', 'dead_letter.opened', 'error', 'pipeline.initialized', 'pipeline.row_failed', 'pipeline.row_skipped', 'pipeline.to_json', 'pipeline.to_ndjson', 'rec', 'report', 'row', 'validation', 'validation failed', 'wb']

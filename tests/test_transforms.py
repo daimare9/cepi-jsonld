@@ -14,10 +14,10 @@ from ceds_jsonld.transforms import (
     sex_prefix,
 )
 
-
 # ---------------------------------------------------------------------------
 # sex_prefix
 # ---------------------------------------------------------------------------
+
 
 class TestSexPrefix:
     def test_female(self):
@@ -37,6 +37,7 @@ class TestSexPrefix:
 # race_prefix
 # ---------------------------------------------------------------------------
 
+
 class TestRacePrefix:
     def test_simple_race(self):
         assert race_prefix("White") == "RaceAndEthnicity_White"
@@ -51,6 +52,7 @@ class TestRacePrefix:
 # ---------------------------------------------------------------------------
 # first_pipe_split
 # ---------------------------------------------------------------------------
+
 
 class TestFirstPipeSplit:
     def test_multiple_values(self):
@@ -69,6 +71,7 @@ class TestFirstPipeSplit:
 # ---------------------------------------------------------------------------
 # int_clean
 # ---------------------------------------------------------------------------
+
 
 class TestIntClean:
     def test_integer_string(self):
@@ -91,6 +94,7 @@ class TestIntClean:
 # date_format
 # ---------------------------------------------------------------------------
 
+
 class TestDateFormat:
     def test_passthrough(self):
         assert date_format("1965-05-15") == "1965-05-15"
@@ -102,6 +106,7 @@ class TestDateFormat:
 # ---------------------------------------------------------------------------
 # Registry and get_transform
 # ---------------------------------------------------------------------------
+
 
 class TestTransformRegistry:
     def test_all_builtins_present(self):

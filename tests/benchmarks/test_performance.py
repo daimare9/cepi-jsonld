@@ -121,9 +121,7 @@ class TestPipelinePerformance:
         }
 
     @pytest.mark.benchmark
-    def test_100k_pipeline_to_ndjson_under_10s(
-        self, full_row: dict, tmp_path: Path
-    ) -> None:
+    def test_100k_pipeline_to_ndjson_under_10s(self, full_row: dict, tmp_path: Path) -> None:
         """100K records through full Pipeline → NDJSON file in <10 seconds.
 
         This is the Phase 3 acceptance target from ROADMAP.md.

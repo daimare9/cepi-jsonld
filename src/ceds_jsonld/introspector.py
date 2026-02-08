@@ -9,14 +9,13 @@ This module is NOT in the hot path — it runs at dev/load time, not per-record.
 
 from __future__ import annotations
 
-import copy
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 from rdflib import BNode, Graph, Namespace, URIRef
 from rdflib.collection import Collection
-from rdflib.namespace import RDF, RDFS, XSD
+from rdflib.namespace import RDF, XSD
 
 from ceds_jsonld.exceptions import ShapeLoadError
 
@@ -87,7 +86,7 @@ class NodeShapeInfo:
     is_closed: bool = False
     ignored_properties: list[str] = field(default_factory=list)
     properties: list[PropertyInfo] = field(default_factory=list)
-    children: dict[str, "NodeShapeInfo"] = field(default_factory=dict)
+    children: dict[str, NodeShapeInfo] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -303,7 +302,7 @@ class SHACLIntrospector:
         root = self.root_shape()
         lookup = context_lookup or {}
         iri_to_name = self._build_iri_to_name(lookup)
-        name_to_iri = {v: k for k, v in iri_to_name.items()}
+        {v: k for k, v in iri_to_name.items()}
         issues: list[dict[str, Any]] = []
 
         yaml_props = mapping_config.get("properties", {})
@@ -315,17 +314,24 @@ class SHACLIntrospector:
 
             if human not in yaml_props:
                 if prop.min_count and prop.min_count > 0:
-                    issues.append({
-                        "level": "error",
-                        "property": human,
-                        "message": f"Required SHACL property '{human}' (minCount={prop.min_count}) is missing from mapping YAML",
-                    })
+                    issues.append(
+                        {
+                            "level": "error",
+                            "property": human,
+                            "message": (
+                                f"Required SHACL property '{human}'"
+                                f" (minCount={prop.min_count}) is missing from mapping YAML"
+                            ),
+                        }
+                    )
                 else:
-                    issues.append({
-                        "level": "warning",
-                        "property": human,
-                        "message": f"Optional SHACL property '{human}' is not mapped in YAML",
-                    })
+                    issues.append(
+                        {
+                            "level": "warning",
+                            "property": human,
+                            "message": f"Optional SHACL property '{human}' is not mapped in YAML",
+                        }
+                    )
                 continue
 
             yaml_prop = yaml_props[human]
@@ -336,11 +342,13 @@ class SHACLIntrospector:
                 expected_type = iri_to_name.get(child.target_class or "", child.target_class_local or child.local_name)
                 yaml_type = yaml_prop.get("type", "")
                 if yaml_type and yaml_type != expected_type:
-                    issues.append({
-                        "level": "error",
-                        "property": human,
-                        "message": f"Type mismatch: YAML has '{yaml_type}', SHACL expects '{expected_type}'",
-                    })
+                    issues.append(
+                        {
+                            "level": "error",
+                            "property": human,
+                            "message": f"Type mismatch: YAML has '{yaml_type}', SHACL expects '{expected_type}'",
+                        }
+                    )
 
                 # Check fields within sub-shape
                 self._validate_sub_shape_fields(child, yaml_prop, human, iri_to_name, issues)
@@ -348,11 +356,13 @@ class SHACLIntrospector:
         # Check for YAML properties not in SHACL
         for yaml_name in yaml_props:
             if yaml_name not in shacl_prop_names:
-                issues.append({
-                    "level": "warning",
-                    "property": yaml_name,
-                    "message": f"YAML property '{yaml_name}' does not match any SHACL property on root shape",
-                })
+                issues.append(
+                    {
+                        "level": "warning",
+                        "property": yaml_name,
+                        "message": f"YAML property '{yaml_name}' does not match any SHACL property on root shape",
+                    }
+                )
 
         return issues
 
@@ -384,10 +394,7 @@ class SHACLIntrospector:
                 if prop.node_shape:
                     referenced_shapes.add(prop.node_shape)
 
-        candidates = [
-            name for name in self._node_shapes
-            if name not in referenced_shapes
-        ]
+        candidates = [name for name in self._node_shapes if name not in referenced_shapes]
 
         if candidates:
             # Pick the one with the most child references
@@ -534,12 +541,9 @@ class SHACLIntrospector:
         entry: dict[str, Any] = {
             "type": child_type,
             "cardinality": cardinality,
-            "include_record_status": any(
-                p.node_shape == "RecordStatusShape" for p in child_shape.properties
-            ),
+            "include_record_status": any(p.node_shape == "RecordStatusShape" for p in child_shape.properties),
             "include_data_collection": any(
-                p.path_local in ("P201003", "hasDataCollectionShape")
-                or p.node_class == str(CEDS.C200410)
+                p.path_local in ("P201003", "hasDataCollectionShape") or p.node_class == str(CEDS.C200410)
                 for p in child_shape.properties
             ),
         }
@@ -566,14 +570,12 @@ class SHACLIntrospector:
                 # Map full XSD IRI to prefixed form
                 xsd_prefix = str(XSD)
                 if prop.datatype.startswith(xsd_prefix):
-                    field_entry["datatype"] = f"xsd:{prop.datatype[len(xsd_prefix):]}"
+                    field_entry["datatype"] = f"xsd:{prop.datatype[len(xsd_prefix) :]}"
                 else:
                     field_entry["datatype"] = prop.datatype
 
             if prop.allowed_values:
-                field_entry["# allowed_values"] = [
-                    self._local_name(URIRef(v)) for v in prop.allowed_values
-                ]
+                field_entry["# allowed_values"] = [self._local_name(URIRef(v)) for v in prop.allowed_values]
 
             if prop.min_count is None or prop.min_count == 0:
                 field_entry["optional"] = True
@@ -614,11 +616,13 @@ class SHACLIntrospector:
 
             if yaml_match is None:
                 if prop.min_count and prop.min_count > 0:
-                    issues.append({
-                        "level": "error",
-                        "property": f"{parent_name}.{field_name}",
-                        "message": f"Required SHACL field '{field_name}' (minCount={prop.min_count}) missing from YAML",
-                    })
+                    issues.append(
+                        {
+                            "level": "error",
+                            "property": f"{parent_name}.{field_name}",
+                            "message": f"Required SHACL field '{field_name}' (minCount={prop.min_count}) missing from YAML",
+                        }
+                    )
                 continue
 
             # Check datatype
@@ -626,14 +630,16 @@ class SHACLIntrospector:
                 xsd_prefix = str(XSD)
                 expected_dt = prop.datatype
                 if expected_dt.startswith(xsd_prefix):
-                    expected_dt = f"xsd:{expected_dt[len(xsd_prefix):]}"
+                    expected_dt = f"xsd:{expected_dt[len(xsd_prefix) :]}"
                 yaml_dt = yaml_match["datatype"]
                 if yaml_dt != expected_dt and yaml_dt != prop.datatype:
-                    issues.append({
-                        "level": "warning",
-                        "property": f"{parent_name}.{field_name}",
-                        "message": f"Datatype mismatch: YAML has '{yaml_dt}', SHACL expects '{expected_dt}'",
-                    })
+                    issues.append(
+                        {
+                            "level": "warning",
+                            "property": f"{parent_name}.{field_name}",
+                            "message": f"Datatype mismatch: YAML has '{yaml_dt}', SHACL expects '{expected_dt}'",
+                        }
+                    )
 
     def _shape_to_dict(self, shape: NodeShapeInfo) -> dict[str, Any]:
         """Convert a NodeShapeInfo tree to a plain dict."""

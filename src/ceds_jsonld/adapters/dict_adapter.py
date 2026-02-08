@@ -6,8 +6,8 @@ or any iterable of dicts.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-from typing import Any, Iterator
+from collections.abc import Iterable, Iterator
+from typing import Any
 
 from ceds_jsonld.adapters.base import SourceAdapter
 

@@ -19,13 +19,13 @@ human-readable error reports.
 from __future__ import annotations
 
 import random
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 from ceds_jsonld.exceptions import ValidationError
-
 
 # ---------------------------------------------------------------------------
 # Data structures
@@ -189,8 +189,7 @@ class PreBuildValidator:
             issue = FieldIssue(
                 property_path="@id",
                 message=(
-                    f"ID source field '{id_source}' is missing or empty. "
-                    f"Available columns: {sorted(raw_row.keys())}"
+                    f"ID source field '{id_source}' is missing or empty. Available columns: {sorted(raw_row.keys())}"
                 ),
                 expected=f"non-empty value in '{id_source}'",
                 actual=id_val,
@@ -255,7 +254,7 @@ class PreBuildValidator:
         introspector: Any,
         *,
         context_lookup: dict[str, str] | None = None,
-    ) -> "PreBuildValidator":
+    ) -> PreBuildValidator:
         """Create a validator enriched with SHACL-derived rules.
 
         Extracts ``sh:in`` allowed values from the introspected shape tree
@@ -312,7 +311,7 @@ class PreBuildValidator:
         is_multi_cardinality: bool
         split_on: str
 
-    def _compile_rules(self) -> list["PreBuildValidator._FieldRule"]:
+    def _compile_rules(self) -> list[PreBuildValidator._FieldRule]:
         """Pre-compile per-field rules from the mapping config."""
         rules: list[PreBuildValidator._FieldRule] = []
 
@@ -346,7 +345,7 @@ class PreBuildValidator:
     def _check_rule(
         self,
         raw_row: dict[str, Any],
-        rule: "_FieldRule",
+        rule: _FieldRule,
         record_id: str,
         result: ValidationResult,
         mode: ValidationMode,
@@ -385,7 +384,7 @@ class PreBuildValidator:
     def _check_datatype(
         self,
         value: str,
-        rule: "_FieldRule",
+        rule: _FieldRule,
         record_id: str,
         result: ValidationResult,
         mode: ValidationMode,
@@ -399,9 +398,7 @@ class PreBuildValidator:
             if len(parts) != 3 or not all(p.isdigit() for p in parts):
                 issue = FieldIssue(
                     property_path=rule.property_path,
-                    message=(
-                        f"Value '{value}' does not look like a valid xsd:date (expected YYYY-MM-DD)"
-                    ),
+                    message=(f"Value '{value}' does not look like a valid xsd:date (expected YYYY-MM-DD)"),
                     severity="warning",
                     expected="YYYY-MM-DD",
                     actual=value,
@@ -439,12 +436,12 @@ class PreBuildValidator:
                 )
                 result.add_issue(record_id, issue)
                 if mode is ValidationMode.STRICT:
-                    raise ValidationError(issue.message)
+                    raise ValidationError(issue.message) from None
 
     def _check_allowed_values(
         self,
         value: str,
-        rule: "_FieldRule",
+        rule: _FieldRule,
         record_id: str,
         result: ValidationResult,
         mode: ValidationMode,
@@ -532,8 +529,7 @@ class SHACLValidator:
             from pyshacl import validate as _pyshacl_validate  # noqa: F401
         except ImportError as exc:
             msg = (
-                "SHACL validation requires the 'pyshacl' package. "
-                "Install it with: pip install ceds-jsonld[validation]"
+                "SHACL validation requires the 'pyshacl' package. Install it with: pip install ceds-jsonld[validation]"
             )
             raise ValidationError(msg) from exc
 
@@ -602,7 +598,7 @@ class SHACLValidator:
             )
             result.add_issue(str(record_id), issue)
             if mode is ValidationMode.STRICT:
-                raise ValidationError(issue.message)
+                raise ValidationError(issue.message) from exc
             return result
 
         # Validate with pySHACL
@@ -730,7 +726,7 @@ class SHACLValidator:
             result_path = results_graph.value(result_node, SH.resultPath)
             result_msg = results_graph.value(result_node, SH.resultMessage)
             result_severity = results_graph.value(result_node, SH.resultSeverity)
-            focus_node = results_graph.value(result_node, SH.focusNode)
+            results_graph.value(result_node, SH.focusNode)
             value_node = results_graph.value(result_node, SH.value)
 
             # Map severity

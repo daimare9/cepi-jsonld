@@ -12,15 +12,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from ceds_jsonld.cosmos.prepare import prepare_for_cosmos
 from ceds_jsonld.cosmos.loader import (
+    RECOMMENDED_INDEXING_POLICY,
     BulkResult,
     CosmosLoader,
-    RECOMMENDED_INDEXING_POLICY,
     UpsertResult,
 )
-from ceds_jsonld.exceptions import CosmosError
-
+from ceds_jsonld.cosmos.prepare import prepare_for_cosmos
 
 # =====================================================================
 # prepare_for_cosmos — pure function, real tests
@@ -92,6 +90,7 @@ class TestPrepareForCosmos:
 # =====================================================================
 # CosmosLoader — mocked Azure SDK (true external service)
 # =====================================================================
+
 
 def _sample_doc(doc_id: str = "12345") -> dict[str, Any]:
     return {
@@ -190,27 +189,21 @@ class TestCosmosLoaderUpsert:
         loader._container = mock_container
         return loader
 
-    def test_upsert_one_success(
-        self, loader_with_mock: CosmosLoader, mock_container: AsyncMock
-    ) -> None:
+    def test_upsert_one_success(self, loader_with_mock: CosmosLoader, mock_container: AsyncMock) -> None:
         doc = _sample_doc()
         result = asyncio.run(loader_with_mock.upsert_one(doc))
         assert result.status == "success"
         assert result.document_id == "12345"
         mock_container.upsert_item.assert_awaited_once()
 
-    def test_upsert_one_failure(
-        self, loader_with_mock: CosmosLoader, mock_container: AsyncMock
-    ) -> None:
+    def test_upsert_one_failure(self, loader_with_mock: CosmosLoader, mock_container: AsyncMock) -> None:
         mock_container.upsert_item.side_effect = Exception("Connection refused")
         doc = _sample_doc()
         result = asyncio.run(loader_with_mock.upsert_one(doc))
         assert result.status == "error"
         assert "Connection refused" in result.error
 
-    def test_upsert_many_success(
-        self, loader_with_mock: CosmosLoader, mock_container: AsyncMock
-    ) -> None:
+    def test_upsert_many_success(self, loader_with_mock: CosmosLoader, mock_container: AsyncMock) -> None:
         docs = [_sample_doc(str(i)) for i in range(5)]
         result = asyncio.run(loader_with_mock.upsert_many(docs))
         assert isinstance(result, BulkResult)
@@ -219,9 +212,7 @@ class TestCosmosLoaderUpsert:
         assert result.failed == 0
         assert mock_container.upsert_item.await_count == 5
 
-    def test_upsert_many_partial_failure(
-        self, loader_with_mock: CosmosLoader, mock_container: AsyncMock
-    ) -> None:
+    def test_upsert_many_partial_failure(self, loader_with_mock: CosmosLoader, mock_container: AsyncMock) -> None:
         call_count = 0
 
         async def _fail_on_third(body: dict) -> dict:
@@ -240,9 +231,7 @@ class TestCosmosLoaderUpsert:
         assert result.failed == 1
         assert len(result.errors) == 1
 
-    def test_upsert_many_custom_concurrency(
-        self, loader_with_mock: CosmosLoader, mock_container: AsyncMock
-    ) -> None:
+    def test_upsert_many_custom_concurrency(self, loader_with_mock: CosmosLoader, mock_container: AsyncMock) -> None:
         docs = [_sample_doc(str(i)) for i in range(10)]
         result = asyncio.run(loader_with_mock.upsert_many(docs, concurrency=2))
         assert result.succeeded == 10
@@ -311,6 +300,7 @@ class TestPipelineToCosmos:
     @pytest.fixture()
     def registry(self) -> Any:
         from ceds_jsonld.registry import ShapeRegistry
+
         reg = ShapeRegistry()
         reg.load_shape("person")
         return reg
@@ -332,9 +322,7 @@ class TestPipelineToCosmos:
             },
         ]
 
-    def test_to_cosmos_calls_loader(
-        self, registry: Any, sample_rows: list[dict]
-    ) -> None:
+    def test_to_cosmos_calls_loader(self, registry: Any, sample_rows: list[dict]) -> None:
         from ceds_jsonld.adapters.dict_adapter import DictAdapter
         from ceds_jsonld.pipeline import Pipeline
 
@@ -359,9 +347,7 @@ class TestPipelineToCosmos:
             MockLoader.assert_called_once()
             mock_instance.upsert_many.assert_awaited_once()
 
-    def test_to_cosmos_uses_shape_name_as_container(
-        self, registry: Any, sample_rows: list[dict]
-    ) -> None:
+    def test_to_cosmos_uses_shape_name_as_container(self, registry: Any, sample_rows: list[dict]) -> None:
         from ceds_jsonld.adapters.dict_adapter import DictAdapter
         from ceds_jsonld.pipeline import Pipeline
 
@@ -369,9 +355,7 @@ class TestPipelineToCosmos:
 
         with patch("ceds_jsonld.cosmos.loader.CosmosLoader") as MockLoader:
             mock_instance = AsyncMock()
-            mock_instance.upsert_many = AsyncMock(
-                return_value=BulkResult(total=1, succeeded=1)
-            )
+            mock_instance.upsert_many = AsyncMock(return_value=BulkResult(total=1, succeeded=1))
             mock_instance.__aenter__ = AsyncMock(return_value=mock_instance)
             mock_instance.__aexit__ = AsyncMock(return_value=None)
             MockLoader.return_value = mock_instance
@@ -385,9 +369,7 @@ class TestPipelineToCosmos:
             call_kwargs = MockLoader.call_args[1]
             assert call_kwargs["container"] == "person"
 
-    def test_to_cosmos_custom_container(
-        self, registry: Any, sample_rows: list[dict]
-    ) -> None:
+    def test_to_cosmos_custom_container(self, registry: Any, sample_rows: list[dict]) -> None:
         from ceds_jsonld.adapters.dict_adapter import DictAdapter
         from ceds_jsonld.pipeline import Pipeline
 
@@ -395,9 +377,7 @@ class TestPipelineToCosmos:
 
         with patch("ceds_jsonld.cosmos.loader.CosmosLoader") as MockLoader:
             mock_instance = AsyncMock()
-            mock_instance.upsert_many = AsyncMock(
-                return_value=BulkResult(total=1, succeeded=1)
-            )
+            mock_instance.upsert_many = AsyncMock(return_value=BulkResult(total=1, succeeded=1))
             mock_instance.__aenter__ = AsyncMock(return_value=mock_instance)
             mock_instance.__aexit__ = AsyncMock(return_value=None)
             MockLoader.return_value = mock_instance

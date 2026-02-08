@@ -27,7 +27,6 @@ from ceds_jsonld.adapters import (
 )
 from ceds_jsonld.exceptions import AdapterError
 
-
 # ---------------------------------------------------------------------------
 # Shared sample data
 # ---------------------------------------------------------------------------
@@ -39,12 +38,7 @@ SAMPLE_ROWS = [
 ]
 
 PERSON_CSV = (
-    Path(__file__).resolve().parent.parent
-    / "src"
-    / "ceds_jsonld"
-    / "ontologies"
-    / "person"
-    / "person_sample.csv"
+    Path(__file__).resolve().parent.parent / "src" / "ceds_jsonld" / "ontologies" / "person" / "person_sample.csv"
 )
 
 
@@ -99,9 +93,7 @@ def sqlite_url(tmp_path: Path) -> str:
     url = f"sqlite:///{db_path}"
     engine = create_engine(url)
     with engine.connect() as conn:
-        conn.execute(
-            text("CREATE TABLE students (FirstName TEXT, LastName TEXT, Age INTEGER)")
-        )
+        conn.execute(text("CREATE TABLE students (FirstName TEXT, LastName TEXT, Age INTEGER)"))
         for row in SAMPLE_ROWS:
             conn.execute(
                 text("INSERT INTO students VALUES (:f, :l, :a)"),
@@ -341,34 +333,26 @@ class TestAPIAdapter:
         assert rows[0]["FirstName"] == "Alice"
 
     def test_results_key_extraction(self, httpserver: HTTPServer) -> None:
-        httpserver.expect_request("/api").respond_with_json(
-            {"data": SAMPLE_ROWS, "total": 3}
-        )
+        httpserver.expect_request("/api").respond_with_json({"data": SAMPLE_ROWS, "total": 3})
         adapter = APIAdapter(httpserver.url_for("/api"), results_key="data")
         assert len(list(adapter.read())) == 3
 
     def test_offset_pagination(self, httpserver: HTTPServer) -> None:
-        httpserver.expect_ordered_request(
-            "/items", query_string="offset=0&limit=2"
-        ).respond_with_json(SAMPLE_ROWS[:2])
-        httpserver.expect_ordered_request(
-            "/items", query_string="offset=2&limit=2"
-        ).respond_with_json(SAMPLE_ROWS[2:])
+        httpserver.expect_ordered_request("/items", query_string="offset=0&limit=2").respond_with_json(SAMPLE_ROWS[:2])
+        httpserver.expect_ordered_request("/items", query_string="offset=2&limit=2").respond_with_json(SAMPLE_ROWS[2:])
 
-        adapter = APIAdapter(
-            httpserver.url_for("/items"), pagination="offset", page_size=2
-        )
+        adapter = APIAdapter(httpserver.url_for("/items"), pagination="offset", page_size=2)
         rows = list(adapter.read())
         assert len(rows) == 3
         assert rows[2]["FirstName"] == "Carol"
 
     def test_cursor_pagination(self, httpserver: HTTPServer) -> None:
-        httpserver.expect_ordered_request(
-            "/items", query_string="limit=2"
-        ).respond_with_json({"data": SAMPLE_ROWS[:2], "next_cursor": "abc123"})
-        httpserver.expect_ordered_request(
-            "/items", query_string="limit=2&cursor=abc123"
-        ).respond_with_json({"data": SAMPLE_ROWS[2:], "next_cursor": None})
+        httpserver.expect_ordered_request("/items", query_string="limit=2").respond_with_json(
+            {"data": SAMPLE_ROWS[:2], "next_cursor": "abc123"}
+        )
+        httpserver.expect_ordered_request("/items", query_string="limit=2&cursor=abc123").respond_with_json(
+            {"data": SAMPLE_ROWS[2:], "next_cursor": None}
+        )
 
         adapter = APIAdapter(
             httpserver.url_for("/items"),
@@ -379,9 +363,9 @@ class TestAPIAdapter:
         assert len(list(adapter.read())) == 3
 
     def test_custom_headers_sent(self, httpserver: HTTPServer) -> None:
-        httpserver.expect_request(
-            "/secure", headers={"Authorization": "Bearer TOKEN"}
-        ).respond_with_json([{"ok": True}])
+        httpserver.expect_request("/secure", headers={"Authorization": "Bearer TOKEN"}).respond_with_json(
+            [{"ok": True}]
+        )
 
         adapter = APIAdapter(
             httpserver.url_for("/secure"),

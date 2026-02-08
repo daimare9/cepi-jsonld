@@ -110,7 +110,15 @@ target-version = "py312"
 line-length = 120
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "A", "SIM", "TCH"]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "SIM"]
+ignore = [
+    "SIM105",   # contextlib.suppress — try/except/pass is often clearer
+    "SIM108",   # ternary — if/else is often more readable
+    "A002",     # builtin shadowing — `format` param is fine
+    "E741",     # ambiguous variable name — `l` in list comp is common
+    "N806",     # CamelCase variable in function — MockLoader, SH are fine in tests
+    "N817",     # CamelCase imported as acronym — PBV alias is fine in tests
+]
 
 [tool.mypy]
 python_version = "3.12"

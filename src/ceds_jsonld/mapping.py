@@ -7,10 +7,11 @@ The FieldMapper reads a mapping YAML config and transforms raw source dicts
 from __future__ import annotations
 
 import copy
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from ceds_jsonld.exceptions import MappingError
-from ceds_jsonld.transforms import BUILTIN_TRANSFORMS, get_transform
+from ceds_jsonld.transforms import get_transform
 
 
 class FieldMapper:
@@ -50,7 +51,7 @@ class FieldMapper:
         transform_overrides: dict[str, dict[str, str]] | None = None,
         id_source: str | None = None,
         id_transform: str | None = None,
-    ) -> "FieldMapper":
+    ) -> FieldMapper:
         """Create a new FieldMapper with selective overrides applied.
 
         Returns a new mapper instance — the original is not mutated.
@@ -101,7 +102,7 @@ class FieldMapper:
         base_config: dict[str, Any],
         overlay_config: dict[str, Any],
         custom_transforms: dict[str, Callable[..., Any]] | None = None,
-    ) -> "FieldMapper":
+    ) -> FieldMapper:
         """Create a FieldMapper by deep-merging a base config with an overlay.
 
         The overlay selectively overrides fields in the base. Useful for
@@ -224,10 +225,7 @@ class FieldMapper:
 
             if self._is_empty(value):
                 if not field_def.get("optional", False):
-                    msg = (
-                        f"Required field '{source}' is missing or empty in row "
-                        f"for property '{prop_name}'"
-                    )
+                    msg = f"Required field '{source}' is missing or empty in row for property '{prop_name}'"
                     raise MappingError(msg)
                 continue
 
@@ -315,6 +313,7 @@ class FieldMapper:
         # Handle pandas NaN
         try:
             import math
+
             if isinstance(value, float) and math.isnan(value):
                 return True
         except (TypeError, ValueError):

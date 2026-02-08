@@ -28,24 +28,26 @@ from typing import Any
 # ---------------------------------------------------------------------------
 
 #: Field names whose values must never appear in log output.
-PII_FIELDS: frozenset[str] = frozenset({
-    "ssn",
-    "social_security_number",
-    "date_of_birth",
-    "dob",
-    "birthdate",
-    "person_identifier",
-    "personidentifier",
-    "personidentifiers",
-    "first_name",
-    "firstname",
-    "last_name",
-    "lastname",
-    "lastorsurname",
-    "middle_name",
-    "middlename",
-    "generationcodeorsuffix",
-})
+PII_FIELDS: frozenset[str] = frozenset(
+    {
+        "ssn",
+        "social_security_number",
+        "date_of_birth",
+        "dob",
+        "birthdate",
+        "person_identifier",
+        "personidentifier",
+        "personidentifiers",
+        "first_name",
+        "firstname",
+        "last_name",
+        "lastname",
+        "lastorsurname",
+        "middle_name",
+        "middlename",
+        "generationcodeorsuffix",
+    }
+)
 
 _REDACTED = "***REDACTED***"
 
@@ -88,9 +90,7 @@ try:
                 structlog.processors.StackInfoRenderer(),
                 structlog.processors.format_exc_info,
                 _structlog_pii_processor,
-                structlog.dev.ConsoleRenderer()
-                if sys.stderr.isatty()
-                else structlog.processors.JSONRenderer(),
+                structlog.dev.ConsoleRenderer() if sys.stderr.isatty() else structlog.processors.JSONRenderer(),
             ],
             wrapper_class=structlog.stdlib.BoundLogger,
             context_class=dict,
@@ -98,9 +98,7 @@ try:
             cache_logger_on_first_use=True,
         )
 
-    def _structlog_pii_processor(
-        logger: Any, method_name: str, event_dict: dict[str, Any]
-    ) -> dict[str, Any]:
+    def _structlog_pii_processor(logger: Any, method_name: str, event_dict: dict[str, Any]) -> dict[str, Any]:
         """structlog processor that redacts PII fields."""
         return _mask_pii(event_dict)
 
@@ -132,12 +130,12 @@ except ImportError:
             self._logger = logger
             self._bound: dict[str, Any] = bound
 
-        def bind(self, **new_values: Any) -> "_StdlibStructuredLogger":
+        def bind(self, **new_values: Any) -> _StdlibStructuredLogger:
             """Return a new logger with additional bound context."""
             merged = {**self._bound, **new_values}
             return _StdlibStructuredLogger(self._logger, **merged)
 
-        def unbind(self, *keys: str) -> "_StdlibStructuredLogger":
+        def unbind(self, *keys: str) -> _StdlibStructuredLogger:
             """Return a new logger with specified keys removed."""
             merged = {k: v for k, v in self._bound.items() if k not in keys}
             return _StdlibStructuredLogger(self._logger, **merged)

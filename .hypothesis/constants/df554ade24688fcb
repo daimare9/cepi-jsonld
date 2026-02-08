@@ -1,0 +1,4 @@
+# file: C:\Projects\cepi_jsonld\src\ceds_jsonld\validator.py
+# hypothesis_version: 6.151.5
+
+[0.01, 1.0, '#', ', ', '-', '/', ': ', '@context', '@document', '@id', 'T', 'Warning', 'YYYY-MM-DD', 'YYYY-MM-DDThh:mm:ss', 'cardinality', 'datatype', 'error', 'fields', 'http', 'id_source', 'json-ld', 'multiple', 'none', 'numeric string', 'optional', 'properties', 'report', 'sample', 'single', 'source', 'split_on', 'strict', 'target', 'turtle', 'unknown', 'warning', 'xsd:date', 'xsd:dateTime', 'xsd:int', 'xsd:integer', '|']

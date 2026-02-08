@@ -8,7 +8,7 @@ these definitions for use by FieldMapper and JSONLDBuilder.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from urllib.request import urlopen
@@ -188,10 +188,7 @@ class ShapeRegistry:
         if mapping_url is not None:
             self._download_if_needed(mapping_url, mapping_path, force=force)
         elif not mapping_path.exists():
-            msg = (
-                f"No mapping YAML for shape '{name}'. Provide mapping_url or place "
-                f"a mapping file at {mapping_path}"
-            )
+            msg = f"No mapping YAML for shape '{name}'. Provide mapping_url or place a mapping file at {mapping_path}"
             raise ShapeLoadError(msg)
 
         return self.load_shape(name, path=shape_cache)

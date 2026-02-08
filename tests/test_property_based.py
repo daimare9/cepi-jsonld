@@ -7,13 +7,13 @@ pipeline maintains invariants regardless of input content.
 from __future__ import annotations
 
 import pytest
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from ceds_jsonld.builder import JSONLDBuilder
 from ceds_jsonld.mapping import FieldMapper
 from ceds_jsonld.registry import ShapeRegistry
-from ceds_jsonld.validator import PreBuildValidator, ValidationMode
-
+from ceds_jsonld.validator import PreBuildValidator
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -49,10 +49,16 @@ _date_text = st.dates().map(lambda d: d.isoformat())
 _sex_values = st.sampled_from(["Female", "Male"])
 
 # Race values (can be comma-separated within pipe groups)
-_single_race = st.sampled_from([
-    "White", "Black", "Asian", "AmericanIndianOrAlaskaNative",
-    "HispanicOrLatinoEthnicity", "NativeHawaiianOrOtherPacificIslander",
-])
+_single_race = st.sampled_from(
+    [
+        "White",
+        "Black",
+        "Asian",
+        "AmericanIndianOrAlaskaNative",
+        "HispanicOrLatinoEthnicity",
+        "NativeHawaiianOrOtherPacificIslander",
+    ]
+)
 
 _race_group = st.lists(_single_race, min_size=1, max_size=3).map(lambda ls: ",".join(ls))
 _race_field = st.lists(_race_group, min_size=1, max_size=3).map(lambda gs: "|".join(gs))
@@ -61,17 +67,21 @@ _race_field = st.lists(_race_group, min_size=1, max_size=3).map(lambda gs: "|".j
 _id_count = st.integers(min_value=1, max_value=4)
 _single_id = st.integers(min_value=100000, max_value=999999999).map(str)
 
-_id_system = st.sampled_from([
-    "PersonIdentificationSystem_SSN",
-    "PersonIdentificationSystem_EducatorID",
-    "PersonIdentificationSystem_State",
-])
+_id_system = st.sampled_from(
+    [
+        "PersonIdentificationSystem_SSN",
+        "PersonIdentificationSystem_EducatorID",
+        "PersonIdentificationSystem_State",
+    ]
+)
 
-_id_type = st.sampled_from([
-    "PersonIdentifierType_PersonIdentifier",
-    "PersonIdentifierType_StaffMemberIdentifier",
-    "PersonIdentifierType_StudentIdentifier",
-])
+_id_type = st.sampled_from(
+    [
+        "PersonIdentifierType_PersonIdentifier",
+        "PersonIdentifierType_StaffMemberIdentifier",
+        "PersonIdentifierType_StudentIdentifier",
+    ]
+)
 
 
 @st.composite

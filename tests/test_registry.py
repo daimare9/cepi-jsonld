@@ -139,24 +139,24 @@ ex:nameProperty a sh:PropertyShape ;
     sh:path ex:name .
 """
 
-_MINI_CONTEXT = json.dumps({
-    "@context": {"@vocab": "http://example.org/", "ex": "http://example.org/"}
-})
+_MINI_CONTEXT = json.dumps({"@context": {"@vocab": "http://example.org/", "ex": "http://example.org/"}})
 
-_MINI_MAPPING = yaml.dump({
-    "shape": "TestShape",
-    "context_url": "http://example.org/context.json",
-    "base_uri": "ex:test/",
-    "id_source": "ID",
-    "type": "Test",
-    "properties": {
-        "name": {
-            "type": "Name",
-            "cardinality": "single",
-            "fields": {"name": {"source": "Name", "target": "name"}},
-        }
-    },
-})
+_MINI_MAPPING = yaml.dump(
+    {
+        "shape": "TestShape",
+        "context_url": "http://example.org/context.json",
+        "base_uri": "ex:test/",
+        "id_source": "ID",
+        "type": "Test",
+        "properties": {
+            "name": {
+                "type": "Name",
+                "cardinality": "single",
+                "fields": {"name": {"source": "Name", "target": "name"}},
+            }
+        },
+    }
+)
 
 
 class _FakeHandler(BaseHTTPRequestHandler):
@@ -221,10 +221,10 @@ class TestFetchShape:
             "mapping_url": f"{base}/test_mapping.yaml",
             "cache_dir": tmp_path,
         }
-        shape1 = registry.fetch_shape("test", **kwargs)
+        registry.fetch_shape("test", **kwargs)
         # Modify the cache file to prove it's reused (not re-downloaded)
         cached_mapping = tmp_path / "test" / "test_mapping.yaml"
-        original_content = cached_mapping.read_text(encoding="utf-8")
+        cached_mapping.read_text(encoding="utf-8")
         assert cached_mapping.exists()
         # Second call should use cache
         shape2 = registry.fetch_shape("test", **kwargs)

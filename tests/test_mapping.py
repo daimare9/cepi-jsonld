@@ -170,9 +170,7 @@ class TestFieldMapperOverrides:
     def test_source_override_renames_column(self, person_shape_def, sample_person_row_minimal):
         mapper = FieldMapper(person_shape_def.mapping_config)
         # Override: PersonName.FirstName reads from "FIRST_NM" instead of "FirstName"
-        overridden = mapper.with_overrides(
-            source_overrides={"hasPersonName": {"FirstName": "FIRST_NM"}}
-        )
+        overridden = mapper.with_overrides(source_overrides={"hasPersonName": {"FirstName": "FIRST_NM"}})
 
         # Build a row with the new column name
         row = dict(sample_person_row_minimal)
@@ -184,18 +182,14 @@ class TestFieldMapperOverrides:
 
     def test_original_mapper_unchanged(self, person_shape_def, sample_person_row_minimal):
         mapper = FieldMapper(person_shape_def.mapping_config)
-        _overridden = mapper.with_overrides(
-            source_overrides={"hasPersonName": {"FirstName": "FIRST_NM"}}
-        )
+        _overridden = mapper.with_overrides(source_overrides={"hasPersonName": {"FirstName": "FIRST_NM"}})
         # Original should still use "FirstName"
         result = mapper.map(sample_person_row_minimal)
         assert result["hasPersonName"][0]["FirstName"] == "Jane"
 
     def test_transform_override(self, person_shape_def, sample_person_row_minimal):
         mapper = FieldMapper(person_shape_def.mapping_config)
-        overridden = mapper.with_overrides(
-            transform_overrides={"hasPersonSexGender": {"hasSex": None}}
-        )
+        overridden = mapper.with_overrides(transform_overrides={"hasPersonSexGender": {"hasSex": None}})
         result = overridden.map(sample_person_row_minimal)
         # Without the sex_prefix transform, raw value is passed through
         assert result["hasPersonSexGender"][0]["hasSex"] == "Female"
@@ -220,9 +214,7 @@ class TestFieldMapperOverrides:
     def test_override_nonexistent_property_ignored(self, person_shape_def, sample_person_row_minimal):
         mapper = FieldMapper(person_shape_def.mapping_config)
         # Override a property that doesn't exist — should not raise
-        overridden = mapper.with_overrides(
-            source_overrides={"fakeProperty": {"fakeField": "fakeColumn"}}
-        )
+        overridden = mapper.with_overrides(source_overrides={"fakeProperty": {"fakeField": "fakeColumn"}})
         result = overridden.map(sample_person_row_minimal)
         assert result["__id__"] == "123456789"
 
@@ -283,9 +275,7 @@ class TestFieldMapperCompose:
                 "hasCustomProperty": {
                     "type": "CustomType",
                     "cardinality": "single",
-                    "fields": {
-                        "customField": {"source": "CUSTOM_COL", "target": "customField"}
-                    },
+                    "fields": {"customField": {"source": "CUSTOM_COL", "target": "customField"}},
                 }
             }
         }
@@ -319,13 +309,7 @@ class TestFieldMapperCompose:
         """Compose a mapper and actually map a row to verify it works."""
         base = person_shape_def.mapping_config
         overlay = {
-            "properties": {
-                "hasPersonName": {
-                    "fields": {
-                        "FirstName": {"source": "FNAME", "target": "FirstName"}
-                    }
-                }
-            }
+            "properties": {"hasPersonName": {"fields": {"FirstName": {"source": "FNAME", "target": "FirstName"}}}}
         }
         mapper = FieldMapper.compose(base, overlay)
         row = {

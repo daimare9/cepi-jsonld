@@ -6,8 +6,9 @@ commonly found in CEDS data exports.
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 import pandas as pd
 
@@ -81,8 +82,7 @@ class CSVAdapter(SourceAdapter):
         # Replace NaN with empty string for downstream mapper compatibility
         df = df.fillna("")
 
-        for record in df.to_dict(orient="records"):
-            yield record
+        yield from df.to_dict(orient="records")
 
     def read_batch(self, batch_size: int = 1000, **kwargs: Any) -> Iterator[list[dict[str, Any]]]:
         """Yield batches by reading with pandas chunksize.

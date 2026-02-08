@@ -7,9 +7,10 @@ JSONLDBuilder → serializer chain, providing both streaming and batch APIs.
 from __future__ import annotations
 
 import time
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Iterator
+from typing import Any
 
 from ceds_jsonld.adapters.base import SourceAdapter
 from ceds_jsonld.builder import JSONLDBuilder
@@ -41,6 +42,7 @@ def _try_tqdm(total: int | None = None, desc: str = "Processing") -> Any:
     """Return a tqdm progress bar if available, else ``None``."""
     try:
         from tqdm import tqdm
+
         return tqdm(total=total, desc=desc, unit="rec")
     except ImportError:
         return None
@@ -187,12 +189,14 @@ class Pipeline:
         )
 
         # Apply source/transform overrides if provided.
-        has_overrides = any([
-            source_overrides,
-            transform_overrides,
-            id_source is not None,
-            id_transform is not None,
-        ])
+        has_overrides = any(
+            [
+                source_overrides,
+                transform_overrides,
+                id_source is not None,
+                id_transform is not None,
+            ]
+        )
         if has_overrides:
             self._mapper = self._mapper.with_overrides(
                 source_overrides=source_overrides,
@@ -455,7 +459,11 @@ class Pipeline:
                 records_in += 1
                 try:
                     if validate:
-                        vmode = validation_mode if isinstance(validation_mode, ValidationMode) else ValidationMode(validation_mode)
+                        vmode = (
+                            validation_mode
+                            if isinstance(validation_mode, ValidationMode)
+                            else ValidationMode(validation_mode)
+                        )
                         row_result = self._pre_validator.validate_row(raw_row, mode=vmode)
                         if not row_result.conforms and vmode is not ValidationMode.STRICT:
                             dead.write(raw_row, "pre-build validation failed")

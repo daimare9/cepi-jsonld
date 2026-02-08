@@ -102,18 +102,14 @@ class TestBuildOneSubShapes:
 class TestBuildOneRecordStatus:
     """Test record status and data collection injection."""
 
-    def test_record_status_present(
-        self, person_shape_def, sample_person_row_full, record_status_expected
-    ):
+    def test_record_status_present(self, person_shape_def, sample_person_row_full, record_status_expected):
         mapper = FieldMapper(person_shape_def.mapping_config)
         builder = JSONLDBuilder(person_shape_def)
         doc = builder.build_one(mapper.map(sample_person_row_full))
         name = doc["hasPersonName"]
         assert name["hasRecordStatus"] == record_status_expected
 
-    def test_data_collection_present(
-        self, person_shape_def, sample_person_row_full, data_collection_expected
-    ):
+    def test_data_collection_present(self, person_shape_def, sample_person_row_full, data_collection_expected):
         mapper = FieldMapper(person_shape_def.mapping_config)
         builder = JSONLDBuilder(person_shape_def)
         doc = builder.build_one(mapper.map(sample_person_row_full))
@@ -165,9 +161,7 @@ class TestBuildOneSingleVsArray:
         assert isinstance(doc["hasPersonDemographicRace"], list)
         assert isinstance(doc["hasPersonIdentification"], list)
 
-    def test_single_instance_multi_cardinality_is_object(
-        self, person_shape_def, sample_person_row_minimal
-    ):
+    def test_single_instance_multi_cardinality_is_object(self, person_shape_def, sample_person_row_minimal):
         """When multi-cardinality has only 1 instance, unwrap to object."""
         mapper = FieldMapper(person_shape_def.mapping_config)
         builder = JSONLDBuilder(person_shape_def)

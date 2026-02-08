@@ -13,10 +13,9 @@ from typing import Any
 import pytest
 
 from ceds_jsonld.adapters.dict_adapter import DictAdapter
-from ceds_jsonld.exceptions import PipelineError
 from ceds_jsonld.logging import (
-    PII_FIELDS,
     _REDACTED,
+    PII_FIELDS,
     _mask_pii,
     get_backend,
     get_logger,
@@ -24,7 +23,6 @@ from ceds_jsonld.logging import (
 from ceds_jsonld.pipeline import Pipeline, PipelineResult, _DeadLetterWriter
 from ceds_jsonld.registry import ShapeRegistry
 from ceds_jsonld.sanitize import sanitize_iri_component, validate_base_uri
-
 
 # =====================================================================
 # Fixtures
@@ -226,7 +224,7 @@ class TestBuilderIRISanitization:
         pipeline = Pipeline(source=source, shape="person", registry=registry)
         docs = pipeline.build_all()
         # Normal numeric ID should pass through unmodified
-        assert "cepi:person/111222333" == docs[0]["@id"]
+        assert docs[0]["@id"] == "cepi:person/111222333"
 
     def test_id_with_special_chars_sanitized(self, registry: ShapeRegistry) -> None:
         rows = [
@@ -245,8 +243,11 @@ class TestBuilderIRISanitization:
         ]
         source = DictAdapter(rows)
         pipeline = Pipeline(
-            source=source, shape="person", registry=registry,
-            id_source="PersonIdentifiers", id_transform=None,
+            source=source,
+            shape="person",
+            registry=registry,
+            id_source="PersonIdentifiers",
+            id_transform=None,
         )
         docs = pipeline.build_all()
         assert " " not in docs[0]["@id"]
@@ -271,9 +272,7 @@ class TestPipelineResult:
         assert pr.bytes_written == 0
         assert pr.dead_letter_path is None
 
-    def test_run_returns_pipeline_result(
-        self, registry: ShapeRegistry, valid_rows: list[dict]
-    ) -> None:
+    def test_run_returns_pipeline_result(self, registry: ShapeRegistry, valid_rows: list[dict]) -> None:
         source = DictAdapter(valid_rows)
         pipeline = Pipeline(source=source, shape="person", registry=registry)
         result = pipeline.run()
@@ -349,7 +348,9 @@ class TestDeadLetterQueue:
         rows = [valid_rows[0], bad_row, valid_rows[1]]
         source = DictAdapter(rows)
         pipeline = Pipeline(
-            source=source, shape="person", registry=registry,
+            source=source,
+            shape="person",
+            registry=registry,
             dead_letter_path=dl_path,
         )
         docs = pipeline.build_all()
@@ -368,7 +369,9 @@ class TestDeadLetterQueue:
         rows = [valid_rows[0], bad_row, valid_rows[1]]
         source = DictAdapter(rows)
         pipeline = Pipeline(
-            source=source, shape="person", registry=registry,
+            source=source,
+            shape="person",
+            registry=registry,
             dead_letter_path=dl_path,
         )
         result = pipeline.run()
@@ -383,7 +386,9 @@ class TestDeadLetterQueue:
         dl_path = tmp_path / "dead.ndjson"
         source = DictAdapter(valid_rows)
         pipeline = Pipeline(
-            source=source, shape="person", registry=registry,
+            source=source,
+            shape="person",
+            registry=registry,
             dead_letter_path=dl_path,
         )
         docs = pipeline.build_all()
@@ -400,9 +405,7 @@ class TestDeadLetterQueue:
 class TestProgressTracking:
     """Verify progress callback and tqdm integration."""
 
-    def test_progress_callback_invoked(
-        self, registry: ShapeRegistry, valid_rows: list[dict]
-    ) -> None:
+    def test_progress_callback_invoked(self, registry: ShapeRegistry, valid_rows: list[dict]) -> None:
         calls: list[tuple[int, int | None]] = []
 
         def on_progress(current: int, total: int | None) -> None:
@@ -410,7 +413,9 @@ class TestProgressTracking:
 
         source = DictAdapter(valid_rows)
         pipeline = Pipeline(
-            source=source, shape="person", registry=registry,
+            source=source,
+            shape="person",
+            registry=registry,
             progress=on_progress,
         )
         docs = pipeline.build_all()
@@ -419,21 +424,19 @@ class TestProgressTracking:
         assert calls[0][0] == 1
         assert calls[1][0] == 2
 
-    def test_progress_true_does_not_crash(
-        self, registry: ShapeRegistry, valid_rows: list[dict]
-    ) -> None:
+    def test_progress_true_does_not_crash(self, registry: ShapeRegistry, valid_rows: list[dict]) -> None:
         """progress=True uses tqdm if available, silent otherwise."""
         source = DictAdapter(valid_rows)
         pipeline = Pipeline(
-            source=source, shape="person", registry=registry,
+            source=source,
+            shape="person",
+            registry=registry,
             progress=True,
         )
         docs = pipeline.build_all()
         assert len(docs) == 2
 
-    def test_progress_false_is_default(
-        self, registry: ShapeRegistry, valid_rows: list[dict]
-    ) -> None:
+    def test_progress_false_is_default(self, registry: ShapeRegistry, valid_rows: list[dict]) -> None:
         source = DictAdapter(valid_rows)
         pipeline = Pipeline(source=source, shape="person", registry=registry)
         # Default progress=False should work fine
@@ -484,13 +487,16 @@ class TestExports:
 
     def test_pipeline_result_importable(self) -> None:
         from ceds_jsonld import PipelineResult
+
         assert PipelineResult is not None
 
     def test_get_logger_importable(self) -> None:
         from ceds_jsonld import get_logger
+
         assert get_logger is not None
 
     def test_sanitize_importable(self) -> None:
         from ceds_jsonld import sanitize_iri_component, validate_base_uri
+
         assert sanitize_iri_component is not None
         assert validate_base_uri is not None

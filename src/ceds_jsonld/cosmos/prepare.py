@@ -46,10 +46,7 @@ def prepare_for_cosmos(
         'Person'
     """
     if id_field not in doc:
-        msg = (
-            f"Document is missing '{id_field}'. Cannot prepare for Cosmos DB. "
-            f"Available keys: {sorted(doc.keys())}"
-        )
+        msg = f"Document is missing '{id_field}'. Cannot prepare for Cosmos DB. Available keys: {sorted(doc.keys())}"
         raise KeyError(msg)
 
     cosmos_doc = doc.copy()

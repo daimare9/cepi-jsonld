@@ -17,22 +17,17 @@ from typing import Any
 try:
     import click
 except ImportError:
-    _msg = (
-        "The ceds-jsonld CLI requires the 'click' package. "
-        "Install it with: pip install ceds-jsonld[cli]"
-    )
+    _msg = "The ceds-jsonld CLI requires the 'click' package. Install it with: pip install ceds-jsonld[cli]"
     print(_msg, file=sys.stderr)  # noqa: T201
     sys.exit(1)
 
 from ceds_jsonld.exceptions import (
-    CEDSJSONLDError,
     PipelineError,
     ShapeLoadError,
     ValidationError,
 )
 from ceds_jsonld.registry import ShapeRegistry
 from ceds_jsonld.serializer import dumps
-
 
 # ---------------------------------------------------------------------------
 # Shared helpers
@@ -60,15 +55,11 @@ def _load_registry(
         shape_def = registry.load_shape(shape)
     except ShapeLoadError as exc:
         available = registry.list_available()
-        raise click.ClickException(
-            f"Shape '{shape}' not found. Available shapes: {available}\n{exc}"
-        ) from exc
+        raise click.ClickException(f"Shape '{shape}' not found. Available shapes: {available}\n{exc}") from exc
     return registry, shape_def
 
 
-def _make_adapter(
-    input_path: str, *, sheet: str | None = None
-) -> Any:
+def _make_adapter(input_path: str, *, sheet: str | None = None) -> Any:
     """Create the appropriate adapter for the given file extension.
 
     Args:
@@ -109,8 +100,7 @@ def _make_adapter(
             ) from exc
     else:
         raise click.ClickException(
-            f"Unsupported file extension '{suffix}'. "
-            "Supported: .csv, .ndjson, .jsonl, .xlsx, .xls"
+            f"Unsupported file extension '{suffix}'. Supported: .csv, .ndjson, .jsonl, .xlsx, .xls"
         )
 
 
@@ -484,9 +474,7 @@ def generate_mapping(
                 if isinstance(ctx_inner, dict):
                     context_lookup = ctx_inner
         except Exception as exc:
-            raise click.ClickException(
-                f"Failed to parse context file: {exc}"
-            ) from exc
+            raise click.ClickException(f"Failed to parse context file: {exc}") from exc
 
     template = intro.generate_mapping_template(
         context_url=context_url,
@@ -589,8 +577,7 @@ def benchmark(shape: str, records: int, shapes_dir: str | None) -> None:
     # Load sample data for the shape
     if shape_def.sample_path is None:
         raise click.ClickException(
-            f"Shape '{shape}' has no sample data file. "
-            "Cannot run benchmark without sample data."
+            f"Shape '{shape}' has no sample data file. Cannot run benchmark without sample data."
         )
 
     import pandas as pd
@@ -638,7 +625,7 @@ def benchmark(shape: str, records: int, shapes_dir: str | None) -> None:
     click.echo(f"  Mapping:        {t_map:>12.3f}s  ({records / t_map:>10,.0f} rec/s)")
     click.echo(f"  Building:       {t_build:>12.3f}s  ({records / t_build:>10,.0f} rec/s)")
     click.echo(f"  Serialization:  {t_ser:>12.3f}s  ({records / t_ser:>10,.0f} rec/s)")
-    click.echo(f"  ────────────────────────────────────────")
+    click.echo("  ────────────────────────────────────────")
     click.echo(f"  Total:          {t_total:>12.3f}s  ({records / t_total:>10,.0f} rec/s)")
     click.echo(f"  Per record:     {t_total / records * 1000:>12.4f} ms")
 

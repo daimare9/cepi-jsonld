@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
-
 import pytest
 
 from ceds_jsonld import serializer
@@ -78,6 +75,7 @@ class TestFileIO:
 
     def test_read_nonexistent_raises(self, tmp_path):
         from ceds_jsonld.exceptions import SerializationError
+
         with pytest.raises(SerializationError):
             serializer.read_json(tmp_path / "nonexistent.json")
 

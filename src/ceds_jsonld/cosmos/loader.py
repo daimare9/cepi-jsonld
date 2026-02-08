@@ -149,7 +149,7 @@ class CosmosLoader:
     # Async context manager
     # ------------------------------------------------------------------
 
-    async def __aenter__(self) -> "CosmosLoader":
+    async def __aenter__(self) -> CosmosLoader:
         await self._ensure_client()
         return self
 
@@ -190,7 +190,6 @@ class CosmosLoader:
             _log.debug("cosmos.upserted", doc_id=doc_id, ru=ru)
             return UpsertResult(document_id=doc_id, status="success", ru_charge=ru)
         except Exception as exc:
-            msg = f"Failed to upsert document '{doc_id}': {exc}"
             _log.error("cosmos.upsert_failed", doc_id=doc_id, error=str(exc))
             return UpsertResult(document_id=doc_id, status="error", error=str(exc))
 
@@ -225,9 +224,7 @@ class CosmosLoader:
                     ru = self._extract_ru(response)
                     return UpsertResult(document_id=doc_id, status="success", ru_charge=ru)
                 except Exception as exc:
-                    return UpsertResult(
-                        document_id=doc_id, status="error", error=str(exc)
-                    )
+                    return UpsertResult(document_id=doc_id, status="error", error=str(exc))
 
         results = await asyncio.gather(*[_upsert(d) for d in docs])
 
@@ -285,10 +282,7 @@ class CosmosLoader:
         try:
             from azure.cosmos.aio import CosmosClient
         except ImportError as exc:
-            msg = (
-                "azure-cosmos is required for Cosmos DB integration. "
-                "Install it with: pip install ceds-jsonld[cosmos]"
-            )
+            msg = "azure-cosmos is required for Cosmos DB integration. Install it with: pip install ceds-jsonld[cosmos]"
             raise CosmosError(msg) from exc
 
         self._client = CosmosClient(self._endpoint, credential=self._credential)
@@ -301,9 +295,7 @@ class CosmosLoader:
 
         client = await self._ensure_client()
         if self._create_if_missing:
-            self._database = await client.create_database_if_not_exists(
-                id=self._database_name
-            )
+            self._database = await client.create_database_if_not_exists(id=self._database_name)
         else:
             self._database = client.get_database_client(self._database_name)
         return self._database
@@ -316,10 +308,7 @@ class CosmosLoader:
         try:
             from azure.cosmos import PartitionKey
         except ImportError as exc:
-            msg = (
-                "azure-cosmos is required for Cosmos DB integration. "
-                "Install it with: pip install ceds-jsonld[cosmos]"
-            )
+            msg = "azure-cosmos is required for Cosmos DB integration. Install it with: pip install ceds-jsonld[cosmos]"
             raise CosmosError(msg) from exc
 
         database = await self._ensure_database()

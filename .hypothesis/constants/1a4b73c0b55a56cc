@@ -1,0 +1,4 @@
+# file: C:\Projects\cepi_jsonld\src\ceds_jsonld\cosmos\prepare.py
+# hypothesis_version: 6.151.5
+
+['/', '@id', '@type', 'id', 'partitionKey']

@@ -20,7 +20,6 @@ from ceds_jsonld.validator import (
     ValidationResult,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -165,41 +164,25 @@ class TestPreBuildValidatorInvalid:
         assert result.conforms is False
         assert result.error_count > 0
         # Should mention the missing field
-        messages = [
-            issue.message
-            for issues in result.issues.values()
-            for issue in issues
-            if issue.severity == "error"
-        ]
+        messages = [issue.message for issues in result.issues.values() for issue in issues if issue.severity == "error"]
         assert any("FirstName" in m for m in messages)
 
     def test_missing_id_source(self, pre_validator, invalid_row_missing_id):
         result = pre_validator.validate_row(invalid_row_missing_id)
         assert result.conforms is False
-        messages = [
-            issue.message
-            for issues in result.issues.values()
-            for issue in issues
-        ]
+        messages = [issue.message for issues in result.issues.values() for issue in issues]
         assert any("PersonIdentifiers" in m for m in messages)
 
     def test_bad_date_warns(self, pre_validator, invalid_row_bad_date):
         result = pre_validator.validate_row(invalid_row_bad_date)
         # Bad date should produce a warning, not hard error
-        warnings = [
-            issue
-            for issues in result.issues.values()
-            for issue in issues
-            if issue.severity == "warning"
-        ]
+        warnings = [issue for issues in result.issues.values() for issue in issues if issue.severity == "warning"]
         assert len(warnings) >= 1
         assert any("date" in w.message.lower() for w in warnings)
 
     def test_strict_mode_raises(self, pre_validator, invalid_row_missing_required):
         with pytest.raises(ValidationError):
-            pre_validator.validate_row(
-                invalid_row_missing_required, mode=ValidationMode.STRICT
-            )
+            pre_validator.validate_row(invalid_row_missing_required, mode=ValidationMode.STRICT)
 
     def test_batch_report_mode_collects_all(self, pre_validator, valid_row, invalid_row_missing_required):
         rows = [valid_row, invalid_row_missing_required, valid_row]
@@ -210,9 +193,7 @@ class TestPreBuildValidatorInvalid:
 
     def test_batch_sample_mode(self, pre_validator, valid_row):
         rows = [valid_row] * 100
-        result = pre_validator.validate_batch(
-            rows, mode=ValidationMode.SAMPLE, sample_rate=0.1
-        )
+        result = pre_validator.validate_batch(rows, mode=ValidationMode.SAMPLE, sample_rate=0.1)
         # Should check ~10 rows (sampling is random, so allow tolerance)
         assert 1 <= result.record_count <= 20
 
@@ -293,9 +274,7 @@ class TestPreBuildValidatorFromIntrospector:
         introspector = SHACLIntrospector(shape_def.shacl_path)
         context = shape_def.context.get("@context", shape_def.context)
 
-        validator = PreBuildValidator.from_introspector(
-            person_mapping, introspector, context_lookup=context
-        )
+        validator = PreBuildValidator.from_introspector(person_mapping, introspector, context_lookup=context)
         assert isinstance(validator, PreBuildValidator)
 
     def test_enriched_validator_still_passes_valid(self, person_registry, person_mapping, valid_row):
@@ -305,9 +284,7 @@ class TestPreBuildValidatorFromIntrospector:
         introspector = SHACLIntrospector(shape_def.shacl_path)
         context = shape_def.context.get("@context", shape_def.context)
 
-        validator = PreBuildValidator.from_introspector(
-            person_mapping, introspector, context_lookup=context
-        )
+        validator = PreBuildValidator.from_introspector(person_mapping, introspector, context_lookup=context)
         result = validator.validate_row(valid_row)
         assert result.conforms is True
 
@@ -359,9 +336,7 @@ class TestSHACLValidator:
 
     def test_validate_batch_sample_mode(self, shacl_validator, built_doc):
         docs = [built_doc] * 100
-        result = shacl_validator.validate_batch(
-            docs, mode=ValidationMode.SAMPLE, sample_rate=0.05
-        )
+        result = shacl_validator.validate_batch(docs, mode=ValidationMode.SAMPLE, sample_rate=0.05)
         # 5% of 100 = 5 docs ± sampling
         assert 1 <= result.record_count <= 10
 
@@ -374,7 +349,7 @@ class TestSHACLValidator:
         }
         # This should either raise or return non-conformant
         try:
-            result = shacl_validator.validate_one(bad_doc, mode=ValidationMode.STRICT)
+            shacl_validator.validate_one(bad_doc, mode=ValidationMode.STRICT)
         except ValidationError:
             pass  # Expected in strict mode
 
@@ -508,9 +483,7 @@ class TestRoundTrip:
 
         # Inject local context for parsing (avoid network fetch)
         doc_for_parse = dict(doc)
-        doc_for_parse["@context"] = person_shape_def.context.get(
-            "@context", person_shape_def.context
-        )
+        doc_for_parse["@context"] = person_shape_def.context.get("@context", person_shape_def.context)
 
         g = Graph()
         g.parse(data=_json.dumps(doc_for_parse), format="json-ld")
@@ -531,9 +504,7 @@ class TestRoundTrip:
 
         # Inject local context for parsing
         doc_for_parse = dict(doc)
-        doc_for_parse["@context"] = person_shape_def.context.get(
-            "@context", person_shape_def.context
-        )
+        doc_for_parse["@context"] = person_shape_def.context.get("@context", person_shape_def.context)
 
         data_graph = Graph()
         data_graph.parse(data=_json.dumps(doc_for_parse), format="json-ld")
@@ -563,9 +534,7 @@ class TestRoundTrip:
         doc = builder.build_one(mapper.map(sample_person_row_minimal))
 
         doc_for_parse = dict(doc)
-        doc_for_parse["@context"] = person_shape_def.context.get(
-            "@context", person_shape_def.context
-        )
+        doc_for_parse["@context"] = person_shape_def.context.get("@context", person_shape_def.context)
 
         g = Graph()
         g.parse(data=_json.dumps(doc_for_parse), format="json-ld")

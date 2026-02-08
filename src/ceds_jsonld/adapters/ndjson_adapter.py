@@ -7,8 +7,9 @@ one at a time so the entire file is never loaded into memory.
 from __future__ import annotations
 
 import json
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 from ceds_jsonld.adapters.base import SourceAdapter
 from ceds_jsonld.exceptions import AdapterError
