@@ -29,9 +29,16 @@ try:
 
         Returns:
             UTF-8 encoded JSON bytes.
+
+        Raises:
+            SerializationError: If serialization fails.
         """
-        option = orjson.OPT_INDENT_2 if pretty else 0
-        return orjson.dumps(obj, option=option)
+        try:
+            option = orjson.OPT_INDENT_2 if pretty else 0
+            return orjson.dumps(obj, option=option)
+        except Exception as exc:
+            msg = f"Failed to serialize object: {exc}"
+            raise SerializationError(msg) from exc
 
     def loads(data: bytes | str) -> Any:
         """Deserialize JSON bytes or string to a Python object.
@@ -41,8 +48,15 @@ try:
 
         Returns:
             Parsed Python object.
+
+        Raises:
+            SerializationError: If deserialization fails.
         """
-        return orjson.loads(data)
+        try:
+            return orjson.loads(data)
+        except Exception as exc:
+            msg = f"Failed to deserialize JSON: {exc}"
+            raise SerializationError(msg) from exc
 
 except ImportError:
     import json as _json
@@ -50,13 +64,29 @@ except ImportError:
     _BACKEND = "json"
 
     def dumps(obj: Any, *, pretty: bool = False) -> bytes:  # type: ignore[misc]
-        """Serialize a Python object to JSON bytes (stdlib fallback)."""
-        indent = 2 if pretty else None
-        return _json.dumps(obj, indent=indent, ensure_ascii=False).encode("utf-8")
+        """Serialize a Python object to JSON bytes (stdlib fallback).
+
+        Raises:
+            SerializationError: If serialization fails.
+        """
+        try:
+            indent = 2 if pretty else None
+            return _json.dumps(obj, indent=indent, ensure_ascii=False).encode("utf-8")
+        except Exception as exc:
+            msg = f"Failed to serialize object: {exc}"
+            raise SerializationError(msg) from exc
 
     def loads(data: bytes | str) -> Any:  # type: ignore[misc]
-        """Deserialize JSON bytes or string (stdlib fallback)."""
-        return _json.loads(data)
+        """Deserialize JSON bytes or string (stdlib fallback).
+
+        Raises:
+            SerializationError: If deserialization fails.
+        """
+        try:
+            return _json.loads(data)
+        except Exception as exc:
+            msg = f"Failed to deserialize JSON: {exc}"
+            raise SerializationError(msg) from exc
 
 
 def get_backend() -> str:
