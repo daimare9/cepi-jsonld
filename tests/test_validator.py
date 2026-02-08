@@ -198,6 +198,71 @@ class TestPreBuildValidatorInvalid:
         assert 1 <= result.record_count <= 20
 
 
+class TestPreBuildDateValidation:
+    """Impossible and non-ISO dates must be caught (issues #2, #3)."""
+
+    @staticmethod
+    def _make_row(date: str) -> dict:
+        return {
+            "FirstName": "Test",
+            "MiddleName": "",
+            "LastName": "User",
+            "GenerationCodeOrSuffix": "",
+            "Birthdate": date,
+            "Sex": "Male",
+            "RaceEthnicity": "White",
+            "PersonIdentifiers": "ID-001",
+            "IdentificationSystems": "",
+            "PersonIdentifierTypes": "",
+        }
+
+    def test_impossible_month_99(self, pre_validator):
+        result = pre_validator.validate_row(self._make_row("9999-99-99"))
+        warnings = [i for issues in result.issues.values() for i in issues if i.severity == "warning"]
+        assert any("Birthdate" in str(i.property_path) or "date" in i.message.lower() for i in warnings)
+
+    def test_all_zeros(self, pre_validator):
+        result = pre_validator.validate_row(self._make_row("0000-00-00"))
+        warnings = [i for issues in result.issues.values() for i in issues if i.severity == "warning"]
+        assert any("date" in i.message.lower() or "calendar" in i.message.lower() for i in warnings)
+
+    def test_feb_30(self, pre_validator):
+        result = pre_validator.validate_row(self._make_row("2026-02-30"))
+        warnings = [i for issues in result.issues.values() for i in issues if i.severity == "warning"]
+        assert any("calendar" in i.message.lower() or "date" in i.message.lower() for i in warnings)
+
+    def test_month_13(self, pre_validator):
+        result = pre_validator.validate_row(self._make_row("2026-13-01"))
+        warnings = [i for issues in result.issues.values() for i in issues if i.severity == "warning"]
+        assert any("calendar" in i.message.lower() or "date" in i.message.lower() for i in warnings)
+
+    def test_american_format_rejected(self, pre_validator):
+        """MM-DD-YYYY (e.g. 02-07-2026) should be flagged."""
+        result = pre_validator.validate_row(self._make_row("02-07-2026"))
+        warnings = [i for issues in result.issues.values() for i in issues if i.severity == "warning"]
+        assert len(warnings) >= 1
+
+    def test_no_zero_padding_rejected(self, pre_validator):
+        """2026-2-7 should be flagged as non-ISO."""
+        result = pre_validator.validate_row(self._make_row("2026-2-7"))
+        warnings = [i for issues in result.issues.values() for i in issues if i.severity == "warning"]
+        assert any("zero-padded" in i.message.lower() or "YYYY-MM-DD" in i.message for i in warnings)
+
+    def test_valid_date_passes(self, pre_validator):
+        """A proper ISO date should produce no date-related issues."""
+        result = pre_validator.validate_row(self._make_row("1990-06-15"))
+        date_warnings = [
+            i for issues in result.issues.values() for i in issues
+            if "Birthdate" in str(i.property_path) or "date" in i.message.lower()
+        ]
+        assert len(date_warnings) == 0
+
+    def test_impossible_date_strict_raises(self, pre_validator):
+        """Strict mode should raise on impossible dates."""
+        with pytest.raises(ValidationError):
+            pre_validator.validate_row(self._make_row("2026-02-30"), mode=ValidationMode.STRICT)
+
+
 class TestPreBuildValidatorEdgeCases:
     """Edge cases: empty strings, None, NaN, etc."""
 
