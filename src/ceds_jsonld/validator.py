@@ -372,6 +372,26 @@ class PreBuildValidator:
 
         str_val = str(value)
 
+        # Check for empty pipe segments in multi-cardinality fields (#26)
+        if rule.is_multi_cardinality:
+            segments = str_val.split(rule.split_on)
+            empty_indices = [i for i, seg in enumerate(segments) if not seg.strip()]
+            if empty_indices:
+                issue = FieldIssue(
+                    property_path=rule.property_path,
+                    message=(
+                        f"Pipe-delimited field '{rule.source_column}' has empty segments "
+                        f"at positions {empty_indices} (0-based). "
+                        f"Raw value: {str_val!r}. Empty segments produce ghost sub-nodes."
+                    ),
+                    severity="warning",
+                    expected="no empty pipe segments",
+                    actual=str_val,
+                )
+                result.add_issue(record_id, issue)
+                if mode is ValidationMode.STRICT:
+                    raise ValidationError(issue.message)
+
         # Datatype plausibility checks
         if rule.datatype:
             self._check_datatype(str_val, rule, record_id, result, mode)

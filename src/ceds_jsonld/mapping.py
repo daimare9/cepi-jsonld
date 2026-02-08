@@ -246,9 +246,20 @@ class FieldMapper:
             transform_name = field_def.get("transform")
             if transform_name:
                 transform_fn = get_transform(transform_name, self._custom_transforms)
-                value = transform_fn(value)
+                try:
+                    raw_result = transform_fn(value)
+                except Exception as exc:
+                    msg = (
+                        f"Transform '{transform_name}' raised {type(exc).__name__} on field "
+                        f"'{source}' in property '{prop_name}': {exc}"
+                    )
+                    raise MappingError(msg) from exc
+                value = self._validate_transform_result(
+                    raw_result, value, transform_name, source, prop_name,
+                )
 
-            instance[target] = value
+            if value is not None:
+                instance[target] = value
 
         return [instance] if instance else []
 
@@ -279,6 +290,11 @@ class FieldMapper:
 
         instances: list[dict[str, Any]] = []
         for i in range(num_instances):
+            # Skip empty pipe segments entirely (#26)
+            primary_segment = parts[i].strip()
+            if not primary_segment:
+                continue
+
             instance: dict[str, Any] = {}
 
             for _field_key, field_def in fields.items():
@@ -293,10 +309,29 @@ class FieldMapper:
 
                 self._ensure_scalar(raw_value, source, prop_name)
                 field_parts = str(raw_value).split(split_on)
-                # Use the i-th part, or last available if source has fewer parts
-                value = sanitize_string_value(
-                    field_parts[i].strip() if i < len(field_parts) else field_parts[-1].strip()
-                )
+
+                # Fix #29: Use None for out-of-range segments instead of
+                # forward-filling.  Log a warning when pipe counts differ.
+                if i < len(field_parts):
+                    segment = field_parts[i].strip()
+                else:
+                    from ceds_jsonld.logging import get_logger
+
+                    _log = get_logger(__name__)
+                    _log.warning(
+                        "mapper.pipe_count_mismatch",
+                        property=prop_name,
+                        field=source,
+                        expected=num_instances,
+                        actual=len(field_parts),
+                    )
+                    segment = ""
+
+                if not segment:
+                    # Empty segment — treat as missing
+                    continue
+
+                value = sanitize_string_value(segment)
 
                 # Handle multi_value_split within a single instance
                 multi_split = field_def.get("multi_value_split")
@@ -305,20 +340,120 @@ class FieldMapper:
                     transform_name = field_def.get("transform")
                     if transform_name:
                         transform_fn = get_transform(transform_name, self._custom_transforms)
-                        sub_values = [transform_fn(v) for v in sub_values]
+                        transformed = []
+                        for v in sub_values:
+                            try:
+                                raw_result = transform_fn(v)
+                            except Exception as exc:
+                                msg = (
+                                    f"Transform '{transform_name}' raised {type(exc).__name__} on field "
+                                    f"'{source}' in property '{prop_name}': {exc}"
+                                )
+                                raise MappingError(msg) from exc
+                            validated = self._validate_transform_result(raw_result, v, transform_name, source, prop_name)
+                            if validated is not None:
+                                transformed.append(validated)
+                        sub_values = transformed
                     # Store as list (builder decides single vs array)
-                    instance[target] = sub_values
+                    if sub_values:
+                        instance[target] = sub_values
                 else:
                     transform_name = field_def.get("transform")
                     if transform_name:
                         transform_fn = get_transform(transform_name, self._custom_transforms)
-                        value = transform_fn(value)
-                    instance[target] = value
+                        try:
+                            raw_result = transform_fn(value)
+                        except Exception as exc:
+                            msg = (
+                                f"Transform '{transform_name}' raised {type(exc).__name__} on field "
+                                f"'{source}' in property '{prop_name}': {exc}"
+                            )
+                            raise MappingError(msg) from exc
+                        value = self._validate_transform_result(
+                            raw_result, value, transform_name, source, prop_name,
+                        )
+                    if value is not None:
+                        instance[target] = value
 
             if instance:
                 instances.append(instance)
 
         return instances
+
+    @staticmethod
+    def _validate_transform_result(
+        result: Any,
+        original: str,
+        transform_name: str,
+        field_name: str,
+        prop_name: str,
+    ) -> str | None:
+        """Validate and coerce the result of a transform function.
+
+        Ensures transforms do not silently produce ``None``, non-string types,
+        or other invalid outputs that would bypass downstream validation.
+
+        Args:
+            result: The value returned by the transform.
+            original: The original pre-transform value (for error messages).
+            transform_name: Name of the transform (for error messages).
+            field_name: Source field name (for error messages).
+            prop_name: Property name (for error messages).
+
+        Returns:
+            A validated string, or ``None`` if the transform intentionally
+            signals "skip this value" (e.g. empty-input guards in prefix
+            transforms).
+
+        Raises:
+            MappingError: If the transform returns an invalid type (dict, list,
+                bool, non-finite float).
+        """
+        # None means "skip this value" — transforms like sex_prefix/race_prefix
+        # return None for empty inputs to signal the field should be omitted.
+        if result is None:
+            return None
+
+        # Reject complex / invalid types the same way _ensure_scalar does
+        if isinstance(result, dict):
+            msg = (
+                f"Transform '{transform_name}' on field '{field_name}' in property "
+                f"'{prop_name}' returned a dict. Transforms must return str or None. "
+                f"Original value: {original!r}, got: {result!r}"
+            )
+            raise MappingError(msg)
+        if isinstance(result, (list, tuple, set, frozenset)):
+            msg = (
+                f"Transform '{transform_name}' on field '{field_name}' in property "
+                f"'{prop_name}' returned a sequence. Transforms must return str or None. "
+                f"Original value: {original!r}, got: {result!r}"
+            )
+            raise MappingError(msg)
+        if isinstance(result, bool):
+            msg = (
+                f"Transform '{transform_name}' on field '{field_name}' in property "
+                f"'{prop_name}' returned a boolean. Transforms must return str or None. "
+                f"Original value: {original!r}, got: {result!r}"
+            )
+            raise MappingError(msg)
+
+        # Coerce non-string scalars (int, float) to str with a warning
+        if not isinstance(result, str):
+            from ceds_jsonld.logging import get_logger
+
+            _log = get_logger(__name__)
+            _log.warning(
+                "mapper.transform_type_coerced",
+                transform=transform_name,
+                field=field_name,
+                property=prop_name,
+                expected_type="str",
+                actual_type=type(result).__name__,
+                value=result,
+            )
+            return str(result)
+
+        return result
 
     @staticmethod
     def _ensure_scalar(value: Any, field_name: str, prop_name: str) -> Any:

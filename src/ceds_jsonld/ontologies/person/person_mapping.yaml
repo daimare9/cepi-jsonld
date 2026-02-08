@@ -57,6 +57,7 @@ properties:
         source: Birthdate
         target: Birthdate
         datatype: "xsd:date"
+        transform: date_format
 
   hasPersonName:
     type: PersonName
