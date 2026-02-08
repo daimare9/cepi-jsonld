@@ -96,7 +96,13 @@ class _DeadLetterWriter:
         self._count = 0
 
     def write(self, raw_row: dict[str, Any], error: str) -> None:
-        """Write a failed record with its error to the dead-letter file."""
+        """Write a failed record with its error to the dead-letter file.
+
+        Uses a fallback serialization strategy: if the raw_row contains
+        non-JSON-serializable types (set, datetime, custom objects), the
+        values are coerced to strings via ``repr()`` so the DLQ writer
+        never itself becomes a crash source.
+        """
         if self._path is None:
             return
         if self._fh is None:
@@ -104,7 +110,16 @@ class _DeadLetterWriter:
             self._fh = self._path.open("wb")
             _log.info("dead_letter.opened", path=str(self._path))
         entry = {"_error": error, "_record": raw_row}
-        self._fh.write(dumps(entry, pretty=False) + b"\n")
+        try:
+            data = dumps(entry, pretty=False)
+        except Exception:
+            # Fallback: coerce non-serializable values to repr strings
+            import json as _json
+
+            safe_row = {k: repr(v) if not isinstance(v, (str, int, float, bool, type(None))) else v for k, v in raw_row.items()}
+            safe_entry = {"_error": error, "_record": safe_row, "_serialization_fallback": True}
+            data = _json.dumps(safe_entry, ensure_ascii=False, default=str).encode("utf-8")
+        self._fh.write(data + b"\n")
         self._count += 1
 
     @property
@@ -547,7 +562,23 @@ class Pipeline:
         """
         t0 = time.perf_counter()
         try:
-            docs = self.build_all()
+            records_in = 0
+            records_failed = 0
+            dead = _DeadLetterWriter(self._dead_letter_path)
+            docs: list[dict[str, Any]] = []
+            for raw_row in self._source.read():
+                records_in += 1
+                try:
+                    mapped = self._mapper.map(raw_row)
+                    doc = self._builder.build_one(mapped)
+                    docs.append(doc)
+                except Exception as exc:
+                    if self._dead_letter_path is not None:
+                        dead.write(raw_row, str(exc))
+                        records_failed += 1
+                    else:
+                        raise
+            dead.close()
             data = dumps(docs, pretty=pretty)
             out = Path(path)
             out.parent.mkdir(parents=True, exist_ok=True)
@@ -555,11 +586,13 @@ class Pipeline:
             elapsed = time.perf_counter() - t0
             rps = len(docs) / elapsed if elapsed > 0 else 0.0
             result = PipelineResult(
-                records_in=len(docs),
+                records_in=records_in,
                 records_out=len(docs),
+                records_failed=dead.count,
                 elapsed_seconds=round(elapsed, 3),
                 records_per_second=round(rps, 1),
                 bytes_written=len(data),
+                dead_letter_path=str(self._dead_letter_path) if dead.count > 0 else None,
             )
             _log.info(
                 "pipeline.to_json",
@@ -595,20 +628,30 @@ class Pipeline:
             out = Path(path)
             out.parent.mkdir(parents=True, exist_ok=True)
             total_bytes = 0
-            count = 0
+            records_in = 0
+            records_out = 0
             dead = _DeadLetterWriter(self._dead_letter_path)
             with out.open("wb") as fh:
-                for doc in self.stream():
+                for raw_row in self._source.read():
+                    records_in += 1
+                    try:
+                        mapped = self._mapper.map(raw_row)
+                        doc = self._builder.build_one(mapped)
+                    except Exception as exc:
+                        if self._dead_letter_path is not None:
+                            dead.write(raw_row, str(exc))
+                            continue
+                        raise
                     line = dumps(doc, pretty=False) + b"\n"
                     fh.write(line)
                     total_bytes += len(line)
-                    count += 1
+                    records_out += 1
             dead.close()
             elapsed = time.perf_counter() - t0
-            rps = count / elapsed if elapsed > 0 else 0.0
+            rps = records_out / elapsed if elapsed > 0 else 0.0
             result = PipelineResult(
-                records_in=count,
-                records_out=count,
+                records_in=records_in,
+                records_out=records_out,
                 records_failed=dead.count,
                 elapsed_seconds=round(elapsed, 3),
                 records_per_second=round(rps, 1),
@@ -618,7 +661,7 @@ class Pipeline:
             _log.info(
                 "pipeline.to_ndjson",
                 path=str(path),
-                records=count,
+                records=records_out,
                 bytes=total_bytes,
                 elapsed=result.elapsed_seconds,
             )

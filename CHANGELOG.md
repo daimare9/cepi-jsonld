@@ -17,6 +17,22 @@ Release cadence: **monthly** (first week of each month), with ad-hoc patch relea
 
 ---
 
+## [0.9.3] — 2026-02-08
+
+### Summary
+
+Patch release with 5 bug fixes for transform precision, adapter edge cases, and Pipeline DLQ reliability. 493 tests passing.
+
+### Fixed
+
+- **Transforms** — `first_pipe_split` avoids `float()` for pure-digit strings, preventing IEEE 754 precision loss on 16+ digit numeric IDs (#16)
+- **Adapters** — `CSVAdapter.count()` skips blank lines and handles empty files (returns 0 instead of -1), matching `read()` behavior (#17)
+- **Adapters** — `NDJSONAdapter` defaults to `utf-8-sig` encoding, transparently stripping UTF-8 BOM from Windows-exported files (#18)
+- **Pipeline** — `to_json()` and `to_ndjson()` now properly track `records_failed` and `dead_letter_path` in `PipelineResult` (#19)
+- **Pipeline** — Dead-letter writer uses fallback serialization (`repr()`/`default=str`) for non-JSON-serializable `raw_row` values like sets and datetimes (#20)
+
+---
+
 ## [0.9.2] — 2026-02-08
 
 ### Summary
@@ -109,10 +125,16 @@ First public release. All core functionality complete across 7 development phase
 ## Version History
 
 | Version | Date | Highlights |
-|---------|------|-----------|| 0.9.1 | 2026-02-08 | Patch: 8 bug fixes (validation, mapping, sanitization, sample data). || 0.9.0 | 2026-02-07 | First public release. All 7 phases complete. |
+|---------|------|------------|
+| 0.9.3 | 2026-02-08 | Patch: 5 bug fixes (transform precision, adapter edges, DLQ reliability). |
+| 0.9.2 | 2026-02-08 | Patch: 5 bug fixes (validation counting, Cosmos prep, serialization, PII). |
+| 0.9.1 | 2026-02-08 | Patch: 8 bug fixes (validation, mapping, sanitization, sample data). |
+| 0.9.0 | 2026-02-07 | First public release. All 7 phases complete. |
 
 ---
 
-[Unreleased]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.1...HEAD
+[Unreleased]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.3...HEAD
+[0.9.3]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.2...v0.9.3
+[0.9.2]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/daimare9/ceds-jsonld/releases/tag/v0.9.0

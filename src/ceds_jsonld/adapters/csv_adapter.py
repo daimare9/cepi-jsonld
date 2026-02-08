@@ -113,10 +113,23 @@ class CSVAdapter(SourceAdapter):
             yield chunk.to_dict(orient="records")
 
     def count(self) -> int | None:
-        """Return the number of data rows in the CSV (excludes header)."""
+        """Return the number of data rows in the CSV (excludes header).
+
+        Blank / whitespace-only lines are not counted, matching the
+        behaviour of :meth:`read` (which delegates to pandas and skips
+        them).  An empty file returns ``0``.
+        """
         try:
-            # Fast line count without loading data
             with self._path.open(encoding=self._encoding) as f:
-                return sum(1 for _ in f) - 1  # subtract header
+                header_seen = False
+                data_rows = 0
+                for line in f:
+                    if not line.strip():
+                        continue
+                    if not header_seen:
+                        header_seen = True  # skip header
+                        continue
+                    data_rows += 1
+                return data_rows
         except OSError:
             return None
