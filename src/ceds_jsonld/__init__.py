@@ -27,7 +27,7 @@ from ceds_jsonld.validator import (
     ValidationResult,
 )
 
-__version__ = "0.9.5"
+__version__ = "0.9.6"
 __all__ = [
     "APIAdapter",
     "CSVAdapter",
