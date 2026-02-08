@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pytest_httpserver\httpserver.py
-# hypothesis_version: 6.151.5
-
-[200, 500, '    none', '    {!r}', '/', '<UNDEFINED>', '<{} ', 'Authorization', 'Oneshot matchers:', 'Ordered matchers:', 'Persistent matchers:', '[', ']', '__ALL', 'application/json', 'data', 'from_header', 'headers', 'http', 'https', 'json', 'localhost', 'method', 'oneshot', 'ordered', 'permanent', 'query_string', 'uri', 'utf-8', '{}://{}:{}{}']

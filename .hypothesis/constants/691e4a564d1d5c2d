@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\rdflib\query.py
-# hypothesis_version: 6.151.5
-
-[';', 'ASK', 'CONSTRUCT', 'DESCRIBE', 'EncodeOnlyUnicode', 'Processor', 'Result', 'ResultException', 'ResultParser', 'ResultRow', 'ResultSerializer', 'SELECT', 'UpdateProcessor', 'file', 'result', 'utf-8', 'wb', 'write', 'xml']

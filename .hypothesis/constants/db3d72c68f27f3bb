@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\openpyxl\worksheet\datavalidation.py
-# hypothesis_version: 6.151.5
-
-['allowBlank', 'between', 'coordinate', 'count', 'custom', 'dataValidation', 'dataValidations', 'date', 'decimal', 'disablePrompts', 'disabled', 'equal', 'fullAlpha', 'fullHangul', 'fullKatakana', 'greaterThan', 'greaterThanOrEqual', 'halfAlpha', 'halfHangul', 'halfKatakana', 'hiragana', 'information', 'lessThan', 'lessThanOrEqual', 'list', 'noControl', 'notBetween', 'notEqual', 'off', 'on', 'showDropDown', 'sqref', 'stop', 'textLength', 'time', 'type', 'warning', 'whole', 'xWindow', 'yWindow', '{0}{1}', '{0}{1}:{2}{3}']

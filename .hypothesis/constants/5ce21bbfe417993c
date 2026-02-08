@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\html5rdf\_inputstream.py
-# hypothesis_version: 6.151.5
-
-[b'"', b"'", b'-->', b'/', b'<', b'<!', b'<!--', b'</', b'<?', b'<meta', b'=', b'>', b'charset', b'content', b'content-type', b'http-equiv', 100, 128, 1024, 10240, 55296, 56319, 57343, 131070, 131071, 196606, 196607, 262142, 262143, 327678, 327679, 393214, 393215, 458750, 458751, 524286, 524287, 589822, 589823, 655358, 655359, 720894, 720895, 786430, 786431, 851966, 851967, 917502, 917503, 983038, 983039, 1048574, 1048575, 1114110, 1114111, '"\\uD800-\\uDFFF"', '[\t-\r -/:-@\\[-`{-~]', '[%s]+', '\\x%02x', ']', '^%s', '_encoding', 'ascii', 'certain', 'encoding', 'invalid-codepoint', 'read', 'replace', 'tentative', 'utf-16', 'utf-16be', 'utf-16le', 'utf-32be', 'utf-32le', 'utf-8', 'windows-1252', '\U0010ffff']

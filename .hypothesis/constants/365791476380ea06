@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\openpyxl\workbook\defined_name.py
-# hypothesis_version: 6.151.5
-
-['=', 'Consolidate_Area', 'Criteria', 'Extract', 'OPERAND', 'Print_Area', 'Print_Titles', 'RANGE', 'Sheet_Title', '^\\[\\d+\\].*', '_FilterDatabase', '_xlnm.', '_xlnm.Print_Area', '_xlnm.Print_Titles', 'attr_text', 'cells', 'definedName', 'definedNames', 'global', 'name', 'notquoted', 'quoted', '|']

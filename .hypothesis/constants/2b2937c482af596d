@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\rdflib\__init__.py
-# hypothesis_version: 6.151.5
-
-['2025-11-28', 'BNode', 'BRICK', 'CSVW', 'ConjunctiveGraph', 'DC', 'DCAT', 'DCMITYPE', 'DCTERMS', 'DOAP', 'Dataset', 'FOAF', 'Graph', 'IdentifiedNode', 'Literal', 'NORMALIZE_LITERALS', 'Namespace', 'Node', 'ODRL2', 'ORG', 'OWL', 'PROF', 'PROV', 'QB', 'RDF', 'RDFS', 'SDO', 'SH', 'SKOS', 'SOSA', 'SSN', 'TIME', 'URIRef', 'VANN', 'VOID', 'Variable', 'Version', 'XMLNS', 'XSD', '__file__', 'isatty', 'plugin', 'query', 'rdflib', 'restructuredtext en', 'util']

@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\openpyxl\chart\axis.py
-# hypothesis_version: 6.151.5
-
-[100, 500, 1000, 'auto', 'autoZero', 'axId', 'axPos', 'b', 'baseTimeUnit', 'between', 'billions', 'builtInUnit', 'catAx', 'chartLines', 'cross', 'crossAx', 'crossBetween', 'crosses', 'crossesAt', 'ctr', 'custUnit', 'dateAx', 'days', 'delete', 'dispUnits', 'dispUnitsLbl', 'high', 'hundredMillions', 'hundredThousands', 'hundreds', 'in', 'l', 'layout', 'lblAlgn', 'lblOffset', 'logBase', 'low', 'majorGridlines', 'majorTickMark', 'majorTimeUnit', 'majorUnit', 'max', 'maxMin', 'midCat', 'millions', 'min', 'minMax', 'minorGridlines', 'minorTickMark', 'minorTimeUnit', 'minorUnit', 'months', 'nextTo', 'noMultiLvlLbl', 'numFmt', 'orientation', 'out', 'r', 'scaling', 'serAx', 'spPr', 't', 'tenMillions', 'tenThousands', 'thousands', 'tickLblPos', 'tickLblSkip', 'tickMarkSkip', 'title', 'trillions', 'tx', 'txPr', 'valAx', 'years', '{%s}majorGridlines']

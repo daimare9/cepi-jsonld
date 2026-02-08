@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pandas\_testing\_io.py
-# hypothesis_version: 6.151.5
-
-['addfile', 'bz2', 'gzip', 'tar', 'test', 'w', 'wb', 'write', 'writestr', 'xz', 'zip', 'zstandard', 'zstd']

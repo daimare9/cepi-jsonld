@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\rdflib\xsd_datetime.py
-# hypothesis_version: 6.151.5
-
-[100, 400, 86400, 1000000, '%Y-%m-%dT%H:%M:%S', '%Y-%m-%dT%H:%M:%S.%f', '%d', '%d month', '%d months', '%d years', '%d.%06d', '%z', '+', '+0000', ',', ', ', '-', '-P', '-P0D', '.', '0', '0n', ':', 'D', 'H', 'M', 'P', 'P0D', 'S', 'T', 'Y', 'Z', 'days', 'hours', 'minutes', 'months', 'seconds', 'separator', 'sign', 'weeks', 'years', 'z']

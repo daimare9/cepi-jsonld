@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pyshacl\helper\sparql_query_helper.py
-# hypothesis_version: 6.151.5
-
-['"{}"', '$?', '([\\s{}()])[\\$\\?]PATH', '([\\s{}()])[\\$\\?]this', '({[\\$\\?]([^{}]+)})', '*', ', ', '<{}>', 'PATH', 'PREFIX {}: <{}>\n', '\\g<1>{}', 'currentShape', 'owl', 'path', 'rdf', 'rdfs', 'sh', 'shapesGraph', 'this', 'value', '{[\\$\\?]', '{}\n{}', '{}@{}', '{}^^{}', '}']

@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pyshacl\rules\triple\__init__.py
-# hypothesis_version: 6.151.5
-
-[100, 'GraphLike', 'No sh:object', 'No sh:predicate', 'No sh:subject', 'RDFNode', 'SHACLExecutor', 'Shape', 'Too many sh:object', 'Too many sh:subject', 'URIRef', 'o', 'p', 's']

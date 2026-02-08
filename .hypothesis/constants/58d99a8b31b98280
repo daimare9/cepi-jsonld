@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\openpyxl\chart\error_bar.py
-# hypothesis_version: 6.151.5
-
-['both', 'cust', 'errBarType', 'errBars', 'errDir', 'errValType', 'fixedVal', 'minus', 'noEndCap', 'percentage', 'plus', 'spPr', 'stdDev', 'stdErr', 'val', 'x', 'y']

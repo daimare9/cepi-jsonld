@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\openpyxl\chart\chartspace.py
-# hypothesis_version: 6.151.5
-
-['autoTitleDeleted', 'backWall', 'chart', 'chartObject', 'chartSpace', 'clrMapOvr', 'data', 'date1904', 'dispBlanksAs', 'externalData', 'floor', 'formatting', 'gap', 'lang', 'legend', 'pivotFmts', 'pivotSource', 'plotArea', 'plotVisOnly', 'printSettings', 'protection', 'roundedCorners', 'selection', 'showDLblsOverMax', 'sideWall', 'spPr', 'span', 'style', 'title', 'txPr', 'userInterface', 'userShapes', 'view3D', 'xmlns', 'zero']

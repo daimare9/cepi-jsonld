@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\rdflib\util.py
-# hypothesis_version: 6.151.5
-
-["!$&'()*+,;=", '"', '"""', '#', '%', '-', '-%02d:%02d', '.', '/', '/?', ':', ':@', '<', '>', '@', 'T', 'T00:00:00Z', 'Z', '[', '\\"', '\\\\x', '\\x', '^^', '_', '_:', '_AnyT', '_HashableT', '_coalesce', '_iri2uri', 'application/ld+json', 'application/n-quads', 'application/rdf+xml', 'application/trig', 'application/trix', 'ascii', 'csv', 'date_time', 'down', 'e', 'false', 'find_roots', 'first', 'from_n3', 'get_tree', 'guess_format', 'html', 'http', 'https', 'idna', 'json', 'json-ld', 'jsonld', 'list2set', 'more_than', 'n3', 'nq', 'nquads', 'nt', 'owl', 'parse_date_time', 'raw-unicode-escape', 'rdf', 'rdfa', 'svg', 'text/csv', 'text/html', 'text/n3', 'text/turtle', 'to_term', 'trig', 'trix', 'true', 'tsv', 'ttl', 'turtle', 'unicode-escape', 'uniq', 'xhtml', 'xml', '{']

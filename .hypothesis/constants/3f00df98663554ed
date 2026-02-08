@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pandas\core\window\ewm.py
-# hypothesis_version: 6.151.5
-
-[0.5, 1.0, 'TimeUnit', 'adjust', 'alpha', 'columns', 'com', 'corr', 'cov', 'cython', 'dtype', 'halflife', 'ignore', 'ignore_na', 'index', 'mean', 'method', 'min_periods', 'name', 'numba', 'pandas.api.typing', 'single', 'span', 'sum', 'times', 'var']

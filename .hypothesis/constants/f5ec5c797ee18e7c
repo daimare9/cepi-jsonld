@@ -1,4 +1,0 @@
-# file: C:\Projects\cepi_jsonld\src\ceds_jsonld\__init__.py
-# hypothesis_version: 6.151.5
-
-['0.9.0', 'APIAdapter', 'CSVAdapter', 'CosmosLoader', 'DatabaseAdapter', 'DictAdapter', 'ExcelAdapter', 'FieldIssue', 'FieldMapper', 'JSONLDBuilder', 'NDJSONAdapter', 'NodeShapeInfo', 'Pipeline', 'PipelineResult', 'PreBuildValidator', 'PropertyInfo', 'SHACLIntrospector', 'SHACLValidator', 'ShapeDefinition', 'ShapeRegistry', 'SourceAdapter', 'ValidationMode', 'ValidationResult', 'get_logger', 'prepare_for_cosmos', 'validate_base_uri']

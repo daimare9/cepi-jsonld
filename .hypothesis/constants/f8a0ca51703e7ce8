@@ -1,4 +1,0 @@
-# file: C:\Projects\cepi_jsonld\src\ceds_jsonld\transforms.py
-# hypothesis_version: 6.151.5
-
-['date_format', 'first_pipe_split', 'int_clean', 'race_prefix', 'sex_prefix', '|']

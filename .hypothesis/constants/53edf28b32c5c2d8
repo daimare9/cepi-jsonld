@@ -1,4 +1,0 @@
-# file: C:\Github\CEDS-JSONLD-Generator\src\ceds_jsonld\cosmos\prepare.py
-# hypothesis_version: 6.151.5
-
-['/', '@id', '@type', 'id', 'partitionKey']

@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\html5rdf\treewalkers\__init__.py
-# hypothesis_version: 6.151.5
-
-['%s %s', '%s"%s"', '%s%s="%s"', '%s<!-- %s -->', '%s<!DOCTYPE %s>', '%s<!DOCTYPE >', '%s<%s>', 'Characters', 'Comment', 'Doctype', 'EmptyTag', 'EndTag', 'SpaceCharacters', 'StartTag', 'data', 'dom', 'etree', 'genshi', 'getTreeWalker', 'html', 'lxml', 'name', 'namespace', 'pprint', 'publicId', 'systemId', 'type']

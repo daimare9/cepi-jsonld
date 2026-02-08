@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pandas\compat\pickle_compat.py
-# hypothesis_version: 6.151.5
-
-['ASCII', 'Float64Index', 'Index', 'Int64Index', 'M8[ns]', 'SparseDtype', 'UInt64Index', '__nat_unpickle', '_nat_unpickle', '_unpickle_block', 'loads', 'm8[ns]', 'new_block', 'strict']

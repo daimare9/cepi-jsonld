@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pyshacl\constraints\sparql\sparql_based_constraint_components.py
-# hypothesis_version: 6.151.5
-
-['ConstraintComponent', 'Shape', 'ShapesGraph', 'constraint_component', 'extra_messages', 'failure', 'initialised', 'must_be_ask_val', 'must_be_select_val', 'path', 'this', 'value', '{$', '}']

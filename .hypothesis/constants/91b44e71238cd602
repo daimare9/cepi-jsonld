@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pandas\core\arrays\string_arrow.py
-# hypothesis_version: 6.151.5
-
-['\\', '\\Z', '\\g<', '\\z', 'all', 'any', 'argmax', 'argmin', 'float64', 'max', 'min', 'na', 'pandas.arrays', 'pyarrow', 'string', 'sum', '|']

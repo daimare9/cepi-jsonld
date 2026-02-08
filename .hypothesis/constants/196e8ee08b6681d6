@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pyshacl\__init__.py
-# hypothesis_version: 6.151.5
-
-['0.31.0', 'RuleExpandRunner', 'Shape', 'ShapesGraph', 'Validator', '__version__', 'shacl_rules', 'validate', 'validate_each']

@@ -1,4 +1,0 @@
-# file: C:\Projects\cepi_jsonld\src\ceds_jsonld\cli.py
-# hypothesis_version: 6.151.5
-
-[0.01, 100000, ' (closed)', ' [required]', '#', ', ', ', ...', '--base-uri', '--context-file', '--context-url', '--format', '--help', '--input', '--json', '--mode', '--output', '--pretty/--compact', '--records', '--sample-rate', '--shacl', '--shacl/--no-shacl', '--shape', '--shapes-dir', '--sheet', '-f', '-h', '-i', '-n', '-o', '-s', '.csv', '.jsonl', '.ndjson', '.xls', '.xlsx', '/', '@context', 'No shapes found.', 'Results:', '__main__', 'as_json', 'ceds-jsonld', 'error', 'generate-mapping', 'green', 'help_option_names', 'input_path', 'json', 'list-shapes', 'ndjson', 'output_format', 'output_path', 'records', 'red', 'report', 'sample', 'shacl_path', 'sheet_name', 'strict', 'utf-8', 'yellow']

@@ -25,6 +25,7 @@ ENV/
 .coverage
 htmlcov/
 .mypy_cache/
+.hypothesis/
 
 # Sphinx docs build
 docs/_build/

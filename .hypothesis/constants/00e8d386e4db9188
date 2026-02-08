@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\rdflib\plugins\shared\jsonld\util.py
-# hypothesis_version: 6.151.5
-
-['#', '/', ':', '://', '<', '>', '_HAS_ORJSON', 'application/ld+json', 'base', 'href', 'id', 'json', 'json-ld', 'norm_url', 'orjson', 'script', 'source_to_json', 'split_iri', 'text/html', 'type', 'urn', 'urn-x', 'utf-8']

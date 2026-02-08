@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\pyshacl\rules\sparql\__init__.py
-# hypothesis_version: 6.151.5
-
-[100, 'CONSTRUCT', 'GraphLike', 'RDFNode', 'SHACLExecutor', 'Shape', 'URIRef', '_constructs', '_qh', 'this']

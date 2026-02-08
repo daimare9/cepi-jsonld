@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\structlog\processors.py
-# hypothesis_version: 6.151.5
-
-['"', '+00:00', '=', 'CallsiteParameter', 'EventRenamer', 'ISO', 'JSONRenderer', 'KeyValueRenderer', 'LogfmtRenderer', 'NAME_TO_LEVEL', 'StackInfoRenderer', 'TimeStamper', 'UnicodeDecoder', 'UnicodeEncoder', 'Z', '\\', '\\"', '\\\\', '\\n', '_active_handlers', '_additional_ignores', '_from_structlog', '_record', '_record_mappings', '_stamper', 'add_log_level', 'backslashreplace', 'default', 'dict_tracebacks', 'event', 'exc_info', 'exception', 'false', 'filename', 'fmt', 'format_exc_info', 'funcName', 'func_name', 'items', 'key', 'lineno', 'logging', 'module', 'pathname', 'process', 'processName', 'process_name', 'qual_name', 'replace', 'stack', 'stack_info', 'stamper', 'thread', 'threadName', 'thread_name', 'timestamp', 'true', 'utc', 'utf-8']

@@ -1,4 +1,0 @@
-# file: C:\Github\CEDS-JSONLD-Generator\src\ceds_jsonld\introspector.py
-# hypothesis_version: 6.151.5
-
-['#', '# allowed_values', '/', '1900-01-01T00:00:00', '9999-12-31T00:00:00', ':', '@', '@id', 'DataCollection', 'DataCollectionShape', 'NodeShapeInfo', 'P201003', 'RecordEndDateTime', 'RecordStartDateTime', 'RecordStatus', 'RecordStatusShape', 'TODO_ID_COLUMN', 'allowed_values', 'base_uri', 'cardinality', 'ceds', 'cepi', 'children', 'class', 'context_url', 'datatype', 'error', 'fields', 'first_pipe_split', 'http', 'id_source', 'id_transform', 'in', 'iri', 'is_closed', 'level', 'local_name', 'max_count', 'message', 'min_count', 'multiple', 'name', 'node_class', 'node_shape', 'optional', 'path', 'path_local', 'properties', 'property', 'sh', 'shape', 'single', 'source', 'split_on', 'target', 'target_class', 'target_class_local', 'turtle', 'type', 'value', 'value_id', 'warning', 'xsd:dateTime', '|']

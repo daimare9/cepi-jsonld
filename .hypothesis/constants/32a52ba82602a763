@@ -1,4 +1,0 @@
-# file: C:\Users\lundd2\AppData\Roaming\Python\Python314\site-packages\structlog\_log_levels.py
-# hypothesis_version: 6.151.5
-
-['critical', 'debug', 'error', 'exception', 'info', 'level', 'notset', 'warn', 'warning']
