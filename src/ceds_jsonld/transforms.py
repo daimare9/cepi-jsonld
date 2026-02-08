@@ -55,7 +55,10 @@ def first_pipe_split(value: str) -> str:
 def int_clean(value: str) -> str:
     """Clean numeric strings by removing float artifacts.
 
-    Converts "989897099.0" → "989897099". Non-numeric values pass through.
+    Converts ``"989897099.0"`` → ``"989897099"``.  Non-numeric values pass
+    through unchanged.  Pure-digit strings (with optional leading ``-``) are
+    converted via ``int()`` directly to avoid IEEE 754 precision loss that
+    would corrupt numbers with more than ~15 significant digits.
 
     Args:
         value: String that may represent a number.
@@ -63,10 +66,15 @@ def int_clean(value: str) -> str:
     Returns:
         Cleaned string with integer representation if numeric.
     """
+    s = str(value).strip()
+    # Fast path for pure integers — avoids float() precision loss on large numbers.
+    bare = s.lstrip("-")
+    if bare.isdigit() and bare:
+        return str(int(s))
     try:
-        return str(int(float(value)))
+        return str(int(float(s)))
     except (ValueError, TypeError):
-        return str(value)
+        return s
 
 
 def date_format(value: str) -> str:
