@@ -404,3 +404,90 @@ class TestCSVIntegration:
         assert result.bytes_written > 0
         lines = [l for l in out.read_text(encoding="utf-8").strip().split("\n") if l]
         assert len(lines) == 90
+
+
+# =====================================================================
+# Duplicate @id detection (issue #8)
+# =====================================================================
+
+
+class TestDuplicateIdWarning:
+    """Verify build_all() warns when output contains duplicate @id values."""
+
+    def test_sample_csv_has_unique_ids(self, registry: ShapeRegistry) -> None:
+        """The shipped person_sample.csv must produce 90 docs with 90 unique @id values."""
+        if not PERSON_CSV.exists():
+            pytest.skip("person_sample.csv not found")
+        source = CSVAdapter(PERSON_CSV)
+        pipeline = Pipeline(source=source, shape="person", registry=registry)
+        docs = pipeline.build_all()
+        ids = [d["@id"] for d in docs]
+        assert len(ids) == 90
+        assert len(set(ids)) == 90, f"Expected 90 unique @ids, got {len(set(ids))}"
+
+    def test_duplicate_ids_emit_warning(
+        self, registry: ShapeRegistry, caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """When source data produces duplicate @ids, a warning is logged."""
+        # Feed 3 rows with the same PersonIdentifier → same @id
+        rows = [
+            {
+                "FirstName": "Alice",
+                "LastName": "Smith",
+                "Birthdate": "1990-01-15",
+                "Sex": "Female",
+                "RaceEthnicity": "White",
+                "PersonIdentifiers": "111222333",
+                "IdentificationSystems": "PersonIdentificationSystem_SSN",
+                "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
+            },
+            {
+                "FirstName": "Bob",
+                "LastName": "Jones",
+                "Birthdate": "1985-06-20",
+                "Sex": "Male",
+                "RaceEthnicity": "Hispanic",
+                "PersonIdentifiers": "111222333",
+                "IdentificationSystems": "PersonIdentificationSystem_SSN",
+                "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
+            },
+            {
+                "FirstName": "Carol",
+                "LastName": "White",
+                "Birthdate": "1988-03-10",
+                "Sex": "Female",
+                "RaceEthnicity": "Asian",
+                "PersonIdentifiers": "999888777",
+                "IdentificationSystems": "PersonIdentificationSystem_SSN",
+                "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
+            },
+        ]
+        import logging
+
+        with caplog.at_level(logging.WARNING):
+            source = DictAdapter(rows)
+            pipeline = Pipeline(source=source, shape="person", registry=registry)
+            docs = pipeline.build_all()
+
+        assert len(docs) == 3
+        # Two docs share the same @id, one is unique
+        ids = [d["@id"] for d in docs]
+        assert len(set(ids)) == 2
+
+        # The warning should mention duplicate IDs
+        assert any("duplicate_ids" in r.message for r in caplog.records)
+
+    def test_no_warning_on_unique_ids(
+        self, registry: ShapeRegistry, sample_rows: list[dict], caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """No duplicate warning when all @ids are unique."""
+        import logging
+
+        with caplog.at_level(logging.WARNING):
+            source = DictAdapter(sample_rows)
+            pipeline = Pipeline(source=source, shape="person", registry=registry)
+            docs = pipeline.build_all()
+
+        assert len(docs) == 2
+        assert len(set(d["@id"] for d in docs)) == 2
+        assert not any("duplicate_ids" in r.message for r in caplog.records)
