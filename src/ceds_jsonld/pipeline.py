@@ -426,7 +426,26 @@ class Pipeline:
         Returns:
             List of JSON-LD documents.
         """
-        return list(self.stream(validate=validate, validation_mode=validation_mode))
+        docs = list(self.stream(validate=validate, validation_mode=validation_mode))
+
+        # Warn when duplicate @id values are detected — these cause overwrites
+        # in downstream systems like Cosmos DB.
+        seen: dict[str, int] = {}
+        for doc in docs:
+            doc_id = doc.get("@id", "")
+            seen[doc_id] = seen.get(doc_id, 0) + 1
+
+        dupes = {k: v for k, v in seen.items() if v > 1}
+        if dupes:
+            total_dupes = sum(v - 1 for v in dupes.values())
+            _log.warning(
+                "pipeline.duplicate_ids",
+                unique_duplicated=len(dupes),
+                total_extra=total_dupes,
+                sample=list(dupes.keys())[:5],
+            )
+
+        return docs
 
     def run(
         self,
