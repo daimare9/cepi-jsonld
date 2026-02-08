@@ -238,8 +238,6 @@ class PreBuildValidator:
             rid = str(row.get(self._config.get("id_source", ""), f"row_{idx}"))
             row_result = self.validate_row(row, record_id=rid, mode=effective_mode)
             result.record_count += 1
-            result.error_count += row_result.error_count
-            result.warning_count += row_result.warning_count
             if not row_result.conforms:
                 result.conforms = False
             for rec_id, issues in row_result.issues.items():
@@ -700,8 +698,6 @@ class SHACLValidator:
         for _idx, doc in to_check:
             doc_result = self.validate_one(doc, mode=effective_mode)
             result.record_count += 1
-            result.error_count += doc_result.error_count
-            result.warning_count += doc_result.warning_count
             if not doc_result.conforms:
                 result.conforms = False
             for rec_id, issues in doc_result.issues.items():
