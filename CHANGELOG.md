@@ -17,6 +17,18 @@ Release cadence: **monthly** (first week of each month), with ad-hoc patch relea
 
 ---
 
+## [0.9.5] — 2026-02-08
+
+### Summary
+
+Patch release fixing a flaky CI benchmark that caused the v0.9.4 main workflow to fail on Windows runners. No functional code changes. 526 tests passing.
+
+### Fixed
+
+- **Benchmarks** — Increased 100K pipeline performance test limits (15s base, 8× CI multiplier) to eliminate false failures on shared Windows CI runners
+
+---
+
 ## [0.9.4] — 2026-02-08
 
 ### Summary
@@ -142,6 +154,7 @@ First public release. All core functionality complete across 7 development phase
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 0.9.5 | 2026-02-08 | Patch: fix flaky 100K benchmark on CI Windows runners. |
 | 0.9.4 | 2026-02-08 | Patch: 5 bug fixes (non-finite floats, booleans, None handling, empty lists). |
 | 0.9.3 | 2026-02-08 | Patch: 5 bug fixes (transform precision, adapter edges, DLQ reliability). |
 | 0.9.2 | 2026-02-08 | Patch: 5 bug fixes (validation counting, Cosmos prep, serialization, PII). |
@@ -150,7 +163,8 @@ First public release. All core functionality complete across 7 development phase
 
 ---
 
-[Unreleased]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.4...HEAD
+[Unreleased]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.5...HEAD
+[0.9.5]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.4...v0.9.5
 [0.9.4]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.3...v0.9.4
 [0.9.3]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.2...v0.9.3
 [0.9.2]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.1...v0.9.2
