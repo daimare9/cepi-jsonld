@@ -158,6 +158,78 @@ class TestFieldMapperEdgeCases:
         result = mapper.map(row)
         assert result["__id__"] == "123456789"
 
+    @pytest.mark.parametrize(
+        "bad_id",
+        [
+            pytest.param("", id="empty-string"),
+            pytest.param("   ", id="whitespace-only"),
+            pytest.param(None, id="none"),
+            pytest.param(float("nan"), id="nan"),
+        ],
+    )
+    def test_empty_id_raises_mapping_error(self, person_shape_def, bad_id):
+        """_is_empty values in the ID field must raise MappingError."""
+        mapper = FieldMapper(person_shape_def.mapping_config)
+        row = {
+            "FirstName": "Test",
+            "LastName": "User",
+            "Birthdate": "2010-01-01",
+            "Sex": "Male",
+            "RaceEthnicity": "White",
+            "PersonIdentifiers": bad_id,
+            "IdentificationSystems": "PersonIdentificationSystem_SSN",
+            "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
+        }
+        with pytest.raises(MappingError, match="ID source field"):
+            mapper.map(row)
+
+    @pytest.mark.parametrize(
+        "bad_id",
+        [
+            pytest.param(0, id="zero-int"),
+            pytest.param(0.0, id="zero-float"),
+            pytest.param(False, id="bool-false"),
+        ],
+    )
+    def test_falsy_non_string_id_raises_mapping_error(self, person_shape_def, bad_id):
+        """Non-string falsy values are not valid document identifiers."""
+        mapper = FieldMapper(person_shape_def.mapping_config)
+        row = {
+            "FirstName": "Test",
+            "LastName": "User",
+            "Birthdate": "2010-01-01",
+            "Sex": "Male",
+            "RaceEthnicity": "White",
+            "PersonIdentifiers": bad_id,
+            "IdentificationSystems": "PersonIdentificationSystem_SSN",
+            "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
+        }
+        with pytest.raises(MappingError, match="ID source field"):
+            mapper.map(row)
+
+    @pytest.mark.parametrize(
+        "bad_id",
+        [
+            pytest.param([], id="empty-list"),
+            pytest.param({}, id="empty-dict"),
+        ],
+    )
+    def test_collection_id_raises_mapping_error(self, person_shape_def, bad_id):
+        """Empty collections as ID must raise MappingError."""
+        mapper = FieldMapper(person_shape_def.mapping_config)
+        row = {
+            "FirstName": "Test",
+            "LastName": "User",
+            "Birthdate": "2010-01-01",
+            "Sex": "Male",
+            "RaceEthnicity": "White",
+            "PersonIdentifiers": bad_id,
+            "IdentificationSystems": "PersonIdentificationSystem_SSN",
+            "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
+        }
+        with pytest.raises(MappingError, match="ID source field"):
+            mapper.map(row)
+
 
 # ===================================================================
 # Override tests

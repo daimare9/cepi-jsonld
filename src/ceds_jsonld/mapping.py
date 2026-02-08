@@ -173,10 +173,19 @@ class FieldMapper:
         # Extract document ID
         id_source = self._config["id_source"]
         id_raw = raw_row.get(id_source)
-        if id_raw is None:
-            msg = f"ID source field '{id_source}' is missing from row"
+        if self._is_empty(id_raw):
+            msg = f"ID source field '{id_source}' is missing or empty in row"
             raise MappingError(msg)
         self._ensure_scalar(id_raw, id_source, "@id")
+        # Reject non-string falsy values that are meaningless as document IDs
+        # (0, 0.0, False).  These pass _is_empty because they are legitimate
+        # *field* values, but they are never valid identifiers.
+        if not isinstance(id_raw, str) and not id_raw:
+            msg = (
+                f"ID source field '{id_source}' has a falsy non-string value "
+                f"{id_raw!r} which is not a valid document identifier"
+            )
+            raise MappingError(msg)
         id_value = sanitize_string_value(str(id_raw))
 
         id_transform_name = self._config.get("id_transform")
@@ -348,10 +357,20 @@ class FieldMapper:
 
     @staticmethod
     def _is_empty(value: Any) -> bool:
-        """Check if a value is effectively empty."""
+        """Check if a value is effectively empty.
+
+        Catches ``None``, empty/whitespace-only strings, ``float('nan')``,
+        and empty collections (``[]``, ``{}``, ``()``).  Numeric zero and
+        ``False`` are **not** considered empty here because they can be
+        legitimate field values — ID-specific rejection is handled
+        separately in :meth:`map`.
+        """
         if value is None:
             return True
         if isinstance(value, str) and not value.strip():
+            return True
+        # Empty collections / sequences
+        if isinstance(value, (list, tuple, set, frozenset, dict)) and not value:
             return True
         # Handle pandas NaN
         try:
