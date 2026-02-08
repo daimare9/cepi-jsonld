@@ -7,6 +7,7 @@ The FieldMapper reads a mapping YAML config and transforms raw source dicts
 from __future__ import annotations
 
 import copy
+import math
 from collections.abc import Callable
 from typing import Any
 
@@ -351,6 +352,22 @@ class FieldMapper:
                 f"Field '{field_name}' in property '{prop_name}' contains a list/sequence "
                 f"where a scalar value was expected. Got: {value!r}. "
                 f"Use a custom transform or flatten the source data before mapping."
+            )
+            raise MappingError(msg)
+        if isinstance(value, bool):
+            msg = (
+                f"Field '{field_name}' in property '{prop_name}' contains a boolean "
+                f"where a scalar string/number was expected. Got: {value!r}. "
+                f"Boolean-to-string coercion is almost always a bug in upstream data. "
+                f"Use a custom transform to convert booleans to the expected string value."
+            )
+            raise MappingError(msg)
+        if isinstance(value, float) and (math.isinf(value) or math.isnan(value)):
+            msg = (
+                f"Field '{field_name}' in property '{prop_name}' contains a non-finite float "
+                f"({value!r}) where a valid scalar was expected. "
+                f"NaN and Infinity values are not valid for any CEDS field. "
+                f"Clean the source data or use a custom transform to handle missing values."
             )
             raise MappingError(msg)
         return value

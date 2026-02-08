@@ -6,6 +6,7 @@ Driven by mapping configs and shape definitions, not hand-coded per shape.
 
 from __future__ import annotations
 
+import math
 from typing import Any
 
 from ceds_jsonld.exceptions import BuildError
@@ -76,6 +77,8 @@ class JSONLDBuilder:
                 continue
 
             nodes = self._build_sub_nodes(instances, prop_def)
+            if not nodes:
+                continue
             # Single instance → unwrap from array
             doc[prop_name] = nodes if len(nodes) > 1 else nodes[0]
 
@@ -127,10 +130,14 @@ class JSONLDBuilder:
                 datatype = field_def.get("datatype")
 
                 if datatype:
-                    node[target] = self._typed_literal(value, datatype)
+                    typed = self._typed_literal(value, datatype)
+                    if typed is not None:
+                        node[target] = typed
                 else:
                     # Plain value — unwrap single-element lists
                     if isinstance(value, list):
+                        if not value:
+                            continue
                         node[target] = value if len(value) > 1 else value[0]
                     else:
                         node[target] = value
@@ -148,7 +155,7 @@ class JSONLDBuilder:
         return nodes
 
     @staticmethod
-    def _typed_literal(value: Any, datatype: str) -> dict[str, str] | list[dict[str, str]]:
+    def _typed_literal(value: Any, datatype: str) -> dict[str, str] | list[dict[str, str]] | None:
         """Wrap a value as a JSON-LD typed literal.
 
         Args:
@@ -156,10 +163,20 @@ class JSONLDBuilder:
             datatype: The XSD datatype (e.g. "xsd:date").
 
         Returns:
-            ``{"@type": datatype, "@value": value}`` or a list of such dicts.
+            ``{"@type": datatype, "@value": value}``, a list of such dicts,
+            or ``None`` if the value is ``None`` or non-finite.
         """
+        if value is None:
+            return None
+        if isinstance(value, float) and (math.isnan(value) or math.isinf(value)):
+            return None
         if isinstance(value, list):
-            return [{"@type": datatype, "@value": str(v)} for v in value]
+            clean = [
+                {"@type": datatype, "@value": str(v)}
+                for v in value
+                if v is not None and not (isinstance(v, float) and (math.isnan(v) or math.isinf(v)))
+            ]
+            return clean or None
         return {"@type": datatype, "@value": str(value)}
 
     @staticmethod

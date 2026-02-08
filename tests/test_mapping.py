@@ -188,7 +188,6 @@ class TestFieldMapperEdgeCases:
         [
             pytest.param(0, id="zero-int"),
             pytest.param(0.0, id="zero-float"),
-            pytest.param(False, id="bool-false"),
         ],
     )
     def test_falsy_non_string_id_raises_mapping_error(self, person_shape_def, bad_id):
@@ -205,6 +204,22 @@ class TestFieldMapperEdgeCases:
             "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
         }
         with pytest.raises(MappingError, match="ID source field"):
+            mapper.map(row)
+
+    def test_bool_false_id_raises_mapping_error(self, person_shape_def):
+        """Bool False as ID is caught by _ensure_scalar before the ID check."""
+        mapper = FieldMapper(person_shape_def.mapping_config)
+        row = {
+            "FirstName": "Test",
+            "LastName": "User",
+            "Birthdate": "2010-01-01",
+            "Sex": "Male",
+            "RaceEthnicity": "White",
+            "PersonIdentifiers": False,
+            "IdentificationSystems": "PersonIdentificationSystem_SSN",
+            "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
+        }
+        with pytest.raises(MappingError, match="boolean"):
             mapper.map(row)
 
     @pytest.mark.parametrize(
