@@ -21,6 +21,7 @@ except ImportError:
     print(_msg, file=sys.stderr)  # noqa: T201
     sys.exit(1)
 
+from ceds_jsonld import __version__
 from ceds_jsonld.exceptions import (
     PipelineError,
     ShapeLoadError,
@@ -110,7 +111,7 @@ def _make_adapter(input_path: str, *, sheet: str | None = None) -> Any:
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
-@click.version_option(package_name="ceds-jsonld")
+@click.version_option(version=__version__)
 def cli() -> None:
     """ceds-jsonld — Convert education data to CEDS-compliant JSON-LD."""
 

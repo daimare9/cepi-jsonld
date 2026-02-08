@@ -6,8 +6,6 @@ avoiding the float intermediate that corrupts large identifiers.
 
 from __future__ import annotations
 
-import pytest
-
 from ceds_jsonld.transforms import first_pipe_split
 
 

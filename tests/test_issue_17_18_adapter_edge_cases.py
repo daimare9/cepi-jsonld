@@ -6,10 +6,7 @@
 
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
-
-import pytest
 
 from ceds_jsonld.adapters.csv_adapter import CSVAdapter
 from ceds_jsonld.adapters.ndjson_adapter import NDJSONAdapter
