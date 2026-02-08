@@ -17,6 +17,26 @@ Release cadence: **monthly** (first week of each month), with ad-hoc patch relea
 
 ---
 
+## [0.9.6] — 2026-02-08
+
+### Summary
+
+Patch release with 5 bug fixes hardening pipe-delimited field handling, transform validation, and date format enforcement. 557 tests passing.
+
+### Fixed
+
+- **Transforms** — `first_pipe_split` returns `None` for empty/whitespace input instead of empty string (#26)
+- **Transforms** — `date_format` rewritten with full ISO 8601 validation: zero-pads unpadded dates, strips time components, rejects invalid dates (#27)
+- **Transforms** — `race_prefix`/`sex_prefix` return `None` for empty/whitespace input instead of bare trailing underscore (#28)
+- **Mapping** — Mismatched pipe counts use empty string + warning instead of silently forward-filling last value (#29)
+- **Mapping** — New `_validate_transform_result()` post-transform validation rejects dict/list/bool, coerces int/float to str, skips on None (#30)
+- **Mapping** — Transform exceptions wrapped in `MappingError` with actionable messages
+- **Mapping** — Empty pipe segments skipped entirely in multi-cardinality fields (#26)
+- **Validator** — `PreBuildValidator` warns on empty pipe segments with position list (#26)
+- **Data** — Person mapping YAML: added `transform: date_format` to Birthdate field (#27)
+
+---
+
 ## [0.9.5] — 2026-02-08
 
 ### Summary
@@ -154,6 +174,7 @@ First public release. All core functionality complete across 7 development phase
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 0.9.6 | 2026-02-08 | Patch: 5 bug fixes (pipe handling, transforms, date validation). 557 tests. |
 | 0.9.5 | 2026-02-08 | Patch: fix flaky 100K benchmark on CI Windows runners. |
 | 0.9.4 | 2026-02-08 | Patch: 5 bug fixes (non-finite floats, booleans, None handling, empty lists). |
 | 0.9.3 | 2026-02-08 | Patch: 5 bug fixes (transform precision, adapter edges, DLQ reliability). |
@@ -163,7 +184,8 @@ First public release. All core functionality complete across 7 development phase
 
 ---
 
-[Unreleased]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.5...HEAD
+[Unreleased]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.6...HEAD
+[0.9.6]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.5...v0.9.6
 [0.9.5]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.4...v0.9.5
 [0.9.4]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.3...v0.9.4
 [0.9.3]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.2...v0.9.3

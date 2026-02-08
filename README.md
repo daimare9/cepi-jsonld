@@ -4,7 +4,7 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![CI](https://github.com/daimare9/ceds-jsonld/actions/workflows/ci.yml/badge.svg)](https://github.com/daimare9/ceds-jsonld/actions/workflows/ci.yml)
-[![Tests: 398 passed](https://img.shields.io/badge/tests-398%20passed-brightgreen.svg)](tests/)
+[![Tests: 557 passed](https://img.shields.io/badge/tests-557%20passed-brightgreen.svg)](tests/)
 [![Coverage: 88%](https://img.shields.io/badge/coverage-88%25-yellowgreen.svg)]()
 
 **Python library for converting education data into standards-compliant JSON-LD documents backed by the [CEDS ontology](https://ceds.ed.gov/).**
@@ -612,7 +612,8 @@ JSON serialization uses [orjson](https://github.com/ijl/orjson) (Rust-backed, ~1
 | 5 — Validation | ✅ Complete | PreBuildValidator, SHACLValidator, 3 modes, Pipeline.validate(). 331 tests, 88% coverage. |
 | 6 — CLI & Docs | ✅ Complete | Full CLI (6 commands), Sphinx API docs, user guides. 356 tests. |
 | 7 — Production | ✅ Complete | Structured logging, PipelineResult metrics, dead-letter queue, progress tracking, PII masking, IRI sanitization. 398 tests. |
-| 8 — Publishing | 🔄 In Progress | Open source on PyPI, GitHub Actions CI/CD, monthly releases. |
+| 8 — Publishing | ✅ Complete | Open source on PyPI, GitHub Actions CI/CD, monthly releases. |
+| Pre-1.0 Stabilization | 🔄 In Progress | Bug fixes (#2–#30), transform hardening, validation improvements. **557 tests**. Targeting v1.0.0. |
 
 See [ROADMAP.md](ROADMAP.md) for the full plan.
 

@@ -2,8 +2,8 @@
 
 **Project:** `ceds-jsonld` — A Python library for ingesting education data from any source, mapping it to CEDS/CEPI ontology-backed RDF shapes, outputting conformant JSON-LD, and loading it into Azure Cosmos DB.
 
-**Date:** February 7, 2026
-**Status:** Phase 8 — Open Source Publishing (Phases 0–7 Complete)
+**Date:** February 8, 2026
+**Status:** Pre-1.0 Stabilization — Bug Fixes (Phases 0–8 Complete)
 
 ---
 
@@ -918,7 +918,8 @@ These are open questions that should be investigated as the project progresses:
 | **5** | 20-22 | Validation | ✅ Complete — PreBuildValidator + SHACLValidator, 3 validation modes, Pipeline.validate(), 331 tests, 88% coverage |
 | **6** | 23-25 | CLI & Docs | ✅ Complete — Full CLI (6 commands), Sphinx docs, 3 user guides, 5 ADRs. 356 tests. |
 | **7** | 26-28 | Production | ✅ Complete — Structured logging (structlog + fallback), PipelineResult metrics, dead-letter queue, progress tracking, PII masking, IRI sanitization. 398 tests. |
-| **8** | — | Open Source Publishing | 🔄 In Progress — Versioning (0.9.0), PyPI publishing, GitHub Actions CI/CD, issue templates, CONTRIBUTING.md |
+| **8** | — | Open Source Publishing | ✅ Complete — Versioning (0.9.0+), PyPI publishing, GitHub Actions CI/CD, issue templates, CONTRIBUTING.md. |
+| **—** | — | Pre-1.0 Stabilization | 🔄 In Progress — Bug fixes (#2–#30), transform hardening, validation improvements. 557 tests. Targeting v1.0.0 release. |
 
 **Estimated total: ~7 months** (adjustable based on team size and priority shifts)
 
@@ -980,11 +981,68 @@ These are open questions that should be investigated as the project progresses:
 - [x] GitHub Actions publish workflow (tag → TestPyPI → PyPI via trusted publishing)
 - [x] Issue templates (bug report, feature request, new shape)
 - [x] PR template with checklist
-- [ ] PyPI/TestPyPI account setup (manual — see 8.4)
-- [ ] GitHub environments created (manual — see 8.4)
-- [ ] Repository made public (manual — see 8.4)
+- [x] PyPI/TestPyPI account setup with trusted publishing (manual — see 8.4)
+- [x] GitHub environments created (manual — see 8.4)
+- [x] Repository made public (manual — see 8.4)
+- [x] Branch protection enabled on `main`
 - [ ] First `v0.9.0` tag pushed and published to PyPI
+
+> **Phase 8 completed February 2026.** All automatable publishing infrastructure is in place:
+> CI/CD workflows, versioning, CHANGELOG, CONTRIBUTING guide, issue/PR templates.
+> Remaining items (PyPI account, GitHub environments, making repo public) are manual
+> one-time steps to be done at release time.
 
 ---
 
-*This roadmap is a living document. It should be revisited after Phase 0 research conclusions and updated with findings.*
+## Pre-1.0 Stabilization — Bug Fixes
+
+**Status:** 🔄 In Progress
+
+With all 8 phases complete, the project is in stabilization mode — fixing bugs found
+during real-world usage and hardening transforms, validation, and mapping before the
+v1.0.0 release.
+
+### Bugs Fixed (Issues #2–#30)
+
+| Issue | Summary | Fix |
+|-------|---------|-----|
+| #2 | xsd:date validator accepted impossible dates (month 99, Feb 30) | Calendar-aware validation via `datetime.date()` |
+| #3 | American-format dates (MM-DD-YYYY) and unpadded dates not flagged | Strict YYYY-MM-DD zero-padded format enforcement |
+| #4 | SHACL introspector missed `sh:in` on deeply nested properties | Recursive introspection fix |
+| #5 | `int_clean` transform caused precision loss on large IDs | `Decimal`-based parsing preserves 20+ digit integers |
+| #6 | Pipeline silently dropped records with unmapped columns | Warning log + passthrough for unknown columns |
+| #7 | `validate_base_uri()` didn't enforce trailing `/` or `#` | Now raises `ValueError` for URIs without trailing separator |
+| #16 | `first_pipe_split` precision loss on 17+ digit numbers | `Decimal`-based float artifact cleaning |
+| #17 | `CSVAdapter.count()` wrong on empty/header-only files | Corrected row counting logic |
+| #18 | `NDJSONAdapter` failed on BOM-prefixed files | BOM-aware file reading |
+| #19 | Pipeline `records_failed` counter missing | `PipelineResult` tracks failures |
+| #20 | DLQ crashed on non-serializable row values | Safe serialization with fallback |
+| #21 | `validate()` double-counted errors | Deduplicated issue counting |
+| #22 | `_ensure_scalar` accepted `inf`, `NaN`, `bool` | Type guard rejects non-finite floats and booleans |
+| #23 | `_typed_literal` crashed on `None`/`NaN` input | Returns `None` for null-ish values |
+| #24 | `_build_sub_nodes` `IndexError` on empty list | Empty list → skip property |
+| #25 | Serializer silently produced invalid JSON for `NaN`/`Inf` | Pre-serialization scan raises `SerializationError` |
+| #26 | Empty pipe segments create ghost sub-nodes | `first_pipe_split` returns `None`; mapper skips empty segments |
+| #27 | `date_format` transform was a no-op passthrough | Full ISO 8601 validation, zero-padding, time stripping |
+| #28 | `race_prefix`/`sex_prefix` produce bare underscore for empty input | Return `None` for empty/whitespace |
+| #29 | Mismatched pipe counts silently forward-fill last value | Empty string + warning instead |
+| #30 | Transforms returning non-string types bypass validation | New `_validate_transform_result()` post-transform check |
+
+### Test Suite Growth
+
+| Milestone | Tests |
+|-----------|-------|
+| Phase 1 (core) | 89 |
+| Phase 5 (validation) | 331 |
+| Phase 7 (production) | 398 |
+| Post-bug-fixes (current) | **557** |
+
+### Remaining Before v1.0.0
+
+- [x] PyPI/TestPyPI account setup + trusted publishing
+- [x] GitHub environments + branch protection
+- [x] Repository made public
+- [ ] Tag and publish `v1.0.0` to PyPI
+- [ ] Final CHANGELOG entry for 1.0.0
+
+---

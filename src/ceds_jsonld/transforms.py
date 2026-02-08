@@ -10,31 +10,39 @@ from collections.abc import Callable
 from typing import Any
 
 
-def sex_prefix(value: str) -> str:
+def sex_prefix(value: str) -> str | None:
     """Add 'Sex_' prefix to a sex/gender value.
 
     Args:
         value: Raw sex value, e.g. "Female", "Male".
 
     Returns:
-        Prefixed value, e.g. "Sex_Female".
+        Prefixed value, e.g. "Sex_Female", or ``None`` if the
+        input is empty or whitespace-only.
     """
-    return f"Sex_{value.strip()}"
+    cleaned = value.strip()
+    if not cleaned:
+        return None
+    return f"Sex_{cleaned}"
 
 
-def race_prefix(value: str) -> str:
+def race_prefix(value: str) -> str | None:
     """Add 'RaceAndEthnicity_' prefix to a race/ethnicity value.
 
     Args:
         value: Raw race value, e.g. "White", "Black", "American Indian Or Alaska Native".
 
     Returns:
-        Prefixed value with spaces removed, e.g. "RaceAndEthnicity_White".
+        Prefixed value with spaces removed, e.g. "RaceAndEthnicity_White",
+        or ``None`` if the input is empty or whitespace-only.
     """
-    return f"RaceAndEthnicity_{value.strip().replace(' ', '')}"
+    cleaned = value.strip().replace(' ', '')
+    if not cleaned:
+        return None
+    return f"RaceAndEthnicity_{cleaned}"
 
 
-def first_pipe_split(value: str) -> str:
+def first_pipe_split(value: str) -> str | None:
     """Take the first value from a pipe-delimited string and clean numerics.
 
     Handles pandas float artifacts: "989897099.0" → "989897099".
@@ -42,13 +50,18 @@ def first_pipe_split(value: str) -> str:
     precision loss that would corrupt numbers with more than ~15 significant
     digits.
 
+    Returns ``None`` when the input is empty or the first segment is
+    empty/whitespace-only (e.g. a leading pipe ``"|12345"``).
+
     Args:
         value: Pipe-delimited string, e.g. "989897099|40420|6202378625".
 
     Returns:
-        First value, cleaned of numeric artifacts.
+        First value, cleaned of numeric artifacts, or ``None`` if empty.
     """
     first = str(value).split("|")[0].strip()
+    if not first:
+        return None
     # Fast path for pure integers — avoids float() precision loss on large numbers.
     bare = first.lstrip("-")
     if bare.isdigit() and bare:
@@ -85,17 +98,61 @@ def int_clean(value: str) -> str:
 
 
 def date_format(value: str) -> str:
-    """Normalize a date string to ISO 8601 format (YYYY-MM-DD).
+    """Normalize a date string to strict ISO 8601 date format (YYYY-MM-DD).
 
-    Currently a pass-through; assumes input is already ISO formatted.
+    Validation and normalisation rules:
+
+    * Strips leading/trailing whitespace.
+    * Strips time components from datetime strings (``2026-02-08T14:30:00`` → ``2026-02-08``).
+    * Zero-pads unpadded dates (``2026-2-8`` → ``2026-02-08``).
+    * Rejects non-date strings (``"yesterday"``, ``"02/08/2026"``).
+    * Rejects impossible calendar dates (``9999-99-99``).
 
     Args:
         value: Date string.
 
     Returns:
-        ISO 8601 date string.
+        Strict ISO 8601 date string (``YYYY-MM-DD``).
+
+    Raises:
+        ValueError: If the value cannot be parsed as YYYY-MM-DD.
     """
-    return str(value).strip()
+    import datetime as _dt
+
+    s = str(value).strip()
+
+    # Strip time component if present (e.g. "2026-02-08T14:30:00")
+    if "T" in s:
+        s = s.split("T")[0]
+    elif " " in s and "-" in s.split(" ")[0]:
+        s = s.split(" ")[0]
+
+    parts = s.split("-")
+    if len(parts) != 3:
+        msg = (
+            f"Value '{value}' is not a valid ISO 8601 date. "
+            f"Expected YYYY-MM-DD format (e.g. '2026-02-08')."
+        )
+        raise ValueError(msg)
+
+    year_s, month_s, day_s = parts
+    if not (year_s.isdigit() and month_s.isdigit() and day_s.isdigit()):
+        msg = (
+            f"Value '{value}' contains non-numeric date components. "
+            f"Expected YYYY-MM-DD format (e.g. '2026-02-08')."
+        )
+        raise ValueError(msg)
+
+    try:
+        dt = _dt.date(int(year_s), int(month_s), int(day_s))
+    except ValueError:
+        msg = (
+            f"Value '{value}' is not a valid calendar date. "
+            f"Expected YYYY-MM-DD with valid month (1-12) and day."
+        )
+        raise ValueError(msg) from None
+
+    return dt.isoformat()
 
 
 # ---------------------------------------------------------------------------
