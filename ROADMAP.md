@@ -963,7 +963,7 @@ These are open questions that should be investigated as the project progresses:
 |---|------|-----|
 | 8.4.1 | Create account on **pypi.org** | https://pypi.org/account/register/ |
 | 8.4.2 | Create account on **test.pypi.org** | https://test.pypi.org/account/register/ |
-| 8.4.3 | On PyPI: go to Publishing → Add a new pending publisher | Set repo to `daimare9/ceds-jsonld`, workflow `publish.yml`, environment `pypi` |
+| 8.4.3 | On PyPI: go to Publishing → Add a new pending publisher | Set repo to `daimare9/cepi-jsonld`, workflow `publish.yml`, environment `pypi` |
 | 8.4.4 | On TestPyPI: same as above | Environment `testpypi` |
 | 8.4.5 | On GitHub: create `pypi` environment | Repo Settings → Environments → New → `pypi` |
 | 8.4.6 | On GitHub: create `testpypi` environment | Repo Settings → Environments → New → `testpypi` |

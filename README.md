@@ -3,7 +3,7 @@
 [![PyPI version](https://img.shields.io/pypi/v/ceds-jsonld.svg)](https://pypi.org/project/ceds-jsonld/)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![CI](https://github.com/daimare9/ceds-jsonld/actions/workflows/ci.yml/badge.svg)](https://github.com/daimare9/ceds-jsonld/actions/workflows/ci.yml)
+[![CI](https://github.com/daimare9/cepi-jsonld/actions/workflows/ci.yml/badge.svg)](https://github.com/daimare9/cepi-jsonld/actions/workflows/ci.yml)
 [![Tests: 398 passed](https://img.shields.io/badge/tests-398%20passed-brightgreen.svg)](tests/)
 [![Coverage: 88%](https://img.shields.io/badge/coverage-88%25-yellowgreen.svg)]()
 
@@ -639,7 +639,7 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 
 ```bash
 # Clone and install
-git clone https://github.com/daimare9/ceds-jsonld.git
+git clone https://github.com/daimare9/cepi-jsonld.git
 cd ceds-jsonld
 pip install -e ".[dev,cli]"
 

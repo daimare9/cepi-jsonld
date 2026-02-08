@@ -4,7 +4,7 @@ Thank you for your interest in contributing! This library helps education agenci
 
 ## Quick Links
 
-- [Issues](https://github.com/daimare9/ceds-jsonld/issues) — Report bugs, request features
+- [Issues](https://github.com/daimare9/cepi-jsonld/issues) — Report bugs, request features
 - [CHANGELOG.md](CHANGELOG.md) — What changed in each release
 - [ROADMAP.md](ROADMAP.md) — Project plan and architecture decisions
 
@@ -21,7 +21,7 @@ Thank you for your interest in contributing! This library helps education agenci
 
 ```bash
 # Clone the repo
-git clone https://github.com/daimare9/ceds-jsonld.git
+git clone https://github.com/daimare9/cepi-jsonld.git
 cd ceds-jsonld
 
 # Install in editable mode with all dev dependencies
