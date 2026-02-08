@@ -274,8 +274,6 @@ class Pipeline:
                     mode=ValidationMode.STRICT if mode is ValidationMode.STRICT else ValidationMode.REPORT,
                 )
                 result.record_count += 1
-                result.error_count += row_result.error_count
-                result.warning_count += row_result.warning_count
                 if not row_result.conforms:
                     result.conforms = False
                 for rec_id, issues in row_result.issues.items():
