@@ -11,6 +11,7 @@ from collections.abc import Callable
 from typing import Any
 
 from ceds_jsonld.exceptions import MappingError
+from ceds_jsonld.sanitize import sanitize_string_value
 from ceds_jsonld.transforms import get_transform
 
 
@@ -175,7 +176,7 @@ class FieldMapper:
         if id_raw is None:
             msg = f"ID source field '{id_source}' is missing from row"
             raise MappingError(msg)
-        id_value = str(id_raw)
+        id_value = sanitize_string_value(str(id_raw))
 
         id_transform_name = self._config.get("id_transform")
         if id_transform_name:
@@ -229,7 +230,7 @@ class FieldMapper:
                     raise MappingError(msg)
                 continue
 
-            value = str(value)
+            value = sanitize_string_value(str(value))
             transform_name = field_def.get("transform")
             if transform_name:
                 transform_fn = get_transform(transform_name, self._custom_transforms)
@@ -279,7 +280,9 @@ class FieldMapper:
 
                 field_parts = str(raw_value).split(split_on)
                 # Use the i-th part, or last available if source has fewer parts
-                value = field_parts[i].strip() if i < len(field_parts) else field_parts[-1].strip()
+                value = sanitize_string_value(
+                    field_parts[i].strip() if i < len(field_parts) else field_parts[-1].strip()
+                )
 
                 # Handle multi_value_split within a single instance
                 multi_split = field_def.get("multi_value_split")

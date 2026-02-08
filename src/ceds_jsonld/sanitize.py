@@ -91,6 +91,39 @@ def _encode_all(value: str) -> str:
     return "".join(parts)
 
 
+def sanitize_string_value(value: str) -> str:
+    """Strip null bytes and other control characters from a field value.
+
+    Removes ASCII control characters (U+0000 through U+001F, except tab,
+    newline, and carriage return) that have no legitimate use in education
+    data and can cause problems in downstream systems (C-based string
+    processing, database storage, XML serialization).
+
+    Args:
+        value: The raw string value from a mapped field.
+
+    Returns:
+        The cleaned string with null bytes and control characters removed.
+
+    Example:
+        >>> sanitize_string_value("Jane\\x00Doe")
+        'JaneDoe'
+    """
+    # Remove null bytes and other problematic control characters.
+    # Preserve tab (\t=0x09), newline (\n=0x0A), carriage return (\r=0x0D).
+    return value.translate(
+        _CONTROL_CHAR_TABLE
+    )
+
+
+#: Translation table that maps dangerous control characters to None (removal).\n#: Keeps tab (0x09), newline (0x0A), and carriage return (0x0D).
+_CONTROL_CHAR_TABLE = {
+    c: None
+    for c in range(0x00, 0x20)
+    if c not in (0x09, 0x0A, 0x0D)
+}
+
+
 def validate_base_uri(base_uri: str) -> str:
     """Validate that a base URI is well-formed.
 
