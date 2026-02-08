@@ -6,7 +6,10 @@ required ``id`` and ``partitionKey`` fields.
 
 from __future__ import annotations
 
+import copy
 from typing import Any
+
+from ceds_jsonld.exceptions import CosmosError
 
 
 def prepare_for_cosmos(
@@ -30,10 +33,11 @@ def prepare_for_cosmos(
             (everything up to and including the last ``/``).
 
     Returns:
-        A shallow copy of *doc* with ``id`` and ``partitionKey`` injected.
+        A deep copy of *doc* with ``id`` and ``partitionKey`` injected.
 
     Raises:
         KeyError: If *id_field* is missing from *doc*.
+        CosmosError: If the derived ``id`` is empty.
 
     Example::
 
@@ -49,11 +53,21 @@ def prepare_for_cosmos(
         msg = f"Document is missing '{id_field}'. Cannot prepare for Cosmos DB. Available keys: {sorted(doc.keys())}"
         raise KeyError(msg)
 
-    cosmos_doc = doc.copy()
+    cosmos_doc = copy.deepcopy(doc)
 
     # Extract the trailing identifier from the URI.
     raw_id = str(doc[id_field])
-    cosmos_doc["id"] = raw_id.rsplit("/", 1)[-1] if "/" in raw_id else raw_id
+    derived_id = raw_id.rsplit("/", 1)[-1] if "/" in raw_id else raw_id
+
+    if not derived_id:
+        msg = (
+            f"Cannot derive Cosmos 'id' from {id_field}={raw_id!r}. "
+            "The value is empty or ends with '/' yielding an empty identifier. "
+            "Ensure every document has a non-empty @id with a meaningful trailing segment."
+        )
+        raise CosmosError(msg)
+
+    cosmos_doc["id"] = derived_id
 
     # Partition key: explicit value, or fall back to @type.
     if partition_value is not None:

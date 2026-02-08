@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from ceds_jsonld import serializer
+from ceds_jsonld.exceptions import SerializationError
 
 
 class TestDumpsLoads:
@@ -49,6 +50,16 @@ class TestDumpsLoads:
     def test_loads_accepts_bytes(self):
         result = serializer.loads(b'{"a": 1}')
         assert result == {"a": 1}
+
+    def test_dumps_non_serializable_raises_serialization_error(self):
+        """Regression: dumps must raise SerializationError, not raw TypeError (issue #14)."""
+        with pytest.raises(SerializationError, match="Failed to serialize"):
+            serializer.dumps({"bad": {1, 2, 3}})  # sets are not JSON-serializable
+
+    def test_loads_invalid_json_raises_serialization_error(self):
+        """Regression: loads must raise SerializationError, not raw JSONDecodeError (issue #14)."""
+        with pytest.raises(SerializationError, match="Failed to deserialize"):
+            serializer.loads(b"not json")
 
 
 class TestFileIO:
