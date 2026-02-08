@@ -48,7 +48,7 @@ def first_pipe_split(value: str) -> str:
     first = str(value).split("|")[0].strip()
     try:
         return str(int(float(first)))
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, OverflowError):
         return first
 
 
@@ -73,7 +73,7 @@ def int_clean(value: str) -> str:
         return str(int(s))
     try:
         return str(int(float(s)))
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, OverflowError):
         return s
 
 

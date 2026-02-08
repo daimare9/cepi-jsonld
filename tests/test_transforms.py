@@ -67,6 +67,10 @@ class TestFirstPipeSplit:
     def test_non_numeric_passes_through(self):
         assert first_pipe_split("abc|def") == "abc"
 
+    def test_infinity_passes_through(self):
+        """Infinity must not raise OverflowError (issue #4)."""
+        assert first_pipe_split("Infinity|123") == "Infinity"
+
 
 # ---------------------------------------------------------------------------
 # int_clean
@@ -107,6 +111,18 @@ class TestIntClean:
     def test_large_float_string(self):
         """Float-like large numbers still go through the float path."""
         assert int_clean("12345678901234567.0") == str(int(float("12345678901234567.0")))
+
+    def test_infinity_returns_passthrough(self):
+        """Infinity must not raise OverflowError (issue #4)."""
+        assert int_clean("Infinity") == "Infinity"
+
+    def test_negative_infinity_returns_passthrough(self):
+        """Negative infinity must not raise OverflowError (issue #4)."""
+        assert int_clean("-Infinity") == "-Infinity"
+
+    def test_nan_returns_passthrough(self):
+        """NaN string should pass through unchanged."""
+        assert int_clean("NaN") == "NaN"
 
 
 # ---------------------------------------------------------------------------
