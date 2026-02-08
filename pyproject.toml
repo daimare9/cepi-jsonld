@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
 authors = [
-    { name = "CEPI", email = "cepi@michigan.gov" },
+    { name = "CEPI" },
 ]
 keywords = [
     "ceds",
