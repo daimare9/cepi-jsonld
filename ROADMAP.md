@@ -3,7 +3,7 @@
 **Project:** `ceds-jsonld` — A Python library for ingesting education data from any source, mapping it to CEDS/CEPI ontology-backed RDF shapes, outputting conformant JSON-LD, and loading it into Azure Cosmos DB.
 
 **Date:** February 7, 2026
-**Status:** All Phases Complete (0–7)
+**Status:** Phase 8 — Open Source Publishing (Phases 0–7 Complete)
 
 ---
 
@@ -918,8 +918,72 @@ These are open questions that should be investigated as the project progresses:
 | **5** | 20-22 | Validation | ✅ Complete — PreBuildValidator + SHACLValidator, 3 validation modes, Pipeline.validate(), 331 tests, 88% coverage |
 | **6** | 23-25 | CLI & Docs | ✅ Complete — Full CLI (6 commands), Sphinx docs, 3 user guides, 5 ADRs. 356 tests. |
 | **7** | 26-28 | Production | ✅ Complete — Structured logging (structlog + fallback), PipelineResult metrics, dead-letter queue, progress tracking, PII masking, IRI sanitization. 398 tests. |
+| **8** | — | Open Source Publishing | 🔄 In Progress — Versioning (0.9.0), PyPI publishing, GitHub Actions CI/CD, issue templates, CONTRIBUTING.md |
 
 **Estimated total: ~7 months** (adjustable based on team size and priority shifts)
+
+---
+
+## Phase 8 — Open Source Publishing
+
+### 8.1 Versioning & Release
+
+| # | Task | Details |
+|---|------|---------|
+| 8.1.1 | Adopt Semantic Versioning (semver) | MAJOR.MINOR.PATCH — version tracked in `pyproject.toml` + `__init__.py` |
+| 8.1.2 | Initial public version: **0.9.0** | Signals "feature-complete beta, approaching 1.0" |
+| 8.1.3 | Monthly release cadence | First week of each month; ad-hoc patches for critical fixes |
+| 8.1.4 | CHANGELOG.md | Track all changes per version |
+
+### 8.2 PyPI Publishing
+
+| # | Task | Details |
+|---|------|---------|
+| 8.2.1 | PyPI metadata in `pyproject.toml` | Classifiers, keywords, project URLs |
+| 8.2.2 | GitHub Actions CI workflow | Tests (pytest), lint (ruff), type check (mypy) on push/PR — Python 3.12 + 3.13, Ubuntu + Windows |
+| 8.2.3 | GitHub Actions publish workflow | Tag `v*` → build → test → publish to TestPyPI → publish to PyPI (trusted publishing, no API tokens in secrets) |
+| 8.2.4 | TestPyPI dry-run | Validate package installs correctly before real PyPI |
+| 8.2.5 | First PyPI release: `v0.9.0` | `pip install ceds-jsonld` works for anyone |
+
+### 8.3 GitHub Repository
+
+| # | Task | Details |
+|---|------|---------|
+| 8.3.1 | Make repository public | Settings → Danger Zone → Change visibility |
+| 8.3.2 | Issue templates | Bug report, feature request, new shape request |
+| 8.3.3 | PR template | Checklist: tests, lint, types, changelog |
+| 8.3.4 | CONTRIBUTING.md | Dev setup, coding standards, release process, how to add shapes |
+| 8.3.5 | Branch protection on `main` | Require CI pass, require PR review |
+
+### 8.4 PyPI Account Setup (Manual Steps)
+
+> These steps must be done manually in a browser — they cannot be automated.
+
+| # | Step | URL |
+|---|------|-----|
+| 8.4.1 | Create account on **pypi.org** | https://pypi.org/account/register/ |
+| 8.4.2 | Create account on **test.pypi.org** | https://test.pypi.org/account/register/ |
+| 8.4.3 | On PyPI: go to Publishing → Add a new pending publisher | Set repo to `daimare9/ceds-jsonld`, workflow `publish.yml`, environment `pypi` |
+| 8.4.4 | On TestPyPI: same as above | Environment `testpypi` |
+| 8.4.5 | On GitHub: create `pypi` environment | Repo Settings → Environments → New → `pypi` |
+| 8.4.6 | On GitHub: create `testpypi` environment | Repo Settings → Environments → New → `testpypi` |
+| 8.4.7 | Make repo public | Repo Settings → Danger Zone → Change repository visibility |
+| 8.4.8 | Enable branch protection on `main` | Repo Settings → Branches → Add rule → Require status checks |
+
+### Phase 8 Deliverables
+
+- [x] Version bumped to 0.9.0
+- [x] `pyproject.toml` updated with PyPI metadata (classifiers, keywords, URLs)
+- [x] CHANGELOG.md tracking all changes
+- [x] CONTRIBUTING.md with dev setup, coding standards, release process
+- [x] GitHub Actions CI workflow (test + lint on push/PR)
+- [x] GitHub Actions publish workflow (tag → TestPyPI → PyPI via trusted publishing)
+- [x] Issue templates (bug report, feature request, new shape)
+- [x] PR template with checklist
+- [ ] PyPI/TestPyPI account setup (manual — see 8.4)
+- [ ] GitHub environments created (manual — see 8.4)
+- [ ] Repository made public (manual — see 8.4)
+- [ ] First `v0.9.0` tag pushed and published to PyPI
 
 ---
 

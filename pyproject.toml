@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ceds-jsonld"
-version = "0.1.0"
+version = "0.9.0"
 description = "Python library for ingesting education data, mapping to CEDS/CEPI ontology SHACL shapes, and outputting conformant JSON-LD"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -12,11 +12,44 @@ license = "MIT"
 authors = [
     { name = "CEPI", email = "cepi@michigan.gov" },
 ]
+keywords = [
+    "ceds",
+    "json-ld",
+    "education",
+    "ontology",
+    "shacl",
+    "rdf",
+    "linked-data",
+    "data-transformation",
+    "cosmos-db",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Education",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
 dependencies = [
     "pyyaml>=6.0",
     "rdflib>=7.0",
     "pandas>=2.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/daimare9/ceds-jsonld"
+Documentation = "https://github.com/daimare9/ceds-jsonld#readme"
+Repository = "https://github.com/daimare9/ceds-jsonld"
+Changelog = "https://github.com/daimare9/ceds-jsonld/blob/main/CHANGELOG.md"
+Issues = "https://github.com/daimare9/ceds-jsonld/issues"
 
 [project.optional-dependencies]
 fast = ["orjson>=3.10"]
