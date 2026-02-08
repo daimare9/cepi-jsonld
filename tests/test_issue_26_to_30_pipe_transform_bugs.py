@@ -12,7 +12,7 @@ from __future__ import annotations
 import pytest
 
 from ceds_jsonld import DictAdapter, Pipeline, ShapeRegistry
-from ceds_jsonld.exceptions import MappingError, PipelineError
+from ceds_jsonld.exceptions import PipelineError
 from ceds_jsonld.transforms import date_format, first_pipe_split, race_prefix, sex_prefix
 from ceds_jsonld.validator import PreBuildValidator, ValidationMode
 
@@ -224,8 +224,7 @@ class TestIssue29PipeMismatch:
         system = third.get("hasPersonIdentificationSystem")
         # System should be None/missing, not forward-filled to "Fed"
         assert system is None, (
-            f"Expected no system for third ID (pipe mismatch), got {system!r}. "
-            f"Forward-fill bug is still present."
+            f"Expected no system for third ID (pipe mismatch), got {system!r}. Forward-fill bug is still present."
         )
 
     def test_matched_pipe_counts_work_normally(
