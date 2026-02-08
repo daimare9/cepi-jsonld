@@ -51,9 +51,11 @@ class TestCLIMain:
         assert "convert" in result.output
 
     def test_version(self, runner: CliRunner) -> None:
+        from ceds_jsonld import __version__
+
         result = runner.invoke(cli, ["--version"])
         assert result.exit_code == 0
-        assert "0.9.0" in result.output
+        assert __version__ in result.output
 
 
 # ---------------------------------------------------------------------------
