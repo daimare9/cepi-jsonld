@@ -9,12 +9,18 @@ from __future__ import annotations
 import re
 import unicodedata
 
+#: Pattern matching path traversal sequences (``../``, ``..\\``, leading ``./``).
+_PATH_TRAVERSAL_RE = re.compile(r"\.\.[/\\]|[/\\]\.\.|^\.\.|\.\.%|%2[eE]%2[eE]")
+
 #: Characters allowed in the local part of an IRI (after the base URI prefix).
 #: Alphanumerics, hyphens, underscores, dots, and tildes are safe.
-_SAFE_IRI_RE = re.compile(r"^[A-Za-z0-9._~:@!$&'()*+,;=/-]+$")
+#: Note: ``/`` is intentionally EXCLUDED — a component value (e.g. a person
+#: identifier) should never contain path separators.  Slashes in user input
+#: would allow path traversal when the IRI is resolved against a base.
+_SAFE_IRI_RE = re.compile(r"^[A-Za-z0-9._~:@!$&'()*+,;=-]+$")
 
 #: Characters that MUST be percent-encoded in an IRI local part.
-_UNSAFE_CHARS = re.compile(r"[^A-Za-z0-9._~:@!$&'()*+,;=/-]")
+_UNSAFE_CHARS = re.compile(r"[^A-Za-z0-9._~:@!$&'()*+,;=-]")
 
 
 def sanitize_iri_component(value: str) -> str:
@@ -22,6 +28,9 @@ def sanitize_iri_component(value: str) -> str:
 
     Percent-encodes any characters that are not safe in an IRI reference.
     Also strips leading/trailing whitespace and normalises Unicode to NFC.
+    Forward slashes are always percent-encoded since they should not appear
+    in identifier components.  Path traversal sequences (``../``) are
+    detected and their dots are also encoded.
 
     Args:
         value: The raw value to embed in an IRI (e.g. a person identifier).
@@ -37,6 +46,8 @@ def sanitize_iri_component(value: str) -> str:
         '989897099'
         >>> sanitize_iri_component("hello world/<script>")
         'hello%20world%2F%3Cscript%3E'
+        >>> sanitize_iri_component("../../../etc/passwd")
+        '%2E%2E%2F%2E%2E%2F%2E%2E%2Fetc%2Fpasswd'
     """
     # Normalise Unicode and strip whitespace
     value = unicodedata.normalize("NFC", value.strip())
@@ -45,16 +56,39 @@ def sanitize_iri_component(value: str) -> str:
         msg = "IRI component cannot be empty"
         raise ValueError(msg)
 
-    # Fast path: value is already safe
+    # Detect path traversal BEFORE the fast path — traversal sequences use
+    # characters that would otherwise be individually "safe".
+    if _PATH_TRAVERSAL_RE.search(value):
+        return _encode_all(value)
+
+    # Fast path: value is already safe (no slashes, no unsafe chars)
     if _SAFE_IRI_RE.match(value):
         return value
 
-    # Percent-encode unsafe characters
+    # Percent-encode unsafe characters (includes / now)
     def _encode_char(match: re.Match[str]) -> str:
         char = match.group(0)
         return "".join(f"%{b:02X}" for b in char.encode("utf-8"))
 
     return _UNSAFE_CHARS.sub(_encode_char, value)
+
+
+def _encode_all(value: str) -> str:
+    """Percent-encode every character that is not alphanumeric or ``-_~``.
+
+    Used for values that contain path traversal sequences where dots and
+    slashes must all be encoded to neutralise the traversal.
+    """
+    safe = set(
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_~"
+    )
+    parts: list[str] = []
+    for ch in value:
+        if ch in safe:
+            parts.append(ch)
+        else:
+            parts.extend(f"%{b:02X}" for b in ch.encode("utf-8"))
+    return "".join(parts)
 
 
 def validate_base_uri(base_uri: str) -> str:
