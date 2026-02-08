@@ -242,6 +242,24 @@ class TestBaseURIValidation:
         with pytest.raises(ValueError, match="suspicious"):
             validate_base_uri("cepi:person/\x00evil")
 
+    def test_trailing_slash_accepted(self) -> None:
+        assert validate_base_uri("http://example.org/ns/") == "http://example.org/ns/"
+
+    def test_trailing_hash_accepted(self) -> None:
+        assert validate_base_uri("http://example.org/ns#") == "http://example.org/ns#"
+
+    def test_no_trailing_separator_raises(self) -> None:
+        with pytest.raises(ValueError, match="must end with"):
+            validate_base_uri("cepi:person")
+
+    def test_no_trailing_separator_http_raises(self) -> None:
+        with pytest.raises(ValueError, match="must end with"):
+            validate_base_uri("http://example.org/ns")
+
+    def test_no_trailing_separator_urn_raises(self) -> None:
+        with pytest.raises(ValueError, match="must end with"):
+            validate_base_uri("urn:ceds")
+
 
 # =====================================================================
 # String value sanitization (null bytes / control chars)

@@ -151,4 +151,14 @@ def validate_base_uri(base_uri: str) -> str:
             msg = f"Base URI contains suspicious content: {base_uri!r}"
             raise ValueError(msg)
 
+    # Ensure the URI ends with a separator so @id values are well-formed.
+    # Without a trailing '/' or '#', the ID component merges into the
+    # namespace (e.g. "cepi:person" + "123" → "cepi:person123").
+    if not base_uri.endswith(("/", "#")):
+        msg = (
+            f"Base URI must end with '/' or '#', got {base_uri!r}. "
+            f"Example: '{base_uri}/' or '{base_uri}#'"
+        )
+        raise ValueError(msg)
+
     return base_uri
