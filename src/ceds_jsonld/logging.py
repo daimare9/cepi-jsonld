@@ -20,6 +20,7 @@ before being emitted.
 from __future__ import annotations
 
 import logging
+import re
 import sys
 from typing import Any
 
@@ -51,9 +52,34 @@ PII_FIELDS: frozenset[str] = frozenset(
 
 _REDACTED = "***REDACTED***"
 
+# Patterns that indicate PII in string values, regardless of field name.
+_SSN_PATTERN = re.compile(r"\b\d{3}-\d{2}-\d{4}\b")
+_EMAIL_PATTERN = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b")
+_PII_VALUE_PATTERNS: tuple[re.Pattern[str], ...] = (_SSN_PATTERN, _EMAIL_PATTERN)
+
+
+def _scrub_value(value: str) -> str:
+    """Replace PII patterns found in a string value.
+
+    Args:
+        value: The string to scan for PII patterns.
+
+    Returns:
+        The string with any PII pattern matches replaced by ``***REDACTED***``.
+    """
+    result = value
+    for pattern in _PII_VALUE_PATTERNS:
+        result = pattern.sub(_REDACTED, result)
+    return result
+
 
 def _mask_pii(event_dict: dict[str, Any]) -> dict[str, Any]:
     """Redact PII fields from a log event dict.
+
+    Recursively walks nested dicts and lists.  Any key whose name
+    (case-insensitive) appears in ``PII_FIELDS`` has its value fully
+    redacted.  String values are additionally scanned for common PII
+    patterns (SSN, email) regardless of key name.
 
     Args:
         event_dict: The structured log event.
@@ -64,7 +90,32 @@ def _mask_pii(event_dict: dict[str, Any]) -> dict[str, Any]:
     for key in list(event_dict.keys()):
         if key.lower() in PII_FIELDS:
             event_dict[key] = _REDACTED
+        else:
+            event_dict[key] = _mask_value(event_dict[key])
     return event_dict
+
+
+def _mask_value(value: Any) -> Any:
+    """Recursively mask PII inside an arbitrary value.
+
+    Args:
+        value: A string, dict, list, or other value from a log event.
+
+    Returns:
+        The value with PII patterns scrubbed and nested PII keys redacted.
+    """
+    if isinstance(value, dict):
+        for k in list(value.keys()):
+            if k.lower() in PII_FIELDS:
+                value[k] = _REDACTED
+            else:
+                value[k] = _mask_value(value[k])
+    elif isinstance(value, list):
+        for i, item in enumerate(value):
+            value[i] = _mask_value(item)
+    elif isinstance(value, str):
+        return _scrub_value(value)
+    return value
 
 
 # ---------------------------------------------------------------------------
