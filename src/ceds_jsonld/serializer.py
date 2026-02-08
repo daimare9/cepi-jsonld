@@ -6,10 +6,33 @@ This module provides a unified API regardless of which backend is available.
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 from typing import Any
 
 from ceds_jsonld.exceptions import SerializationError
+
+
+def _reject_non_finite(obj: Any) -> None:
+    """Raise SerializationError if *obj* contains non-finite floats.
+
+    JSON-LD is a strict subset of RFC 8259 JSON which does not permit
+    bare ``NaN``, ``Infinity``, or ``-Infinity`` tokens.  This pre-check
+    ensures consistent rejection regardless of the serialization backend.
+    """
+    if isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
+        msg = (
+            f"Cannot serialize non-finite float value {obj!r} to JSON. "
+            f"NaN and Infinity are not valid JSON per RFC 8259. "
+            f"Clean the data before serialization."
+        )
+        raise SerializationError(msg)
+    if isinstance(obj, dict):
+        for v in obj.values():
+            _reject_non_finite(v)
+    elif isinstance(obj, (list, tuple)):
+        for v in obj:
+            _reject_non_finite(v)
 
 # ---------------------------------------------------------------------------
 # Backend selection
@@ -34,6 +57,7 @@ try:
             SerializationError: If serialization fails.
         """
         try:
+            _reject_non_finite(obj)
             option = orjson.OPT_INDENT_2 if pretty else 0
             return orjson.dumps(obj, option=option)
         except Exception as exc:
@@ -70,8 +94,11 @@ except ImportError:
             SerializationError: If serialization fails.
         """
         try:
+            _reject_non_finite(obj)
             indent = 2 if pretty else None
-            return _json.dumps(obj, indent=indent, ensure_ascii=False).encode("utf-8")
+            return _json.dumps(
+                obj, indent=indent, ensure_ascii=False, allow_nan=False,
+            ).encode("utf-8")
         except Exception as exc:
             msg = f"Failed to serialize object: {exc}"
             raise SerializationError(msg) from exc
