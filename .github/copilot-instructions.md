@@ -55,6 +55,7 @@ When the user asks you to do something, classify the request and follow the spec
 ### General coding / bug fixing / feature implementation
 → Follow the coding standards in `.github/instructions/python-code.instructions.md`
 → Follow the testing protocol in `.github/instructions/testing.instructions.md`
+→ Follow the Git workflow in `.github/instructions/git-workflow.instructions.md`
 → Reference library docs in `.github/docs/library-reference/` when using external libraries
 
 ---
@@ -136,6 +137,18 @@ environment for negates the validity of those tests.
   available for the platform), mark the test with `@pytest.mark.skip` with a
   clear reason — do NOT write a passing fake.
 
+### 10. Git Branching & Commits
+Follow the Git workflow defined in `.github/instructions/git-workflow.instructions.md`. The key rules:
+
+- **Never commit directly to `main` or `dev`.** Always create a topic branch.
+- **Branch from `dev`** for all normal work. Branch from `main` only for hotfixes.
+- **Branch names** must use type prefixes: `feature/`, `fix/`, `docs/`, `refactor/`, `test/`, `chore/`, `perf/`, `hotfix/`.
+- **Commit messages** must follow [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): description`.
+- **Merge to `dev`** with `--no-ff` when the feature is complete and tests pass.
+- **Merge to `main`** only on explicit release — never automatically.
+- **Push after every commit** to back up work to the remote.
+- **Delete topic branches** after merging (both local and remote).
+
 ### 9. Design for the End User
 Every feature, API, and code change must be evaluated from the **end user's perspective** — the education data engineer who installs this library and uses it to convert their data.
 
@@ -173,7 +186,8 @@ CEDS-JSONLD-Generator/
 │   │   ├── ontology.instructions.md     ← SHACL/TTL/RDF rules (ontology files)
 │   │   ├── testing.instructions.md      ← Testing protocol (test files)
 │   │   ├── cosmos.instructions.md       ← Cosmos DB patterns (cosmos module)
-│   │   └── yaml-mapping.instructions.md ← Mapping config rules (.yaml files)
+│   │   ├── yaml-mapping.instructions.md ← Mapping config rules (.yaml files)
+│   │   └── git-workflow.instructions.md ← Git branching, commits, merge strategy
 │   ├── prompts/                         ← On-demand slash commands
 │   │   ├── new-phase.prompt.md          ← /new-phase
 │   │   ├── new-shape.prompt.md          ← /new-shape
