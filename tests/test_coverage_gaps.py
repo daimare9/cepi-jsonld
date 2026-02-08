@@ -682,8 +682,9 @@ class TestSerializerStdlibFallback:
         from ceds_jsonld.exceptions import SerializationError
         from ceds_jsonld.serializer import write_json
 
+        # Pass an unserializable object to trigger SerializationError
         with pytest.raises(SerializationError):
-            write_json({"k": "v"}, "Z:\\nonexistent\\output.json")
+            write_json({"k": object()}, "/tmp/test_write_json_err.json")
 
     def test_read_json_error_handling(self) -> None:
         """read_json raises SerializationError on missing file."""
