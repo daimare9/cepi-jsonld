@@ -17,6 +17,22 @@ Release cadence: **monthly** (first week of each month), with ad-hoc patch relea
 
 ---
 
+## [0.9.2] — 2026-02-08
+
+### Summary
+
+Patch release with 5 bug fixes covering validation counting, Cosmos DB preparation, serialization error handling, and PII masking. 471 tests passing.
+
+### Fixed
+
+- **Validator** — `PreBuildValidator.validate_batch()` and `SHACLValidator.validate_batch()` no longer double-count errors and warnings (#11)
+- **Cosmos** — `prepare_for_cosmos()` uses `copy.deepcopy()` so nested objects are not shared between original and result (#12)
+- **Cosmos** — `prepare_for_cosmos()` raises `CosmosError` for empty or slash-only `@id` values instead of silently producing an empty `id` (#13)
+- **Serializer** — `dumps()` and `loads()` now wrap backend errors in `SerializationError`, matching `write_json()`/`read_json()` behaviour (#14)
+- **Logging** — `_mask_pii()` recursively walks nested dicts/lists and detects SSN and email patterns in string values (#15)
+
+---
+
 ## [0.9.1] — 2026-02-08
 
 ### Summary
