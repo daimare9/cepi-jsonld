@@ -79,9 +79,7 @@ def _encode_all(value: str) -> str:
     Used for values that contain path traversal sequences where dots and
     slashes must all be encoded to neutralise the traversal.
     """
-    safe = set(
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_~"
-    )
+    safe = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_~")
     parts: list[str] = []
     for ch in value:
         if ch in safe:
@@ -111,17 +109,12 @@ def sanitize_string_value(value: str) -> str:
     """
     # Remove null bytes and other problematic control characters.
     # Preserve tab (\t=0x09), newline (\n=0x0A), carriage return (\r=0x0D).
-    return value.translate(
-        _CONTROL_CHAR_TABLE
-    )
+    return value.translate(_CONTROL_CHAR_TABLE)
 
 
-#: Translation table that maps dangerous control characters to None (removal).\n#: Keeps tab (0x09), newline (0x0A), and carriage return (0x0D).
-_CONTROL_CHAR_TABLE = {
-    c: None
-    for c in range(0x00, 0x20)
-    if c not in (0x09, 0x0A, 0x0D)
-}
+#: Translation table that maps dangerous control characters to None (removal).
+#: Keeps tab (0x09), newline (0x0A), and carriage return (0x0D).
+_CONTROL_CHAR_TABLE = {c: None for c in range(0x00, 0x20) if c not in (0x09, 0x0A, 0x0D)}
 
 
 def validate_base_uri(base_uri: str) -> str:
@@ -155,10 +148,7 @@ def validate_base_uri(base_uri: str) -> str:
     # Without a trailing '/' or '#', the ID component merges into the
     # namespace (e.g. "cepi:person" + "123" → "cepi:person123").
     if not base_uri.endswith(("/", "#")):
-        msg = (
-            f"Base URI must end with '/' or '#', got {base_uri!r}. "
-            f"Example: '{base_uri}/' or '{base_uri}#'"
-        )
+        msg = f"Base URI must end with '/' or '#', got {base_uri!r}. Example: '{base_uri}/' or '{base_uri}#'"
         raise ValueError(msg)
 
     return base_uri

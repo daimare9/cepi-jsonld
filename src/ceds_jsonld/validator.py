@@ -415,10 +415,7 @@ class PreBuildValidator:
             if len(year_s) != 4 or len(month_s) != 2 or len(day_s) != 2:
                 issue = FieldIssue(
                     property_path=rule.property_path,
-                    message=(
-                        f"Value '{value}' is not zero-padded ISO 8601 "
-                        f"(expected YYYY-MM-DD, e.g. '2026-02-07')"
-                    ),
+                    message=(f"Value '{value}' is not zero-padded ISO 8601 (expected YYYY-MM-DD, e.g. '2026-02-07')"),
                     severity="warning",
                     expected="YYYY-MM-DD (zero-padded)",
                     actual=value,
@@ -444,7 +441,7 @@ class PreBuildValidator:
                 )
                 result.add_issue(record_id, issue)
                 if mode is ValidationMode.STRICT:
-                    raise ValidationError(issue.message)
+                    raise ValidationError(issue.message) from None
 
         elif dt in ("xsd:dateTime",):
             if "T" not in value and " " not in value:

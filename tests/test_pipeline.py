@@ -426,7 +426,9 @@ class TestDuplicateIdWarning:
         assert len(set(ids)) == 90, f"Expected 90 unique @ids, got {len(set(ids))}"
 
     def test_duplicate_ids_emit_warning(
-        self, registry: ShapeRegistry, caplog: pytest.LogCaptureFixture,
+        self,
+        registry: ShapeRegistry,
+        caplog: pytest.LogCaptureFixture,
     ) -> None:
         """When source data produces duplicate @ids, a warning is logged."""
         # Feed 3 rows with the same PersonIdentifier → same @id
@@ -478,7 +480,10 @@ class TestDuplicateIdWarning:
         assert any("duplicate_ids" in r.message for r in caplog.records)
 
     def test_no_warning_on_unique_ids(
-        self, registry: ShapeRegistry, sample_rows: list[dict], caplog: pytest.LogCaptureFixture,
+        self,
+        registry: ShapeRegistry,
+        sample_rows: list[dict],
+        caplog: pytest.LogCaptureFixture,
     ) -> None:
         """No duplicate warning when all @ids are unique."""
         import logging
