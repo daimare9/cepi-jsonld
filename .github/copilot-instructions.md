@@ -55,6 +55,11 @@ When the user asks you to do something, classify the request and follow the spec
 ### "Fix issues" or "Pick up an issue" or "Work on issue #X"
 → Follow the **Issue Ticket Workflow** below — every step is mandatory.
 
+### "Release" or "Tag" or "Publish" or "Push to main"
+→ Follow the **Release Checklist** in `.github/instructions/git-workflow.instructions.md`
+→ Run the full pre-release checklist (lint, format, tests, version consistency, CHANGELOG) **before** merging to main
+→ Never skip the version-consistency check — `pyproject.toml`, `__init__.py`, and `CHANGELOG.md` must all agree
+
 #### Issue Ticket Workflow
 
 1. **List open issues.** Run `gh issue list --state open` (ensure `C:\Program Files\GitHub CLI` is on `$env:PATH`).

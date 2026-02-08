@@ -154,25 +154,65 @@ git push origin --delete feature/my-new-feature
 
 ### Releasing to main
 
-Only merge `dev` → `main` when `dev` is stable and all tests pass.
+Only merge `dev` → `main` when `dev` is stable **and every pre-release check passes**.
+
+#### Pre-release checklist (mandatory — every release)
+
+Run every step **from `dev`**, in order.  Do not skip any step.
 
 ```powershell
-# 1. Ensure dev is clean and tested
+# 0. Start clean
 git checkout dev
 git pull origin dev
+
+# 1. Reinstall from source (catches stale installed metadata)
+pip install -e ".[dev,cli]"
+
+# 2. Lint — must match CI exactly
+ruff check src/ tests/
+ruff format --check src/ tests/
+
+# 3. Type check
+mypy src/
+
+# 4. Full test suite — all must pass
 python -m pytest tests/ -v --tb=short
 
-# 2. Merge dev into main
+# 5. Version consistency — the SAME version string must appear in all three places
+#    • pyproject.toml   →  version = "X.Y.Z"
+#    • src/ceds_jsonld/__init__.py  →  __version__ = "X.Y.Z"
+#    • CHANGELOG.md     →  ## [X.Y.Z] — <today's date>
+#    If any disagree, fix them before continuing.
+
+# 6. CHANGELOG — verify [Unreleased] section is empty and the new version
+#    section is complete with a Summary and all relevant Fixed/Added/Changed entries.
+```
+
+#### Performing the release
+
+Only proceed here after **every pre-release check passes**.
+
+```powershell
+# 1. Merge dev into main
 git checkout main
 git pull origin main
-git merge --no-ff dev -m "release: merge dev into main"
+git merge --no-ff dev -m "release: v<X.Y.Z>"
 
-# 3. Tag the release (SemVer)
-git tag -a v1.0.0 -m "v1.0.0 — Phase 7 complete"
+# 2. Tag the release (SemVer)
+git tag -a v<X.Y.Z> -m "v<X.Y.Z> — <brief description>"
 
-# 4. Push main and tags
+# 3. Push main and tags
 git push origin main --tags
+
+# 4. Return to dev
+git checkout dev
 ```
+
+#### Post-release
+
+- Verify the GitHub Actions CI **and** Publish workflows pass on the tag.
+- If CI fails: **do not delete the tag and retry**. Instead, fix forward:
+  create a `fix/` branch on `dev`, fix the issue, and release a `PATCH+1`.
 
 ### Hotfixes (urgent production fixes)
 
@@ -220,6 +260,17 @@ When I (the AI agent) am working on code changes:
 8. **Use atomic commits** — one logical change per commit. Don't lump unrelated changes.
 9. **Always push the branch** after committing so work is backed up to the remote.
 10. **Include the scope** in commit messages when the change touches a specific module.
+
+### Before every release — agent-mandatory steps
+
+When the user says "release", "tag", "push to main", or "publish":
+
+1. **Run `ruff check src/ tests/`** — fix any failures before proceeding.
+2. **Run `ruff format --check src/ tests/`** — fix any formatting issues.
+3. **Run `python -m pytest tests/ -v --tb=short`** — all tests must pass.
+4. **Verify version consistency** — confirm `pyproject.toml`, `__init__.py`, and `CHANGELOG.md` all have the same version string. If they differ, ask the user which version is correct and fix all three.
+5. **Confirm CHANGELOG is up to date** — the `[Unreleased]` section should be empty, and a dated `[X.Y.Z]` section must exist.
+6. Only then proceed with the `dev → main` merge and tagging.
 
 ### Workflow for a typical agent task
 
