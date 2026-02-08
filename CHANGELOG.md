@@ -73,5 +73,5 @@ First public release. All core functionality complete across 7 development phase
 
 ---
 
-[Unreleased]: https://github.com/daimare9/cepi-jsonld/compare/v0.9.0...HEAD
-[0.9.0]: https://github.com/daimare9/cepi-jsonld/releases/tag/v0.9.0
+[Unreleased]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/daimare9/ceds-jsonld/releases/tag/v0.9.0

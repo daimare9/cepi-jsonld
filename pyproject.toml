@@ -45,11 +45,11 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/daimare9/cepi-jsonld"
-Documentation = "https://github.com/daimare9/cepi-jsonld#readme"
-Repository = "https://github.com/daimare9/cepi-jsonld"
-Changelog = "https://github.com/daimare9/cepi-jsonld/blob/main/CHANGELOG.md"
-Issues = "https://github.com/daimare9/cepi-jsonld/issues"
+Homepage = "https://github.com/daimare9/ceds-jsonld"
+Documentation = "https://github.com/daimare9/ceds-jsonld#readme"
+Repository = "https://github.com/daimare9/ceds-jsonld"
+Changelog = "https://github.com/daimare9/ceds-jsonld/blob/main/CHANGELOG.md"
+Issues = "https://github.com/daimare9/ceds-jsonld/issues"
 
 [project.optional-dependencies]
 fast = ["orjson>=3.10"]
