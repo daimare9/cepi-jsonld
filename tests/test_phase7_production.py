@@ -187,6 +187,38 @@ class TestIRISanitization:
         result2 = sanitize_iri_component("e\u0301")  # e + combining accent
         assert result1 == result2
 
+    def test_path_traversal_encoded(self) -> None:
+        """Path traversal sequences must be percent-encoded (issue #10)."""
+        result = sanitize_iri_component("../../../etc/passwd")
+        assert ".." not in result
+        assert "/" not in result
+        # Dots and slashes should be encoded
+        assert "%2E" in result
+        assert "%2F" in result
+
+    def test_single_dotdot_encoded(self) -> None:
+        """Even a single ``../`` must be neutralised."""
+        result = sanitize_iri_component("../secret")
+        assert ".." not in result
+        assert "/" not in result
+
+    def test_backslash_traversal_encoded(self) -> None:
+        """Windows-style backslash traversal must also be caught."""
+        result = sanitize_iri_component("..\\..\\windows\\system32")
+        assert ".." not in result
+        assert "\\" not in result
+
+    def test_forward_slash_always_encoded(self) -> None:
+        """Forward slashes should never appear unencoded in a component."""
+        result = sanitize_iri_component("foo/bar/baz")
+        assert "/" not in result
+        assert "%2F" in result
+
+    def test_plain_dots_safe(self) -> None:
+        """Dots not part of traversal (e.g. version numbers) stay clean."""
+        result = sanitize_iri_component("version.1.0")
+        assert result == "version.1.0"
+
 
 class TestBaseURIValidation:
     """Verify base URI validation catches injection."""
