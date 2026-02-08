@@ -158,6 +158,78 @@ class TestFieldMapperEdgeCases:
         result = mapper.map(row)
         assert result["__id__"] == "123456789"
 
+    @pytest.mark.parametrize(
+        "bad_id",
+        [
+            pytest.param("", id="empty-string"),
+            pytest.param("   ", id="whitespace-only"),
+            pytest.param(None, id="none"),
+            pytest.param(float("nan"), id="nan"),
+        ],
+    )
+    def test_empty_id_raises_mapping_error(self, person_shape_def, bad_id):
+        """_is_empty values in the ID field must raise MappingError."""
+        mapper = FieldMapper(person_shape_def.mapping_config)
+        row = {
+            "FirstName": "Test",
+            "LastName": "User",
+            "Birthdate": "2010-01-01",
+            "Sex": "Male",
+            "RaceEthnicity": "White",
+            "PersonIdentifiers": bad_id,
+            "IdentificationSystems": "PersonIdentificationSystem_SSN",
+            "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
+        }
+        with pytest.raises(MappingError, match="ID source field"):
+            mapper.map(row)
+
+    @pytest.mark.parametrize(
+        "bad_id",
+        [
+            pytest.param(0, id="zero-int"),
+            pytest.param(0.0, id="zero-float"),
+            pytest.param(False, id="bool-false"),
+        ],
+    )
+    def test_falsy_non_string_id_raises_mapping_error(self, person_shape_def, bad_id):
+        """Non-string falsy values are not valid document identifiers."""
+        mapper = FieldMapper(person_shape_def.mapping_config)
+        row = {
+            "FirstName": "Test",
+            "LastName": "User",
+            "Birthdate": "2010-01-01",
+            "Sex": "Male",
+            "RaceEthnicity": "White",
+            "PersonIdentifiers": bad_id,
+            "IdentificationSystems": "PersonIdentificationSystem_SSN",
+            "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
+        }
+        with pytest.raises(MappingError, match="ID source field"):
+            mapper.map(row)
+
+    @pytest.mark.parametrize(
+        "bad_id",
+        [
+            pytest.param([], id="empty-list"),
+            pytest.param({}, id="empty-dict"),
+        ],
+    )
+    def test_collection_id_raises_mapping_error(self, person_shape_def, bad_id):
+        """Empty collections as ID must raise MappingError."""
+        mapper = FieldMapper(person_shape_def.mapping_config)
+        row = {
+            "FirstName": "Test",
+            "LastName": "User",
+            "Birthdate": "2010-01-01",
+            "Sex": "Male",
+            "RaceEthnicity": "White",
+            "PersonIdentifiers": bad_id,
+            "IdentificationSystems": "PersonIdentificationSystem_SSN",
+            "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
+        }
+        with pytest.raises(MappingError, match="ID source field"):
+            mapper.map(row)
+
 
 # ===================================================================
 # Override tests
@@ -325,3 +397,78 @@ class TestFieldMapperCompose:
         result = mapper.map(row)
         assert result["hasPersonName"][0]["FirstName"] == "Composed"
         assert result["__id__"] == "111"
+
+
+class TestNestedValueRejection:
+    """Verify that nested dicts/lists in field values raise MappingError (issue #6)."""
+
+    def test_dict_in_scalar_field_raises(self, person_shape_def, sample_person_row_minimal):
+        """A nested dict where a scalar string is expected must raise MappingError."""
+        mapper = FieldMapper(person_shape_def.mapping_config)
+        row = {**sample_person_row_minimal, "FirstName": {"preferred": "Jane", "legal": "Janet"}}
+        with pytest.raises(MappingError, match="nested dict"):
+            mapper.map(row)
+
+    def test_list_in_scalar_field_raises(self, person_shape_def, sample_person_row_minimal):
+        """A list where a scalar string is expected must raise MappingError."""
+        mapper = FieldMapper(person_shape_def.mapping_config)
+        row = {**sample_person_row_minimal, "FirstName": ["Jane", "Janet"]}
+        with pytest.raises(MappingError, match="list/sequence"):
+            mapper.map(row)
+
+    def test_dict_in_id_field_raises(self, person_shape_def, sample_person_row_minimal):
+        """A nested dict in the ID field must raise MappingError."""
+        mapper = FieldMapper(person_shape_def.mapping_config)
+        row = {**sample_person_row_minimal, "PersonIdentifiers": {"id": 123}}
+        with pytest.raises(MappingError, match="nested dict"):
+            mapper.map(row)
+
+    def test_dict_in_multi_cardinality_field_raises(self, person_shape_def, sample_person_row_minimal):
+        """A nested dict in a multi-cardinality field must raise MappingError."""
+        mapper = FieldMapper(person_shape_def.mapping_config)
+        row = {**sample_person_row_minimal, "RaceEthnicity": {"primary": "White"}}
+        with pytest.raises(MappingError, match="nested dict"):
+            mapper.map(row)
+
+    def test_tuple_in_field_raises(self, person_shape_def, sample_person_row_minimal):
+        """A tuple where a scalar is expected must raise MappingError."""
+        mapper = FieldMapper(person_shape_def.mapping_config)
+        row = {**sample_person_row_minimal, "LastName": ("Doe", "Smith")}
+        with pytest.raises(MappingError, match="list/sequence"):
+            mapper.map(row)
+
+    def test_scalar_values_still_work(self, person_shape_def, sample_person_row_minimal):
+        """Normal scalar values (str, int, float, bool) must still map correctly."""
+        mapper = FieldMapper(person_shape_def.mapping_config)
+        result = mapper.map(sample_person_row_minimal)
+        assert result["hasPersonName"][0]["FirstName"] == "Jane"
+
+    def test_error_message_actionable(self, person_shape_def, sample_person_row_minimal):
+        """Error message must tell the user what to do."""
+        mapper = FieldMapper(person_shape_def.mapping_config)
+        row = {**sample_person_row_minimal, "FirstName": {"nested": True}}
+        with pytest.raises(MappingError, match="flatten the source data"):
+            mapper.map(row)
+
+    def test_pipeline_integration_dict_value(self):
+        """End-to-end: pipeline raises PipelineError wrapping MappingError for nested dict values."""
+        from ceds_jsonld import DictAdapter, Pipeline, ShapeRegistry
+        from ceds_jsonld.exceptions import PipelineError
+
+        registry = ShapeRegistry()
+        registry.load_shape("person")
+        record = {
+            "FirstName": {"preferred": "Jane", "legal": "Janet"},
+            "MiddleName": "",
+            "LastName": "Doe",
+            "GenerationCodeOrSuffix": "",
+            "Birthdate": "2010-01-01",
+            "Sex": "Female",
+            "RaceEthnicity": "White",
+            "PersonIdentifiers": "ID-001",
+            "IdentificationSystems": "PersonIdentificationSystem_SSN",
+            "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
+        }
+        pipeline = Pipeline(source=DictAdapter([record]), shape="person", registry=registry)
+        with pytest.raises(PipelineError, match="nested dict"):
+            pipeline.build_all()

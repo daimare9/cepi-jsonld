@@ -18,6 +18,7 @@ human-readable error reports.
 
 from __future__ import annotations
 
+import datetime
 import random
 from collections.abc import Sequence
 from dataclasses import dataclass, field
@@ -393,7 +394,8 @@ class PreBuildValidator:
         dt = rule.datatype or ""
 
         if dt in ("xsd:date",):
-            # Basic ISO date check: should look like YYYY-MM-DD
+            # Strict ISO 8601 date check: must be exactly YYYY-MM-DD with
+            # zero-padded components that form a valid calendar date.
             parts = value.split("-")
             if len(parts) != 3 or not all(p.isdigit() for p in parts):
                 issue = FieldIssue(
@@ -401,6 +403,43 @@ class PreBuildValidator:
                     message=(f"Value '{value}' does not look like a valid xsd:date (expected YYYY-MM-DD)"),
                     severity="warning",
                     expected="YYYY-MM-DD",
+                    actual=value,
+                )
+                result.add_issue(record_id, issue)
+                if mode is ValidationMode.STRICT:
+                    raise ValidationError(issue.message)
+                return
+
+            # Enforce zero-padded ISO format: 4-digit year, 2-digit month/day
+            year_s, month_s, day_s = parts
+            if len(year_s) != 4 or len(month_s) != 2 or len(day_s) != 2:
+                issue = FieldIssue(
+                    property_path=rule.property_path,
+                    message=(
+                        f"Value '{value}' is not zero-padded ISO 8601 "
+                        f"(expected YYYY-MM-DD, e.g. '2026-02-07')"
+                    ),
+                    severity="warning",
+                    expected="YYYY-MM-DD (zero-padded)",
+                    actual=value,
+                )
+                result.add_issue(record_id, issue)
+                if mode is ValidationMode.STRICT:
+                    raise ValidationError(issue.message)
+                return
+
+            # Validate the date is a real calendar date
+            try:
+                datetime.date(int(year_s), int(month_s), int(day_s))
+            except ValueError:
+                issue = FieldIssue(
+                    property_path=rule.property_path,
+                    message=(
+                        f"Value '{value}' is not a valid calendar date "
+                        f"(e.g. month must be 1-12, day must exist in that month)"
+                    ),
+                    severity="warning",
+                    expected="valid calendar date in YYYY-MM-DD format",
                     actual=value,
                 )
                 result.add_issue(record_id, issue)

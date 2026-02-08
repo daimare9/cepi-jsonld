@@ -67,6 +67,10 @@ class TestFirstPipeSplit:
     def test_non_numeric_passes_through(self):
         assert first_pipe_split("abc|def") == "abc"
 
+    def test_infinity_passes_through(self):
+        """Infinity must not raise OverflowError (issue #4)."""
+        assert first_pipe_split("Infinity|123") == "Infinity"
+
 
 # ---------------------------------------------------------------------------
 # int_clean
@@ -88,6 +92,37 @@ class TestIntClean:
 
     def test_large_number(self):
         assert int_clean("6202378625.0") == "6202378625"
+
+    def test_large_pure_integer_no_precision_loss(self):
+        """100-digit pure-integer string must survive without mangling (issue #5)."""
+        big = "9" * 100
+        assert int_clean(big) == big
+
+    def test_20_digit_id_preserved(self):
+        """Long numeric identifiers (e.g. student IDs) must not lose digits."""
+        long_id = "12345678901234567890"
+        assert int_clean(long_id) == long_id
+
+    def test_negative_large_integer(self):
+        """Negative large integers should also be exact."""
+        neg = "-" + "8" * 50
+        assert int_clean(neg) == neg
+
+    def test_large_float_string(self):
+        """Float-like large numbers still go through the float path."""
+        assert int_clean("12345678901234567.0") == str(int(float("12345678901234567.0")))
+
+    def test_infinity_returns_passthrough(self):
+        """Infinity must not raise OverflowError (issue #4)."""
+        assert int_clean("Infinity") == "Infinity"
+
+    def test_negative_infinity_returns_passthrough(self):
+        """Negative infinity must not raise OverflowError (issue #4)."""
+        assert int_clean("-Infinity") == "-Infinity"
+
+    def test_nan_returns_passthrough(self):
+        """NaN string should pass through unchanged."""
+        assert int_clean("NaN") == "NaN"
 
 
 # ---------------------------------------------------------------------------

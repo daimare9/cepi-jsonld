@@ -11,6 +11,7 @@ from collections.abc import Callable
 from typing import Any
 
 from ceds_jsonld.exceptions import MappingError
+from ceds_jsonld.sanitize import sanitize_string_value
 from ceds_jsonld.transforms import get_transform
 
 
@@ -172,10 +173,20 @@ class FieldMapper:
         # Extract document ID
         id_source = self._config["id_source"]
         id_raw = raw_row.get(id_source)
-        if id_raw is None:
-            msg = f"ID source field '{id_source}' is missing from row"
+        if self._is_empty(id_raw):
+            msg = f"ID source field '{id_source}' is missing or empty in row"
             raise MappingError(msg)
-        id_value = str(id_raw)
+        self._ensure_scalar(id_raw, id_source, "@id")
+        # Reject non-string falsy values that are meaningless as document IDs
+        # (0, 0.0, False).  These pass _is_empty because they are legitimate
+        # *field* values, but they are never valid identifiers.
+        if not isinstance(id_raw, str) and not id_raw:
+            msg = (
+                f"ID source field '{id_source}' has a falsy non-string value "
+                f"{id_raw!r} which is not a valid document identifier"
+            )
+            raise MappingError(msg)
+        id_value = sanitize_string_value(str(id_raw))
 
         id_transform_name = self._config.get("id_transform")
         if id_transform_name:
@@ -229,7 +240,8 @@ class FieldMapper:
                     raise MappingError(msg)
                 continue
 
-            value = str(value)
+            self._ensure_scalar(value, source, prop_name)
+            value = sanitize_string_value(str(value))
             transform_name = field_def.get("transform")
             if transform_name:
                 transform_fn = get_transform(transform_name, self._custom_transforms)
@@ -260,6 +272,7 @@ class FieldMapper:
                 return []
             return []
 
+        self._ensure_scalar(first_raw, first_source, prop_name)
         parts = str(first_raw).split(split_on)
         num_instances = len(parts)
 
@@ -277,9 +290,12 @@ class FieldMapper:
                         continue
                     continue
 
+                self._ensure_scalar(raw_value, source, prop_name)
                 field_parts = str(raw_value).split(split_on)
                 # Use the i-th part, or last available if source has fewer parts
-                value = field_parts[i].strip() if i < len(field_parts) else field_parts[-1].strip()
+                value = sanitize_string_value(
+                    field_parts[i].strip() if i < len(field_parts) else field_parts[-1].strip()
+                )
 
                 # Handle multi_value_split within a single instance
                 multi_split = field_def.get("multi_value_split")
@@ -304,11 +320,57 @@ class FieldMapper:
         return instances
 
     @staticmethod
+    def _ensure_scalar(value: Any, field_name: str, prop_name: str) -> Any:
+        """Raise MappingError if value is a complex type (dict/list).
+
+        Fields in CEDS mapping configs expect scalar values (str, int, float,
+        bool).  A nested dict or list indicates a structural mismatch between
+        the source data and the mapping — e.g. an API response with nested
+        objects fed into a flat mapping.
+
+        Args:
+            value: The raw value from the source row.
+            field_name: The source field name (for error message).
+            prop_name: The property name (for error message).
+
+        Returns:
+            The value unchanged if it is a scalar.
+
+        Raises:
+            MappingError: If the value is a dict or list.
+        """
+        if isinstance(value, dict):
+            msg = (
+                f"Field '{field_name}' in property '{prop_name}' contains a nested dict "
+                f"where a scalar value was expected. Got: {value!r}. "
+                f"Use a custom transform or flatten the source data before mapping."
+            )
+            raise MappingError(msg)
+        if isinstance(value, (list, tuple, set, frozenset)):
+            msg = (
+                f"Field '{field_name}' in property '{prop_name}' contains a list/sequence "
+                f"where a scalar value was expected. Got: {value!r}. "
+                f"Use a custom transform or flatten the source data before mapping."
+            )
+            raise MappingError(msg)
+        return value
+
+    @staticmethod
     def _is_empty(value: Any) -> bool:
-        """Check if a value is effectively empty."""
+        """Check if a value is effectively empty.
+
+        Catches ``None``, empty/whitespace-only strings, ``float('nan')``,
+        and empty collections (``[]``, ``{}``, ``()``).  Numeric zero and
+        ``False`` are **not** considered empty here because they can be
+        legitimate field values — ID-specific rejection is handled
+        separately in :meth:`map`.
+        """
         if value is None:
             return True
         if isinstance(value, str) and not value.strip():
+            return True
+        # Empty collections / sequences
+        if isinstance(value, (list, tuple, set, frozenset, dict)) and not value:
             return True
         # Handle pandas NaN
         try:

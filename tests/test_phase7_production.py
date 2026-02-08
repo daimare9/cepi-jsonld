@@ -22,7 +22,7 @@ from ceds_jsonld.logging import (
 )
 from ceds_jsonld.pipeline import Pipeline, PipelineResult, _DeadLetterWriter
 from ceds_jsonld.registry import ShapeRegistry
-from ceds_jsonld.sanitize import sanitize_iri_component, validate_base_uri
+from ceds_jsonld.sanitize import sanitize_iri_component, sanitize_string_value, validate_base_uri
 
 # =====================================================================
 # Fixtures
@@ -187,6 +187,38 @@ class TestIRISanitization:
         result2 = sanitize_iri_component("e\u0301")  # e + combining accent
         assert result1 == result2
 
+    def test_path_traversal_encoded(self) -> None:
+        """Path traversal sequences must be percent-encoded (issue #10)."""
+        result = sanitize_iri_component("../../../etc/passwd")
+        assert ".." not in result
+        assert "/" not in result
+        # Dots and slashes should be encoded
+        assert "%2E" in result
+        assert "%2F" in result
+
+    def test_single_dotdot_encoded(self) -> None:
+        """Even a single ``../`` must be neutralised."""
+        result = sanitize_iri_component("../secret")
+        assert ".." not in result
+        assert "/" not in result
+
+    def test_backslash_traversal_encoded(self) -> None:
+        """Windows-style backslash traversal must also be caught."""
+        result = sanitize_iri_component("..\\..\\windows\\system32")
+        assert ".." not in result
+        assert "\\" not in result
+
+    def test_forward_slash_always_encoded(self) -> None:
+        """Forward slashes should never appear unencoded in a component."""
+        result = sanitize_iri_component("foo/bar/baz")
+        assert "/" not in result
+        assert "%2F" in result
+
+    def test_plain_dots_safe(self) -> None:
+        """Dots not part of traversal (e.g. version numbers) stay clean."""
+        result = sanitize_iri_component("version.1.0")
+        assert result == "version.1.0"
+
 
 class TestBaseURIValidation:
     """Verify base URI validation catches injection."""
@@ -209,6 +241,131 @@ class TestBaseURIValidation:
     def test_null_byte_blocked(self) -> None:
         with pytest.raises(ValueError, match="suspicious"):
             validate_base_uri("cepi:person/\x00evil")
+
+    def test_trailing_slash_accepted(self) -> None:
+        assert validate_base_uri("http://example.org/ns/") == "http://example.org/ns/"
+
+    def test_trailing_hash_accepted(self) -> None:
+        assert validate_base_uri("http://example.org/ns#") == "http://example.org/ns#"
+
+    def test_no_trailing_separator_raises(self) -> None:
+        with pytest.raises(ValueError, match="must end with"):
+            validate_base_uri("cepi:person")
+
+    def test_no_trailing_separator_http_raises(self) -> None:
+        with pytest.raises(ValueError, match="must end with"):
+            validate_base_uri("http://example.org/ns")
+
+    def test_no_trailing_separator_urn_raises(self) -> None:
+        with pytest.raises(ValueError, match="must end with"):
+            validate_base_uri("urn:ceds")
+
+
+# =====================================================================
+# String value sanitization (null bytes / control chars)
+# =====================================================================
+
+
+class TestSanitizeStringValue:
+    """Verify sanitize_string_value strips null bytes and control chars."""
+
+    def test_null_byte_stripped(self) -> None:
+        assert sanitize_string_value("Jane\x00Doe") == "JaneDoe"
+
+    def test_multiple_null_bytes_stripped(self) -> None:
+        assert sanitize_string_value("\x00A\x00B\x00") == "AB"
+
+    def test_clean_string_unchanged(self) -> None:
+        assert sanitize_string_value("Hello World") == "Hello World"
+
+    def test_tab_preserved(self) -> None:
+        assert sanitize_string_value("col1\tcol2") == "col1\tcol2"
+
+    def test_newline_preserved(self) -> None:
+        assert sanitize_string_value("line1\nline2") == "line1\nline2"
+
+    def test_carriage_return_preserved(self) -> None:
+        assert sanitize_string_value("line1\r\nline2") == "line1\r\nline2"
+
+    def test_other_control_chars_stripped(self) -> None:
+        # Bell (0x07), backspace (0x08), form feed (0x0C) should be stripped
+        assert sanitize_string_value("A\x07B\x08C\x0CD") == "ABCD"
+
+    def test_empty_string_unchanged(self) -> None:
+        assert sanitize_string_value("") == ""
+
+    def test_only_null_bytes_becomes_empty(self) -> None:
+        assert sanitize_string_value("\x00\x00\x00") == ""
+
+
+class TestNullBytePipelineIntegration:
+    """End-to-end: null bytes in field values are stripped by the pipeline."""
+
+    def test_null_byte_in_first_name_stripped(self, registry: ShapeRegistry) -> None:
+        """Reproduces issue #9 — null byte in FirstName must be stripped."""
+        record = {
+            "FirstName": "Jane\x00Doe",
+            "MiddleName": "",
+            "LastName": "Smith",
+            "GenerationCodeOrSuffix": "",
+            "Birthdate": "2010-01-01",
+            "Sex": "Female",
+            "RaceEthnicity": "White",
+            "PersonIdentifiers": "ID-001",
+            "IdentificationSystems": "PersonIdentificationSystem_SSN",
+            "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
+        }
+        pipeline = Pipeline(
+            source=DictAdapter([record]), shape="person", registry=registry,
+        )
+        docs = pipeline.build_all()
+        name = docs[0]["hasPersonName"]["FirstName"]
+        assert "\x00" not in name
+        assert name == "JaneDoe"
+
+    def test_null_byte_in_id_stripped(self, registry: ShapeRegistry) -> None:
+        """Null bytes in the ID field are stripped before IRI construction."""
+        record = {
+            "FirstName": "Jane",
+            "MiddleName": "",
+            "LastName": "Smith",
+            "GenerationCodeOrSuffix": "",
+            "Birthdate": "2010-01-01",
+            "Sex": "Female",
+            "RaceEthnicity": "White",
+            "PersonIdentifiers": "ID\x00001",
+            "IdentificationSystems": "PersonIdentificationSystem_SSN",
+            "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
+        }
+        pipeline = Pipeline(
+            source=DictAdapter([record]), shape="person", registry=registry,
+        )
+        docs = pipeline.build_all()
+        assert "\x00" not in docs[0]["@id"]
+
+    def test_null_byte_round_trip(self, registry: ShapeRegistry) -> None:
+        """Null bytes must not survive serialize → deserialize round-trip."""
+        from ceds_jsonld.serializer import dumps, loads
+
+        record = {
+            "FirstName": "Jane\x00Doe",
+            "MiddleName": "",
+            "LastName": "Smith",
+            "GenerationCodeOrSuffix": "",
+            "Birthdate": "2010-01-01",
+            "Sex": "Female",
+            "RaceEthnicity": "White",
+            "PersonIdentifiers": "ID-001",
+            "IdentificationSystems": "PersonIdentificationSystem_SSN",
+            "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
+        }
+        pipeline = Pipeline(
+            source=DictAdapter([record]), shape="person", registry=registry,
+        )
+        docs = pipeline.build_all()
+        raw = dumps(docs[0])
+        reparsed = loads(raw)
+        assert "\x00" not in reparsed["hasPersonName"]["FirstName"]
 
 
 # =====================================================================

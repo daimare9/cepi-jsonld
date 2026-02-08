@@ -13,7 +13,32 @@ Release cadence: **monthly** (first week of each month), with ad-hoc patch relea
 
 ## [Unreleased]
 
-*Nothing yet — next release will be 1.0.0.*
+*Nothing yet.*
+
+---
+
+## [0.9.1] — 2026-02-08
+
+### Summary
+
+Patch release with 8 bug fixes resolved from issue tracker. 456 tests passing.
+
+### Fixed
+
+- **Transforms** — `int_clean` no longer loses precision on large integers (>15 digits); uses `Decimal` path instead of `float()` (#5)
+- **Transforms** — `int_clean` and `first_pipe_split` handle `Infinity`/`-Infinity`/`NaN` gracefully instead of crashing (#4)
+- **Validator** — `PreBuildValidator` rejects impossible dates (`2026-02-30`), American format (`MM-DD-YYYY`), and non–zero-padded dates (#2, #3)
+- **Mapping** — `FieldMapper` rejects falsy values (`0`, `False`, `None`, empty string) as document IDs with actionable error messages (#1)
+- **Mapping** — `FieldMapper` rejects nested `dict`/`list` values in scalar fields instead of silently corrupting output (#6)
+- **Sanitize** — `validate_base_uri()` enforces trailing `/` or `#` separator as its docstring claimed (#7)
+- **Sanitize** — `sanitize_iri_component()` encodes path-traversal sequences (`../`, `..\`) and strips null bytes / control chars (#9, #10)
+- **Data** — Bundled `person_sample.csv` regenerated with 90 unique `PersonIdentifiers` (was 20 unique across 90 rows) (#8)
+
+### Added
+
+- `Pipeline.build_all()` now logs a warning when duplicate `@id` values are detected in output
+- Null-byte and control-character stripping in all string field values via `sanitize_string_value()`
+- `sanitize_iri_component()` and `validate_base_uri()` hardened with path-traversal and injection protection
 
 ---
 
@@ -68,10 +93,10 @@ First public release. All core functionality complete across 7 development phase
 ## Version History
 
 | Version | Date | Highlights |
-|---------|------|-----------|
-| 0.9.0 | 2026-02-07 | First public release. All 7 phases complete. |
+|---------|------|-----------|| 0.9.1 | 2026-02-08 | Patch: 8 bug fixes (validation, mapping, sanitization, sample data). || 0.9.0 | 2026-02-07 | First public release. All 7 phases complete. |
 
 ---
 
-[Unreleased]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.1...HEAD
+[0.9.1]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/daimare9/ceds-jsonld/releases/tag/v0.9.0
