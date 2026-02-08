@@ -176,6 +176,7 @@ class FieldMapper:
         if id_raw is None:
             msg = f"ID source field '{id_source}' is missing from row"
             raise MappingError(msg)
+        self._ensure_scalar(id_raw, id_source, "@id")
         id_value = sanitize_string_value(str(id_raw))
 
         id_transform_name = self._config.get("id_transform")
@@ -230,6 +231,7 @@ class FieldMapper:
                     raise MappingError(msg)
                 continue
 
+            self._ensure_scalar(value, source, prop_name)
             value = sanitize_string_value(str(value))
             transform_name = field_def.get("transform")
             if transform_name:
@@ -261,6 +263,7 @@ class FieldMapper:
                 return []
             return []
 
+        self._ensure_scalar(first_raw, first_source, prop_name)
         parts = str(first_raw).split(split_on)
         num_instances = len(parts)
 
@@ -278,6 +281,7 @@ class FieldMapper:
                         continue
                     continue
 
+                self._ensure_scalar(raw_value, source, prop_name)
                 field_parts = str(raw_value).split(split_on)
                 # Use the i-th part, or last available if source has fewer parts
                 value = sanitize_string_value(
@@ -305,6 +309,42 @@ class FieldMapper:
                 instances.append(instance)
 
         return instances
+
+    @staticmethod
+    def _ensure_scalar(value: Any, field_name: str, prop_name: str) -> Any:
+        """Raise MappingError if value is a complex type (dict/list).
+
+        Fields in CEDS mapping configs expect scalar values (str, int, float,
+        bool).  A nested dict or list indicates a structural mismatch between
+        the source data and the mapping — e.g. an API response with nested
+        objects fed into a flat mapping.
+
+        Args:
+            value: The raw value from the source row.
+            field_name: The source field name (for error message).
+            prop_name: The property name (for error message).
+
+        Returns:
+            The value unchanged if it is a scalar.
+
+        Raises:
+            MappingError: If the value is a dict or list.
+        """
+        if isinstance(value, dict):
+            msg = (
+                f"Field '{field_name}' in property '{prop_name}' contains a nested dict "
+                f"where a scalar value was expected. Got: {value!r}. "
+                f"Use a custom transform or flatten the source data before mapping."
+            )
+            raise MappingError(msg)
+        if isinstance(value, (list, tuple, set, frozenset)):
+            msg = (
+                f"Field '{field_name}' in property '{prop_name}' contains a list/sequence "
+                f"where a scalar value was expected. Got: {value!r}. "
+                f"Use a custom transform or flatten the source data before mapping."
+            )
+            raise MappingError(msg)
+        return value
 
     @staticmethod
     def _is_empty(value: Any) -> bool:
