@@ -255,7 +255,11 @@ class FieldMapper:
                     )
                     raise MappingError(msg) from exc
                 value = self._validate_transform_result(
-                    raw_result, value, transform_name, source, prop_name,
+                    raw_result,
+                    value,
+                    transform_name,
+                    source,
+                    prop_name,
                 )
 
             if value is not None:
@@ -350,7 +354,13 @@ class FieldMapper:
                                     f"'{source}' in property '{prop_name}': {exc}"
                                 )
                                 raise MappingError(msg) from exc
-                            validated = self._validate_transform_result(raw_result, v, transform_name, source, prop_name)
+                            validated = self._validate_transform_result(
+                                raw_result,
+                                v,
+                                transform_name,
+                                source,
+                                prop_name,
+                            )
                             if validated is not None:
                                 transformed.append(validated)
                         sub_values = transformed
@@ -369,9 +379,16 @@ class FieldMapper:
                                 f"'{source}' in property '{prop_name}': {exc}"
                             )
                             raise MappingError(msg) from exc
-                        value = self._validate_transform_result(
-                            raw_result, value, transform_name, source, prop_name,
+                        xform_result = self._validate_transform_result(
+                            raw_result,
+                            value,
+                            transform_name,
+                            source,
+                            prop_name,
                         )
+                        if xform_result is None:
+                            continue  # transform says skip this field
+                        value = xform_result
                     if value is not None:
                         instance[target] = value
 

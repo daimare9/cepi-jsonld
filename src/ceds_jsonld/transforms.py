@@ -36,7 +36,7 @@ def race_prefix(value: str) -> str | None:
         Prefixed value with spaces removed, e.g. "RaceAndEthnicity_White",
         or ``None`` if the input is empty or whitespace-only.
     """
-    cleaned = value.strip().replace(' ', '')
+    cleaned = value.strip().replace(" ", "")
     if not cleaned:
         return None
     return f"RaceAndEthnicity_{cleaned}"
@@ -129,27 +129,18 @@ def date_format(value: str) -> str:
 
     parts = s.split("-")
     if len(parts) != 3:
-        msg = (
-            f"Value '{value}' is not a valid ISO 8601 date. "
-            f"Expected YYYY-MM-DD format (e.g. '2026-02-08')."
-        )
+        msg = f"Value '{value}' is not a valid ISO 8601 date. Expected YYYY-MM-DD format (e.g. '2026-02-08')."
         raise ValueError(msg)
 
     year_s, month_s, day_s = parts
     if not (year_s.isdigit() and month_s.isdigit() and day_s.isdigit()):
-        msg = (
-            f"Value '{value}' contains non-numeric date components. "
-            f"Expected YYYY-MM-DD format (e.g. '2026-02-08')."
-        )
+        msg = f"Value '{value}' contains non-numeric date components. Expected YYYY-MM-DD format (e.g. '2026-02-08')."
         raise ValueError(msg)
 
     try:
         dt = _dt.date(int(year_s), int(month_s), int(day_s))
     except ValueError:
-        msg = (
-            f"Value '{value}' is not a valid calendar date. "
-            f"Expected YYYY-MM-DD with valid month (1-12) and day."
-        )
+        msg = f"Value '{value}' is not a valid calendar date. Expected YYYY-MM-DD with valid month (1-12) and day."
         raise ValueError(msg) from None
 
     return dt.isoformat()
@@ -159,7 +150,7 @@ def date_format(value: str) -> str:
 # Transform registry
 # ---------------------------------------------------------------------------
 
-BUILTIN_TRANSFORMS: dict[str, Callable[[str], str]] = {
+BUILTIN_TRANSFORMS: dict[str, Callable[[str], str | None]] = {
     "sex_prefix": sex_prefix,
     "race_prefix": race_prefix,
     "first_pipe_split": first_pipe_split,
