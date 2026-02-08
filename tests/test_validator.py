@@ -252,7 +252,9 @@ class TestPreBuildDateValidation:
         """A proper ISO date should produce no date-related issues."""
         result = pre_validator.validate_row(self._make_row("1990-06-15"))
         date_warnings = [
-            i for issues in result.issues.values() for i in issues
+            i
+            for issues in result.issues.values()
+            for i in issues
             if "Birthdate" in str(i.property_path) or "date" in i.message.lower()
         ]
         assert len(date_warnings) == 0

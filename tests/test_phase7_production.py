@@ -289,7 +289,7 @@ class TestSanitizeStringValue:
 
     def test_other_control_chars_stripped(self) -> None:
         # Bell (0x07), backspace (0x08), form feed (0x0C) should be stripped
-        assert sanitize_string_value("A\x07B\x08C\x0CD") == "ABCD"
+        assert sanitize_string_value("A\x07B\x08C\x0cD") == "ABCD"
 
     def test_empty_string_unchanged(self) -> None:
         assert sanitize_string_value("") == ""
@@ -316,7 +316,9 @@ class TestNullBytePipelineIntegration:
             "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
         }
         pipeline = Pipeline(
-            source=DictAdapter([record]), shape="person", registry=registry,
+            source=DictAdapter([record]),
+            shape="person",
+            registry=registry,
         )
         docs = pipeline.build_all()
         name = docs[0]["hasPersonName"]["FirstName"]
@@ -338,7 +340,9 @@ class TestNullBytePipelineIntegration:
             "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
         }
         pipeline = Pipeline(
-            source=DictAdapter([record]), shape="person", registry=registry,
+            source=DictAdapter([record]),
+            shape="person",
+            registry=registry,
         )
         docs = pipeline.build_all()
         assert "\x00" not in docs[0]["@id"]
@@ -360,7 +364,9 @@ class TestNullBytePipelineIntegration:
             "PersonIdentifierTypes": "PersonIdentifierType_PersonIdentifier",
         }
         pipeline = Pipeline(
-            source=DictAdapter([record]), shape="person", registry=registry,
+            source=DictAdapter([record]),
+            shape="person",
+            registry=registry,
         )
         docs = pipeline.build_all()
         raw = dumps(docs[0])
