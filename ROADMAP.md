@@ -2,8 +2,8 @@
 
 **Project:** `ceds-jsonld` — A Python library for ingesting education data from any source, mapping it to CEDS/CEPI ontology-backed RDF shapes, outputting conformant JSON-LD, and loading it into Azure Cosmos DB.
 
-**Date:** February 8, 2026
-**Status:** v1.0 Complete — v2.0 Phase 1 (Synthetic Data Generator) In Planning, Phase 2 (AI-Assisted Mapping Wizard) Research Complete
+**Date:** February 9, 2026
+**Status:** v1.0 Complete — v2.0 Phase 1 (Synthetic Data Generator) Research Validated with PoC, Phase 2 (AI-Assisted Mapping Wizard) Research Complete
 
 ---
 
@@ -297,9 +297,29 @@ data_collection_defaults:
 
 ## v2.0 — Phase 1: Synthetic Data Generator
 
-**Status:** 📋 Planning (Research Complete)
+**Status:** ✅ Research Validated with End-to-End Proof of Concept (Feb 9, 2026)
 **Research:** See `ResearchFiles/FEATURE4_SYNTHETIC_DATA_RESEARCH.md` for full analysis.
+**PoC Script:** `ResearchFiles/phase1_benchmarks/bench_person_jsonld_dynamic.py` (914 lines)
+**PoC Output:** `ResearchFiles/phase1_benchmarks/results/person_jsonld_dynamic_20260209_092102.json`
 **Target extras group:** `pip install ceds-jsonld[sdg]`
+
+> **PoC Validation Summary (Feb 9, 2026):**
+> A fully dynamic end-to-end test generated a complete Person JSON-LD document with
+> zero hard-coded values. Key findings:
+> - **Three ontology sources required:** CEDS-Ontology.rdf (235,570 triples) + Common.ttl
+>   (+60) + Person_Extension_Ontology.ttl (+42) must all load into a single rdflib Graph.
+> - **Two concept scheme resolution strategies:** (A) `sh:in` direct resolve for properties
+>   with explicit enumeration; (B) `schema:rangeIncludes` → class → NamedIndividual
+>   members for properties without `sh:in` (e.g., hasSex, hasRaceAndEthnicity).
+> - **SHACL property corrections:** hasSex was P000011 (wrong — that's AYP Status),
+>   corrected to P000255. hasRaceAndEthnicity was P000282 (wrong — that's Title I),
+>   corrected to P001943.
+> - **Performance (RTX 3090, Qwen3 4B full weights via transformers):** 9s ontology load,
+>   7.3s model load, 6.1s LLM generation (83 tokens at 14 tok/s), 0.088ms dict construction.
+>   Ollama with GGUF quantization expected ~5x faster for generation (~80 tok/s).
+> - **Property classification:** 7 literal (LLM), 3 concept scheme (random select),
+>   10 structural (RecordStatus/DataCollection defaults from mapping YAML).
+> - **All 557 project tests pass** after SHACL + context fixes.
 
 ### Overview
 
@@ -311,25 +331,28 @@ Two-tier approach:
 2. **Literal value properties** (names, dates, IDs) — local LLM generates contextually
    appropriate values using ontology metadata (rdfs:label, dc:description, constraints).
 
-**Runtime:** `llama-cpp-python` (in-process, no background service, loads/unloads with code).
-Ollama auto-detected as power-user alternative. Three-tier fallback: LLM → cache → deterministic generators.
+**Runtime:** `transformers` + `torch` (in-process, pre-built wheels for all platforms
+including Windows+CUDA, no C compiler required). `llama-cpp-python` was rejected because
+it requires C/C++ build tools on Windows. Ollama auto-detected as power-user alternative.
+Three-tier fallback: LLM → cache → deterministic generators.
 
-**Model:** Qwen3 4B default (~2.5 GB GGUF, auto-downloaded via `huggingface-hub` on first use).
+**Model:** Qwen3 4B default (~8 GB full weights, BFloat16 on GPU, auto-downloaded via
+`huggingface-hub` on first use). Qwen3 0.6B available as lighter CPU option.
 
 ### Task Table
 
 | # | Task | Details |
 |---|------|---------|
-| 1.1 | `ConceptSchemeResolver` class | Parse ontology RDF, resolve `sh:in` IRIs → notation/label values from NamedIndividuals |
+| 1.1 | `ConceptSchemeResolver` class | Parse ontology RDF, resolve concept scheme values via both strategies: (A) `sh:in` IRIs → notation/label, and (B) `schema:rangeIncludes` → class → NamedIndividual members. Must load all 3 ontology sources. |
 | 1.2 | `FallbackGenerators` module | Pure-Python generators for all XSD types + name-aware string defaults |
 | 1.3 | `MappingAwareAssembler` class | Read mapping YAML, assemble CSV rows, handle pipe-delimited multi-value fields |
 | 1.4 | `SyntheticDataGenerator` class | Core orchestrator: concept scheme + fallback generation |
 | 1.5 | CSV + NDJSON output writers | Write to file or stdout |
 | 1.6 | Round-trip integration tests | Generate CSV → Pipeline → JSON-LD → SHACL validate → pass |
-| 1.7 | Add `[sdg]` extras to `pyproject.toml` | `llama-cpp-python>=0.3`, `huggingface-hub>=0.20` |
+| 1.7 | Add `[sdg]` extras to `pyproject.toml` | `torch>=2.2`, `transformers>=4.40`, `huggingface-hub>=0.20` |
 | 1.8 | `OntologyMetadataExtractor` class | Extract rdfs:label, dc:description, maxLength, rangeIncludes from ontology for prompt context |
-| 1.9 | `LLMValueGenerator` class | Build prompts from metadata, call llama-cpp-python with JSON schema enforcement, parse responses |
-| 1.10 | Ollama auto-detection | If Ollama is running on localhost:11434, prefer it over in-process llama-cpp-python |
+| 1.9 | `LLMValueGenerator` class | Build prompts from metadata, call transformers with structured output parsing, parse responses |
+| 1.10 | Ollama auto-detection | If Ollama is running on localhost:11434, prefer it over in-process transformers for faster GGUF generation |
 | 1.11 | File-based caching layer | `~/.ceds_jsonld/cache/` with model-keyed entries; cache LLM-generated values for reuse |
 | 1.12 | Three-tier fallback logic | LLM (in-process or Ollama) → cache → deterministic fallback generators |
 | 1.13 | Post-generation validation | Verify LLM values match datatype constraints (maxLength, date format, numeric ranges) |
@@ -349,7 +372,7 @@ Ollama auto-detected as power-user alternative. Three-tier fallback: LLM → cac
 - [ ] `LLMValueGenerator` + `OntologyMetadataExtractor` — LLM-powered realistic literals
 - [ ] Caching layer — generate once, reuse everywhere (including CI)
 - [ ] CLI commands: `generate-sample`, `generate-cache`
-- [ ] `[sdg]` extras group in `pyproject.toml`
+- [ ] `[sdg]` extras group in `pyproject.toml` (`torch`, `transformers`, `huggingface-hub`)
 - [ ] Round-trip tests: generated data passes full Pipeline + SHACL validation
 - [ ] Benchmark: LLM vs. cached vs. fallback generation speed
 - [ ] Docs: user guide, API reference, README section
@@ -375,8 +398,8 @@ ceds-jsonld generate-sample --shape Person --count 1000 --format csv -o sample.c
 ceds-jsonld generate-sample --shape Person --count 50 --format jsonld -o sample.jsonld
 ```
 
-Under the hood: first run auto-downloads model (~2.5 GB), subsequent runs use cache.
-No background service, no `ollama pull`, no config files.
+Under the hood: first run auto-downloads model (~8 GB), subsequent runs use cache.
+No C compiler, no background service, no `ollama pull`, no config files.
 
 ---
 
