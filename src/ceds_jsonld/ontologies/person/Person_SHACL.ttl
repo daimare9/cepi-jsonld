@@ -142,7 +142,7 @@ ceds:hasRecordStatusShape a sh:PropertyShape ;
     sh:path ceds:P201001 .
 
 ceds:hasRaceAndEthnicityShape a sh:PropertyShape ;
-    sh:path ceds:P000282 .
+    sh:path ceds:P001943 .
 
 ceds:hasSexShape a sh:PropertyShape ;
-    sh:path ceds:P000011 .
+    sh:path ceds:P000255 .
