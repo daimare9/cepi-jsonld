@@ -3,7 +3,7 @@
 **Project:** `ceds-jsonld` — A Python library for ingesting education data from any source, mapping it to CEDS/CEPI ontology-backed RDF shapes, outputting conformant JSON-LD, and loading it into Azure Cosmos DB.
 
 **Date:** February 9, 2026
-**Status:** v1.0 Complete — v2.0 Phase 1 (Synthetic Data Generator) Research Validated with PoC, Phase 2 (AI-Assisted Mapping Wizard) Research Complete
+**Status:** v1.0 Complete — v2.0 Phase 1 (Synthetic Data Generator) Research Validated with PoC, Phase 2 (AI-Assisted Mapping Wizard) Research Validated with PoC
 
 ---
 
@@ -405,8 +405,26 @@ No C compiler, no background service, no `ollama pull`, no config files.
 
 ## v2.0 — Phase 2: AI-Assisted Mapping Wizard + Quick-Wins
 
-**Status:** 📋 Planning (Research Complete)
+**Status:** ✅ Research Validated with End-to-End Proof of Concept (Feb 9, 2026)
 **Research:** See `ResearchFiles/FEATURE1_AI_MAPPING_WIZARD_RESEARCH.md` for full analysis.
+
+> **PoC Validation Summary (Feb 9, 2026):**
+> A fully working PoC tested three-phase column-to-SHACL matching against 3 progressively
+> harder test CSVs (34 total columns with abbreviated, verbose, and short-code naming). Key findings:
+> - **Three-phase matching pipeline:** (1) Concept-value matching resolves ~38% of columns
+>   in <1ms by comparing source values against CEDS concept scheme enums (3 strategies:
+>   direct, CEDS-prefixed, abbreviation-prefix). (2) Heuristic name matching resolves ~3%
+>   via normalized fuzzy substring + datatype compatibility. (3) LLM resolves remaining ~59%.
+> - **100% mapping accuracy** across all 34 columns in 3 test CSVs — no incorrect mappings.
+> - **Concept-value matching is the breakout finding:** Columns like `GENDER`, `RACE_ETH`,
+>   `IDSystem`, `IDType` are resolved purely by value overlap against known concept scheme
+>   enums — no column name analysis, no LLM, deterministic, <1ms.
+> - **LLM configuration:** Qwen3 4B via `transformers` (BFloat16, SDPA, RTX 3090). Thinking
+>   mode disabled (`/no_think`) — saves 50% tokens with no accuracy loss. 13.6–14.0 tok/s.
+> - **Correct transform suggestions:** `date_format`, `sex_prefix`, `race_prefix`, `int_clean`
+>   accurately suggested based on column data patterns.
+> - **Architecture upgraded:** Original two-phase design (heuristic → LLM) upgraded to
+>   three-phase (concept-value → heuristic → LLM) based on PoC findings.
 
 ### Overview
 
@@ -414,12 +432,15 @@ AI-assisted wizard that reads a user's CSV/Excel column headers and sample value
 then suggests a complete `_mapping.yaml` config mapping source columns to CEDS shape
 properties — including transform recommendations and confidence scores.
 
-Two-phase matching approach:
-1. **Heuristic pre-match** — Exact/fuzzy name matching, datatype compatibility, concept
-   scheme value overlap. Handles 60-80% of columns with zero LLM calls.
-2. **LLM-assisted resolution** — For ambiguous columns, the same `llama-cpp-python` +
-   `huggingface-hub` engine from Phase 1 reads column names + sample values + ontology
-   metadata and suggests mappings with confidence scores. Local-only (FERPA compliant).
+Three-phase matching approach (validated by PoC):
+1. **Concept-value matching** — Compare column distinct values against CEDS concept scheme
+   named individual enums. Three strategies: direct, CEDS-prefixed, abbreviation-prefix.
+   Resolves ~38% of columns in <1ms with 1.00 confidence. Zero LLM calls.
+2. **Heuristic name matching** — Exact/fuzzy name matching, datatype compatibility.
+   Handles additional columns with zero LLM calls.
+3. **LLM-assisted resolution** — For remaining columns, the same `transformers` + `torch`
+   engine from Phase 1 reads column names + sample values + ontology metadata and suggests
+   mappings with confidence scores. Local-only (FERPA compliant).
 
 Also includes three quick-win features that complement the wizard.
 
@@ -454,7 +475,7 @@ Also includes three quick-win features that complement the wizard.
 - [ ] `MappingWizard` — heuristic + LLM-assisted column→property matching
 - [ ] `ColumnProfiler` — CSV/Excel column analysis with type inference
 - [ ] `HeuristicMatcher` — deterministic scoring (name, datatype, concept scheme overlap)
-- [ ] LLM integration — reuses Phase 1 `llama-cpp-python` engine, zero new deps
+- [ ] LLM integration — reuses Phase 1 `transformers` + `torch` engine, zero new deps
 - [ ] `map-wizard` CLI command with annotated YAML output + confidence scores
 - [ ] Preview mode — sample records through Pipeline to validate mapping
 - [ ] QW-1: `--validate-only` with HTML report
@@ -704,7 +725,8 @@ SHACL *can* be used to auto-generate a mapping template skeleton and to validate
 | `click` | CLI | Optional (`[cli]`) |
 | `structlog` | Structured logging | Optional |
 | `tqdm` | Progress bars | Optional |
-| `llama-cpp-python` | Local LLM inference (synthetic data) | Optional (`[sdg]`) |
+| `torch` | Local LLM inference (synthetic data, mapping wizard) | Optional (`[sdg]`) |
+| `transformers` | Model loading + generation | Optional (`[sdg]`) |
 | `huggingface-hub` | Model auto-download | Optional (`[sdg]`) |
 
 ### Development Dependencies
@@ -766,6 +788,6 @@ These are open questions that should be investigated as the project progresses:
 |-------|--------|----------------|
 | **v1.0 (Phases 0–8)** | ✅ Complete | Full library: registry, mapper, builder, serializer, 6 adapters, Cosmos loader, validation, CLI, docs, CI/CD. 557 tests. |
 | **v2.0 Phase 1** | 📋 Planning | Synthetic Data Generator — concept scheme extraction + local LLM, `[sdg]` extras, CLI commands. |
-| **v2.0 Phase 2** | 📋 Planning | AI-Assisted Mapping Wizard + Quick-Wins — heuristic + LLM column mapping, `map-wizard` CLI, validate-only HTML, introspect markdown, benchmark command. |
+| **v2.0 Phase 2** | ✅ Research Validated | AI-Assisted Mapping Wizard + Quick-Wins — three-phase matching (concept-value → heuristic → LLM), 100% accuracy on 34 test columns across 3 CSVs. Concept-value matching resolves ~38% with zero AI. |
 
 ---

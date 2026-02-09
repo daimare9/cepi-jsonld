@@ -24,7 +24,7 @@ on the property type in the CEDS ontology:
    hundreds of concept schemes. We just randomly select from the enum.
 
 2. **Literal value properties (strings, dates, tokens, etc.)** — Use a **lightweight
-   local LLM** running in-process via `llama-cpp-python` to generate contextually-appropriate
+   local LLM** running in-process via `transformers` + `torch` to generate contextually-appropriate
    values. The LLM receives the ontology metadata for each property (label, description,
    definition, datatype, maxLength, textFormat) and returns structured JSON arrays of
    realistic values. The model auto-downloads on first use — no external services needed.
@@ -896,7 +896,7 @@ pre-warmed cache with deterministic values.
 
 ## 8. Fallback Strategy (No LLM Available)
 
-The generator MUST work even without `llama-cpp-python` installed. Three-tier fallback:
+The generator MUST work even without an LLM runtime installed. Three-tier fallback:
 
 ### Tier 1: LLM Available → In-Process Generation (transformers+torch or Ollama)
 Best quality. Generates contextually-appropriate values based on ontology metadata.
