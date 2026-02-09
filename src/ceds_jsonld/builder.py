@@ -12,7 +12,7 @@ from typing import Any
 from ceds_jsonld.exceptions import BuildError
 from ceds_jsonld.logging import get_logger
 from ceds_jsonld.registry import ShapeDefinition
-from ceds_jsonld.sanitize import sanitize_iri_component
+from ceds_jsonld.sanitize import sanitize_iri_component, validate_base_uri
 
 _log = get_logger(__name__)
 
@@ -37,6 +37,18 @@ class JSONLDBuilder:
         """
         self._shape = shape_def
         self._config = shape_def.mapping_config
+
+        # Validate base_uri early so malformed URIs fail at init, not per-row.
+        base_uri = self._config.get("base_uri", "")
+        if base_uri:
+            try:
+                validate_base_uri(base_uri)
+            except ValueError as exc:
+                msg = (
+                    f"Shape '{shape_def.name}' has an invalid base_uri in its "
+                    f"mapping config: {exc}"
+                )
+                raise BuildError(msg) from exc
 
         # Pre-build static sub-shapes for performance
         self._record_status_template: dict[str, Any] | None = None
