@@ -3,7 +3,7 @@
 **Project:** `ceds-jsonld` — A Python library for ingesting education data from any source, mapping it to CEDS/CEPI ontology-backed RDF shapes, outputting conformant JSON-LD, and loading it into Azure Cosmos DB.
 
 **Date:** February 9, 2026
-**Status:** v1.0 Complete — v2.0 Phase 1 (Synthetic Data Generator) Research Validated with PoC, Phase 2 (AI-Assisted Mapping Wizard) Research Validated with PoC
+**Status:** v1.0 Complete — v1.1 (Native Adapters) Research Complete, v2.0 Phase 1 (Synthetic Data Generator) Research Validated with PoC, Phase 2 (AI-Assisted Mapping Wizard) Research Validated with PoC
 
 ---
 
@@ -13,13 +13,14 @@
 2. [Architecture Overview](#2-architecture-overview)
 3. [Ontology & Shape Management Strategy](#3-ontology--shape-management-strategy)
 4. [v1.0 Release History](#v10-release-history)
-5. [v2.0 — Phase 1: Synthetic Data Generator](#v20--phase-1-synthetic-data-generator)
-6. [v2.0 — Phase 2: AI-Assisted Mapping Wizard + Quick-Wins](#v20--phase-2-ai-assisted-mapping-wizard--quick-wins)
-7. [v2.0 — Future Features (Backlog)](#v20--future-features-backlog)
-8. [Key Technical Decisions](#key-technical-decisions)
-9. [Risk Register](#risk-register)
-10. [Dependency Map](#dependency-map)
-11. [Appendix: Research Backlog](#appendix-research-backlog)
+5. [v1.1 — Native Adapters](#v11--native-adapters)
+6. [v2.0 — Phase 1: Synthetic Data Generator](#v20--phase-1-synthetic-data-generator)
+7. [v2.0 — Phase 2: AI-Assisted Mapping Wizard + Quick-Wins](#v20--phase-2-ai-assisted-mapping-wizard--quick-wins)
+8. [v2.0 — Future Features (Backlog)](#v20--future-features-backlog)
+9. [Key Technical Decisions](#key-technical-decisions)
+10. [Risk Register](#risk-register)
+11. [Dependency Map](#dependency-map)
+12. [Appendix: Research Backlog](#appendix-research-backlog)
 
 ---
 
@@ -290,6 +291,123 @@ data_collection_defaults:
 > **v1.0 completed February 2026.** All phases delivered, 557 tests passing, library
 > published to PyPI as `ceds-jsonld` with extras: `[fast]`, `[excel]`, `[cosmos]`,
 > `[validation]`, `[api]`, `[database]`, `[cli]`, `[observability]`, `[all]`.
+
+---
+
+## v1.1 — Native Adapters
+
+**Status:** ✅ Research Complete (Jan 14, 2026)
+**Research:** See `ResearchFiles/FEATURE7_NATIVE_ADAPTERS_RESEARCH.md` for full analysis.
+**Target extras groups:** `[sheets]`, `[canvas]`, `[oneroster]`, `[snowflake]`, `[bigquery]`, `[databricks]`
+
+### Overview
+
+Extend the adapter layer with native connectors for the data sources education
+organizations actually use: Google Sheets, Student Information Systems (Canvas,
+PowerSchool, Infinite Campus, Blackbaud), and cloud data warehouses (Snowflake,
+BigQuery, Databricks). All adapters follow the existing `SourceAdapter` ABC and
+yield plain Python dicts — zero changes to downstream Pipeline/Builder/Serializer.
+
+**Key research findings:**
+
+- **Google Sheets** — `gspread` v6.2.1 returns `list[dict]` via `get_all_records()`,
+  mapping directly to `SourceAdapter.read()`. Highest demand in K-12.
+- **Cloud warehouses** — All three (Snowflake, BigQuery, Databricks) follow PEP 249
+  DB-API 2.0 with dict-convertible rows (`DictCursor`, `dict(row)`, `Row.asDict()`).
+  ~80-120 lines each.
+- **Canvas LMS** — Best-documented SIS with official Python library (`canvasapi`).
+  Paginated REST API with `PaginatedList` objects.
+- **OneRoster standard** — Covers Infinite Campus, ClassLink, Clever, Aeries, and
+  others. One adapter for many SIS platforms.
+- **PowerSchool / Blackbaud** — Standard REST + OAuth2 APIs. No custom adapter needed
+  — factory functions pre-configure `APIAdapter` with vendor-specific defaults.
+
+### Task Table
+
+| # | Task | Details | Effort Est. |
+|---|------|---------|-------------|
+| **Phase A — Spreadsheets & Cloud Warehouses** ||||
+| 1.1 | `GoogleSheetsAdapter` | `gspread` v6+. Auth: service account, OAuth2, API key. `get_all_records()` → `Iterator[dict]`. | 1-2 days |
+| 1.2 | `SnowflakeAdapter` | `snowflake-connector-python`. `DictCursor` for dict results, `fetchmany()` for batching. Auth: key-pair, OAuth, SSO, workload identity. | 1-2 days |
+| 1.3 | `BigQueryAdapter` | `google-cloud-bigquery`. `dict(row)` iteration + `list_rows()` direct table access. Auth: ADC, service account. | 1-2 days |
+| 1.4 | `DatabricksAdapter` | `databricks-sql-connector`. `Row.asDict()` + `fetchmany()` batch. Auth: PAT, OAuth M2M/U2M. | 1-2 days |
+| 1.5 | Tests: Phase A adapters | Unit tests + integration tests for all 4 adapters. | 1-2 days |
+| **Phase B — SIS Platforms** ||||
+| 1.6 | `CanvasAdapter` | `canvasapi` v3+. Paginated `PaginatedList` → dict per record. Users, enrollments, courses. | 2-3 days |
+| 1.7 | `OneRosterAdapter` | `httpx`. Standard OneRoster 1.1 endpoints (`/users`, `/orgs`, `/enrollments`). Covers Infinite Campus, ClassLink, Clever, Aeries. | 2-3 days |
+| 1.8 | Tests: Phase B adapters | Unit tests + integration tests for Canvas + OneRoster. | 1-2 days |
+| **Phase C — Templates & Documentation** ||||
+| 1.9 | PowerSchool factory function | Pre-configured `APIAdapter` with PSQ-specific defaults + OAuth2 client credentials. 20-40 lines. | 0.5 day |
+| 1.10 | Blackbaud factory function | Pre-configured `APIAdapter` with SKY API defaults + `Bb-Api-Subscription-Key` header. 30-50 lines. | 0.5 day |
+| 1.11 | New extras in `pyproject.toml` | `[sheets]`, `[canvas]`, `[oneroster]`, `[snowflake]`, `[bigquery]`, `[databricks]`, `[sis]`, `[warehouse]`, `[all-adapters]` | 0.5 day |
+| 1.12 | Documentation | Sphinx adapter guides with auth setup for each platform. README updates. | 2-3 days |
+
+### Deliverables
+
+- [ ] `GoogleSheetsAdapter` — read from any spreadsheet via title, key, or URL
+- [ ] `SnowflakeAdapter` — SQL query → dict iteration via `DictCursor`
+- [ ] `BigQueryAdapter` — SQL query or direct table read via `dict(row)`
+- [ ] `DatabricksAdapter` — SQL query → dict iteration via `Row.asDict()`
+- [ ] `CanvasAdapter` — paginated Canvas REST API via `canvasapi`
+- [ ] `OneRosterAdapter` — standard OneRoster 1.1 endpoints (covers IC, ClassLink, Clever, Aeries)
+- [ ] `powerschool_adapter()` factory function — pre-configured `APIAdapter`
+- [ ] `blackbaud_adapter()` factory function — pre-configured `APIAdapter`
+- [ ] New extras groups in `pyproject.toml` + convenience bundles (`[sis]`, `[warehouse]`, `[all-adapters]`)
+- [ ] Tests for all new adapters (unit + integration)
+- [ ] Sphinx docs with auth setup guides per platform
+
+### End-User Experience
+
+**Install (pick what you need):**
+```bash
+pip install ceds-jsonld[sheets]         # Google Sheets only
+pip install ceds-jsonld[snowflake]      # Snowflake only
+pip install ceds-jsonld[warehouse]      # All 3 cloud warehouses
+pip install ceds-jsonld[sis]            # Canvas + OneRoster
+pip install ceds-jsonld[all-adapters]   # Everything
+```
+
+**Google Sheets:**
+```python
+from ceds_jsonld import Pipeline
+from ceds_jsonld.adapters import GoogleSheetsAdapter
+
+adapter = GoogleSheetsAdapter(
+    "Student Demographics 2026",
+    service_account_file="key.json",
+)
+pipeline = Pipeline(adapter=adapter, shape="Person")
+results = pipeline.run()
+```
+
+**Snowflake:**
+```python
+from ceds_jsonld.adapters import SnowflakeAdapter
+
+adapter = SnowflakeAdapter(
+    query="SELECT * FROM education.students WHERE district = %s",
+    account="myorg-myaccount",
+    private_key_file="/path/to/key.p8",
+    warehouse="compute_wh",
+    database="education_db",
+    params=("District 42",),
+)
+pipeline = Pipeline(adapter=adapter, shape="Person")
+```
+
+**OneRoster (any compliant SIS):**
+```python
+from ceds_jsonld.adapters import OneRosterAdapter
+
+adapter = OneRosterAdapter(
+    base_url="https://sis.district.edu/ims/oneroster/v1p1",
+    endpoint="users",
+    client_id="...",
+    client_secret="...",
+    filter="role='student'",
+)
+pipeline = Pipeline(adapter=adapter, shape="Person")
+```
 
 ---
 
@@ -572,14 +690,9 @@ being promoted to a real phase.
 
 ---
 
-### Feature 7: Native Adapters People Actually Use
+### ~~Feature 7: Native Adapters People Actually Use~~ → Promoted to v1.1
 
-- Google Sheets, SIS platforms (PowerSchool, Canvas, Blackbaud), cloud warehouses (Snowflake, BigQuery), streaming (Kafka, Event Hubs).
-
-**Research needed:**
-- [ ] API authentication patterns for each SIS platform
-- [ ] Spark DataFrame → adapter bridge (lazy evaluation)
-- [ ] Kafka consumer group management + Event Hubs partition strategy
+> Promoted to v1.1. See [v1.1 — Native Adapters](#v11--native-adapters) above.
 
 ---
 
@@ -704,6 +817,8 @@ SHACL *can* be used to auto-generate a mapping template skeleton and to validate
 | R8 | Local LLM model too large for user's hardware | Medium | Medium | Default model is ~2.5 GB; fallback generators produce valid data without LLM. `--no-llm` flag bypasses entirely. |
 | R9 | PyPI package size limit (100 MB) prevents bundling model | Low | High (confirmed) | Model auto-downloaded via `huggingface-hub` on first use. Pre-generated cache ships for CI. |
 | R10 | LLM-generated values fail SHACL validation | Medium | Medium | Post-generation validation checks constraints. Invalid values fall back to deterministic generators. |
+| R11 | SIS vendor APIs behind login walls; evolving endpoints | Medium | Medium | Build to standards (OneRoster) rather than vendor-specific APIs; REST-based vendors use factory functions on existing `APIAdapter`. |
+| R12 | Cloud warehouse connectors bring heavy transitive deps (pyarrow) | Low | Medium | Each adapter in its own extras group; document minimum install. |
 
 ---
 
@@ -719,6 +834,11 @@ SHACL *can* be used to auto-generate a mapping template skeleton and to validate
 | `pandas` | CSV/Excel adapter | Required |
 | `openpyxl` | Excel .xlsx support | Optional (`[excel]`) |
 | `httpx` | REST API adapter | Optional (`[api]`) |
+| `gspread` | Google Sheets adapter | Optional (`[sheets]`) |
+| `canvasapi` | Canvas LMS adapter | Optional (`[canvas]`) |
+| `snowflake-connector-python` | Snowflake adapter | Optional (`[snowflake]`) |
+| `google-cloud-bigquery` | BigQuery adapter | Optional (`[bigquery]`) |
+| `databricks-sql-connector` | Databricks adapter | Optional (`[databricks]`) |
 | `azure-cosmos` | Cosmos DB loader | Optional (`[cosmos]`) |
 | `azure-identity` | Azure auth | Optional (`[cosmos]`) |
 | `pyshacl` | Full SHACL validation | Optional (`[validation]`) |
@@ -787,6 +907,7 @@ These are open questions that should be investigated as the project progresses:
 | Phase | Status | Key Deliverable |
 |-------|--------|----------------|
 | **v1.0 (Phases 0–8)** | ✅ Complete | Full library: registry, mapper, builder, serializer, 6 adapters, Cosmos loader, validation, CLI, docs, CI/CD. 557 tests. |
+| **v1.1** | ✅ Research Complete | Native Adapters — 6 new adapter classes (Google Sheets, Snowflake, BigQuery, Databricks, Canvas, OneRoster) + 2 factory functions (PowerSchool, Blackbaud). 8 new extras groups. Est. 10-15 dev days. |
 | **v2.0 Phase 1** | 📋 Planning | Synthetic Data Generator — concept scheme extraction + local LLM, `[sdg]` extras, CLI commands. |
 | **v2.0 Phase 2** | ✅ Research Validated | AI-Assisted Mapping Wizard + Quick-Wins — three-phase matching (concept-value → heuristic → LLM), 100% accuracy on 34 test columns across 3 CSVs. Concept-value matching resolves ~38% with zero AI. |
 
