@@ -3,7 +3,7 @@
 **Project:** `ceds-jsonld` — A Python library for ingesting education data from any source, mapping it to CEDS/CEPI ontology-backed RDF shapes, outputting conformant JSON-LD, and loading it into Azure Cosmos DB.
 
 **Date:** February 8, 2026
-**Status:** v1.0 Complete — v2.0 Phase 1 (Synthetic Data Generator) In Planning
+**Status:** v1.0 Complete — v2.0 Phase 1 (Synthetic Data Generator) In Planning, Phase 2 (AI-Assisted Mapping Wizard) Research Complete
 
 ---
 
@@ -14,11 +14,12 @@
 3. [Ontology & Shape Management Strategy](#3-ontology--shape-management-strategy)
 4. [v1.0 Release History](#v10-release-history)
 5. [v2.0 — Phase 1: Synthetic Data Generator](#v20--phase-1-synthetic-data-generator)
-6. [v2.0 — Future Features (Backlog)](#v20--future-features-backlog)
-7. [Key Technical Decisions](#key-technical-decisions)
-8. [Risk Register](#risk-register)
-9. [Dependency Map](#dependency-map)
-10. [Appendix: Research Backlog](#appendix-research-backlog)
+6. [v2.0 — Phase 2: AI-Assisted Mapping Wizard + Quick-Wins](#v20--phase-2-ai-assisted-mapping-wizard--quick-wins)
+7. [v2.0 — Future Features (Backlog)](#v20--future-features-backlog)
+8. [Key Technical Decisions](#key-technical-decisions)
+9. [Risk Register](#risk-register)
+10. [Dependency Map](#dependency-map)
+11. [Appendix: Research Backlog](#appendix-research-backlog)
 
 ---
 
@@ -379,6 +380,89 @@ No background service, no `ollama pull`, no config files.
 
 ---
 
+## v2.0 — Phase 2: AI-Assisted Mapping Wizard + Quick-Wins
+
+**Status:** 📋 Planning (Research Complete)
+**Research:** See `ResearchFiles/FEATURE1_AI_MAPPING_WIZARD_RESEARCH.md` for full analysis.
+
+### Overview
+
+AI-assisted wizard that reads a user's CSV/Excel column headers and sample values,
+then suggests a complete `_mapping.yaml` config mapping source columns to CEDS shape
+properties — including transform recommendations and confidence scores.
+
+Two-phase matching approach:
+1. **Heuristic pre-match** — Exact/fuzzy name matching, datatype compatibility, concept
+   scheme value overlap. Handles 60-80% of columns with zero LLM calls.
+2. **LLM-assisted resolution** — For ambiguous columns, the same `llama-cpp-python` +
+   `huggingface-hub` engine from Phase 1 reads column names + sample values + ontology
+   metadata and suggests mappings with confidence scores. Local-only (FERPA compliant).
+
+Also includes three quick-win features that complement the wizard.
+
+### Task Table
+
+| # | Task | Details |
+|---|------|---------||
+| 2.1 | `ColumnProfiler` class | Analyze CSV/Excel columns: sample values, type inference, null rates, delimiters |
+| 2.2 | `ShapeMetadataCollector` class | Aggregate target properties from introspector + ontology + transforms |
+| 2.3 | `HeuristicMatcher` class | Scoring engine: name matching, fuzzy match, datatype compat, concept overlap |
+| 2.4 | `MatchingEngine` orchestrator | Two-phase: heuristic first, LLM for unresolved columns |
+| 2.5 | `MappingAssembler` class | Build complete YAML config + confidence annotations from matches |
+| 2.6 | `WizardResult` dataclass | Config + confidence report + unmapped lists + YAML text |
+| 2.7 | Tests: heuristic matching | Test name matching, type inference, concept scheme overlap |
+| 2.8 | Tests: end-to-end | CSV → wizard → YAML → Pipeline → valid JSON-LD |
+| 2.9 | LLM prompt builder | Construct mapping prompt from unresolved columns + shape properties |
+| 2.10 | LLM response validator | Verify: properties exist, transforms exist, no hallucinations |
+| 2.11 | Integration with Phase 1 LLM engine | Reuse Llama/Ollama loading, model cache, three-tier fallback |
+| 2.12 | Transform suggestion logic | Pattern-based + LLM-assisted transform recommendations |
+| 2.13 | Tests: LLM matching | Mocked LLM responses (live LLM test with `[sdg]` flag) |
+| 2.14 | `map-wizard` CLI command | Options: input, shape, output, no-llm, preview, threshold, mask-pii |
+| 2.15 | Preview mode | Run N records through Pipeline, show JSON-LD output |
+| 2.16 | Shape auto-detection | Column overlap scoring across registered shapes |
+| 2.17 | YAML annotation output | Write confidence comments, review markers, unmapped notes |
+| 2.18 | QW-1: `--validate-only` HTML report | Beautiful pass/fail per record, SHACL violations highlighted |
+| 2.19 | QW-2: `introspect` Markdown table output | Every shape + required properties in copy-paste-ready table |
+| 2.20 | QW-3: Built-in `benchmark` command | Compare pipeline run vs. baseline, auto-generate speedup report |
+| 2.21 | Documentation | Sphinx docs, README section, "Your First Mapping" guide |
+
+### Deliverables
+
+- [ ] `MappingWizard` — heuristic + LLM-assisted column→property matching
+- [ ] `ColumnProfiler` — CSV/Excel column analysis with type inference
+- [ ] `HeuristicMatcher` — deterministic scoring (name, datatype, concept scheme overlap)
+- [ ] LLM integration — reuses Phase 1 `llama-cpp-python` engine, zero new deps
+- [ ] `map-wizard` CLI command with annotated YAML output + confidence scores
+- [ ] Preview mode — sample records through Pipeline to validate mapping
+- [ ] QW-1: `--validate-only` with HTML report
+- [ ] QW-2: `introspect` Markdown table output
+- [ ] QW-3: Built-in `benchmark` command
+- [ ] Tests: heuristic matching, end-to-end, LLM matching
+- [ ] Docs: user guide, API reference, README section
+
+### End-User Experience
+
+**CLI:**
+```bash
+ceds-jsonld map-wizard --input district_export.csv --shape person
+ceds-jsonld map-wizard --input data.xlsx --shape person --output my_mapping.yaml --preview 3
+ceds-jsonld map-wizard --input data.csv --shape person --no-llm  # heuristic-only
+```
+
+**Python API:**
+```python
+from ceds_jsonld import MappingWizard
+
+wizard = MappingWizard()
+result = wizard.suggest("district_export.csv", shape="person")
+result.save("person_mapping.yaml")
+```
+
+No new dependencies required — LLM support comes from the `[sdg]` extras (Phase 1).
+Heuristic-only mode works with the base install.
+
+---
+
 ## v2.0 — Future Features (Backlog)
 
 **Status:** 💡 Brainstorming / Feasibility Research
@@ -389,18 +473,9 @@ being promoted to a real phase.
 
 ---
 
-### Feature 1: AI-Assisted Mapping Wizard
+### ~~Feature 1: AI-Assisted Mapping Wizard~~ → Promoted to v2.0 Phase 2
 
-> *The one that makes people say "holy shit."*
-
-- Feed a CSV/Excel sample → LLM suggests field → CEDS shape mappings + transform code snippets.
-- One-click "apply & preview JSON-LD" in CLI or a lightweight Streamlit/Gradio UI.
-
-**Research needed:**
-- [ ] LLM provider strategy (local vs. cloud, cost, latency)
-- [ ] Prompt engineering for CEDS-specific mapping suggestions
-- [ ] Confidence scoring / human-in-the-loop approval flow
-- [ ] Privacy implications (sending PII column names to cloud LLMs)
+> Promoted to Phase 2. See [v2.0 — Phase 2](#v20--phase-2-ai-assisted-mapping-wizard--quick-wins) above.
 
 ---
 
@@ -509,9 +584,10 @@ being promoted to a real phase.
 
 ### v2.0+ Prioritization
 
-> With Synthetic Data Generator committed as v2.0 Phase 1, remaining features will be
-> prioritized after Phase 1 ships. Scoring criteria: **impact** (user value) vs.
-> **effort** (dev weeks), with dependencies between features considered.
+> With Synthetic Data Generator committed as Phase 1 and AI-Assisted Mapping Wizard +
+> Quick-Wins committed as Phase 2, remaining features will be prioritized after Phase 2
+> ships. Scoring criteria: **impact** (user value) vs. **effort** (dev weeks), with
+> dependencies between features considered.
 
 ---
 
@@ -667,5 +743,6 @@ These are open questions that should be investigated as the project progresses:
 |-------|--------|----------------|
 | **v1.0 (Phases 0–8)** | ✅ Complete | Full library: registry, mapper, builder, serializer, 6 adapters, Cosmos loader, validation, CLI, docs, CI/CD. 557 tests. |
 | **v2.0 Phase 1** | 📋 Planning | Synthetic Data Generator — concept scheme extraction + local LLM, `[sdg]` extras, CLI commands. |
+| **v2.0 Phase 2** | 📋 Planning | AI-Assisted Mapping Wizard + Quick-Wins — heuristic + LLM column mapping, `map-wizard` CLI, validate-only HTML, introspect markdown, benchmark command. |
 
 ---
