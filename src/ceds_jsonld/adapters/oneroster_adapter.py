@@ -198,7 +198,7 @@ class OneRosterAdapter(SourceAdapter):
             if not token:
                 msg = f"OAuth token response missing 'access_token'. Response keys: {list(data.keys())}"
                 raise AdapterError(msg)
-            return token
+            return str(token)
         except AdapterError:
             raise
         except Exception as exc:
@@ -238,9 +238,10 @@ class OneRosterAdapter(SourceAdapter):
 
         # OneRoster wraps records in a key matching the resource name
         if isinstance(data, dict) and self._resource in data:
-            return data[self._resource]
+            records: list[dict[str, Any]] = data[self._resource]
+            return records
         if isinstance(data, list):
-            return data
+            return data  # type: ignore[return-value]
 
         msg = (
             f"Unexpected OneRoster response structure. Expected key "
