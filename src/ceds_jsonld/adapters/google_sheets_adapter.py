@@ -123,7 +123,7 @@ class GoogleSheetsAdapter(SourceAdapter):
         client = self._get_client(gspread)
         sheet = self._open_spreadsheet(client, gspread)
         ws = self._select_worksheet(sheet)
-        return max(0, ws.row_count - self._header_row)
+        return int(max(0, ws.row_count - self._header_row))
 
     # ------------------------------------------------------------------
     # Internal helpers

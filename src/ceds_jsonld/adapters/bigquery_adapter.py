@@ -125,7 +125,7 @@ class BigQueryAdapter(SourceAdapter):
         client = self._get_client(bigquery)
         try:
             table_ref = client.get_table(self._table)
-            return table_ref.num_rows
+            return int(table_ref.num_rows)  # type: ignore[arg-type]
         except Exception:
             return None
 
