@@ -81,18 +81,24 @@ def _mask_pii(event_dict: dict[str, Any]) -> dict[str, Any]:
     redacted.  String values are additionally scanned for common PII
     patterns (SSN, email) regardless of key name.
 
+    The input dict is **deep-copied** first so that caller-owned objects
+    (nested dicts, lists) are never mutated.
+
     Args:
         event_dict: The structured log event.
 
     Returns:
-        The event dict with sensitive values replaced by ``***REDACTED***``.
+        A *new* dict with sensitive values replaced by ``***REDACTED***``.
     """
-    for key in list(event_dict.keys()):
+    import copy as _copy
+
+    masked = _copy.deepcopy(event_dict)
+    for key in list(masked.keys()):
         if key.lower() in PII_FIELDS:
-            event_dict[key] = _REDACTED
+            masked[key] = _REDACTED
         else:
-            event_dict[key] = _mask_value(event_dict[key])
-    return event_dict
+            masked[key] = _mask_value(masked[key])
+    return masked
 
 
 def _mask_value(value: Any) -> Any:

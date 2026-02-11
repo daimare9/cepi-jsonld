@@ -4,15 +4,15 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![CI](https://github.com/daimare9/ceds-jsonld/actions/workflows/ci.yml/badge.svg)](https://github.com/daimare9/ceds-jsonld/actions/workflows/ci.yml)
-[![Tests: 557 passed](https://img.shields.io/badge/tests-557%20passed-brightgreen.svg)](tests/)
+[![Tests: 680 passed](https://img.shields.io/badge/tests-680%20passed-brightgreen.svg)](tests/)
 [![Coverage: 88%](https://img.shields.io/badge/coverage-88%25-yellowgreen.svg)]()
 
 **Python library for converting education data into standards-compliant JSON-LD documents backed by the [CEDS ontology](https://ceds.ed.gov/).**
 
-Read data from CSV, Excel, databases, APIs, or plain dicts. Map it to SHACL-defined shapes like Person, Organization, or K-12 Enrollment. Get back clean JSON-LD that validates against the ontology and is ready for Cosmos DB or any downstream system.
+Read data from CSV, Excel, databases, APIs, Google Sheets, SIS platforms, or cloud warehouses. Map it to SHACL-defined shapes like Person, Organization, or K-12 Enrollment. Get back clean JSON-LD that validates against the ontology and is ready for Cosmos DB or any downstream system.
 
 ```
-CSV / Excel / API / DB
+CSV / Excel / API / DB / Sheets / SIS / Warehouse
         │
         ▼
   ┌───────────┐     ┌───────────┐     ┌───────────┐
@@ -141,6 +141,14 @@ Adapters are how data gets into the pipeline. Pick the one that matches your dat
 | `NDJSONAdapter` | Newline-delimited JSON files | included |
 | `APIAdapter` | REST/HTTP endpoints with pagination | `pip install ceds-jsonld[api]` |
 | `DatabaseAdapter` | SQL databases via SQLAlchemy | `pip install ceds-jsonld[database]` |
+| `GoogleSheetsAdapter` | Google Sheets spreadsheets | `pip install ceds-jsonld[sheets]` |
+| `SnowflakeAdapter` | Snowflake data warehouse | `pip install ceds-jsonld[snowflake]` |
+| `BigQueryAdapter` | Google BigQuery tables / queries | `pip install ceds-jsonld[bigquery]` |
+| `DatabricksAdapter` | Databricks SQL warehouses | `pip install ceds-jsonld[databricks]` |
+| `CanvasAdapter` | Canvas LMS (users, enrollments, etc.) | `pip install ceds-jsonld[canvas]` |
+| `OneRosterAdapter` | OneRoster 1.1 SIS (Infinite Campus, ClassLink, etc.) | `pip install ceds-jsonld[oneroster]` |
+| `powerschool_adapter()` | PowerSchool SIS (factory function) | `pip install ceds-jsonld[api]` |
+| `blackbaud_adapter()` | Blackbaud SKY API (factory function) | `pip install ceds-jsonld[api]` |
 
 ---
 
@@ -300,6 +308,128 @@ records = [
     {"FirstName": "John", "LastName": "Smith", "Birthdate": "1985-06-20", ...},
 ]
 pipeline = Pipeline(source=DictAdapter(records), shape="person", registry=registry)
+```
+
+### Reading from Google Sheets
+
+```python
+from ceds_jsonld import GoogleSheetsAdapter
+
+pipeline = Pipeline(
+    source=GoogleSheetsAdapter(
+        spreadsheet="Student Roster 2026",
+        worksheet="Sheet1",
+        service_account_file="credentials.json",
+    ),
+    shape="person",
+    registry=registry,
+)
+```
+
+### Reading from a cloud data warehouse
+
+```python
+from ceds_jsonld import SnowflakeAdapter, BigQueryAdapter, DatabricksAdapter
+
+# Snowflake
+pipeline = Pipeline(
+    source=SnowflakeAdapter(
+        query="SELECT * FROM students WHERE school_year = 2026",
+        account="myorg-myaccount",
+        user="etl_user",
+        private_key_file="rsa_key.p8",
+        warehouse="COMPUTE_WH",
+        database="EDUCATION",
+        schema="PUBLIC",
+    ),
+    shape="person",
+    registry=registry,
+)
+
+# BigQuery
+pipeline = Pipeline(
+    source=BigQueryAdapter(
+        query="SELECT * FROM `project.dataset.students` WHERE year = 2026",
+        project="my-gcp-project",
+    ),
+    shape="person",
+    registry=registry,
+)
+
+# Databricks
+pipeline = Pipeline(
+    source=DatabricksAdapter(
+        query="SELECT * FROM education.students",
+        server_hostname="myworkspace.cloud.databricks.com",
+        http_path="/sql/1.0/warehouses/abc123",
+        access_token="dapi...",
+    ),
+    shape="person",
+    registry=registry,
+)
+```
+
+### Reading from Canvas LMS
+
+```python
+from ceds_jsonld import CanvasAdapter
+
+pipeline = Pipeline(
+    source=CanvasAdapter(
+        base_url="https://myschool.instructure.com",
+        api_key="YOUR_CANVAS_TOKEN",
+        resource="users",
+        account_id="1",
+    ),
+    shape="person",
+    registry=registry,
+)
+```
+
+### Reading from a OneRoster SIS
+
+```python
+from ceds_jsonld import OneRosterAdapter
+
+pipeline = Pipeline(
+    source=OneRosterAdapter(
+        base_url="https://sis.example.com/ims/oneroster/v1p1",
+        resource="students",
+        client_id="YOUR_CLIENT_ID",
+        client_secret="YOUR_SECRET",
+        token_url="https://sis.example.com/oauth/token",
+    ),
+    shape="person",
+    registry=registry,
+)
+```
+
+### Reading from PowerSchool or Blackbaud
+
+```python
+from ceds_jsonld import powerschool_adapter, blackbaud_adapter
+
+# PowerSchool
+pipeline = Pipeline(
+    source=powerschool_adapter(
+        base_url="https://mydistrict.powerschool.com",
+        access_token="YOUR_PS_TOKEN",
+        resource="students",
+    ),
+    shape="person",
+    registry=registry,
+)
+
+# Blackbaud
+pipeline = Pipeline(
+    source=blackbaud_adapter(
+        access_token="YOUR_BB_TOKEN",
+        subscription_key="YOUR_SUB_KEY",
+        resource="students",
+    ),
+    shape="person",
+    registry=registry,
+)
 ```
 
 ---
@@ -613,7 +743,8 @@ JSON serialization uses [orjson](https://github.com/ijl/orjson) (Rust-backed, ~1
 | 6 — CLI & Docs | ✅ Complete | Full CLI (6 commands), Sphinx API docs, user guides. 356 tests. |
 | 7 — Production | ✅ Complete | Structured logging, PipelineResult metrics, dead-letter queue, progress tracking, PII masking, IRI sanitization. 398 tests. |
 | 8 — Publishing | ✅ Complete | Open source on PyPI, GitHub Actions CI/CD, monthly releases. |
-| Pre-1.0 Stabilization | 🔄 In Progress | Bug fixes (#2–#30), transform hardening, validation improvements. **557 tests**. Targeting v1.0.0. |
+| Pre-1.0 Stabilization | ✅ Complete | Bug fixes (#2–#30), transform hardening, validation improvements. **557 tests**. |
+| 0.10.0 — Native Adapters | ✅ Complete | 6 new adapters (Sheets, Snowflake, BigQuery, Databricks, Canvas, OneRoster) + 2 SIS factory functions. **680 tests**. |
 
 See [ROADMAP.md](ROADMAP.md) for the full plan.
 
@@ -627,6 +758,15 @@ See [ROADMAP.md](ROADMAP.md) for the full plan.
 | `excel` | openpyxl | Excel file reading |
 | `api` | httpx | REST API adapter |
 | `database` | sqlalchemy | Database adapter |
+| `sheets` | gspread, google-auth | Google Sheets adapter |
+| `snowflake` | snowflake-connector-python | Snowflake data warehouse adapter |
+| `bigquery` | google-cloud-bigquery | Google BigQuery adapter |
+| `databricks` | databricks-sql-connector | Databricks SQL adapter |
+| `canvas` | canvasapi | Canvas LMS adapter |
+| `oneroster` | httpx | OneRoster 1.1 SIS adapter |
+| `sis` | canvasapi, httpx | All SIS adapters (Canvas + OneRoster) |
+| `warehouse` | snowflake + bigquery + databricks | All cloud warehouse adapters |
+| `all-adapters` | all adapter deps | Every adapter extra combined |
 | `cosmos` | azure-cosmos, azure-identity | Cosmos DB loading |
 | `observability` | structlog, tqdm | Structured logging & progress bars |
 | `validation` | pyshacl | SHACL validation |

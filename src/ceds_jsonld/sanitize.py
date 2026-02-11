@@ -144,6 +144,38 @@ def validate_base_uri(base_uri: str) -> str:
             msg = f"Base URI contains suspicious content: {base_uri!r}"
             raise ValueError(msg)
 
+    # Reject whitespace characters (space, tab, vertical tab, form feed).
+    # These are invalid in URIs per RFC 3986.
+    if re.search(r"[\s]", base_uri):
+        msg = (
+            f"Base URI contains whitespace characters: {base_uri!r}. "
+            "URIs must not contain spaces, tabs, or other whitespace."
+        )
+        raise ValueError(msg)
+
+    # Reject dangerous URI schemes that could enable local file access or
+    # other unintended resolution.
+    _dangerous_schemes = ("file:", "ftp:")
+    if lower.startswith(_dangerous_schemes):
+        msg = (
+            f"Base URI uses a disallowed scheme: {base_uri!r}. "
+            "Only http:, https:, urn:, and compact-IRI prefixes are permitted."
+        )
+        raise ValueError(msg)
+
+    # Reject percent-encoded path traversal (e.g. %2E%2E/ which decodes
+    # to ../).  This catches double-encoding attacks.
+    if (
+        re.search(r"%2[eE]%2[eE][/\\#]", base_uri)
+        or re.search(r"%2[eE]\.", base_uri)
+        or re.search(r"\.%2[eE]", base_uri)
+    ):
+        msg = (
+            f"Base URI contains percent-encoded path traversal: {base_uri!r}. "
+            "Encoded dot sequences (e.g. %2E%2E/) are not allowed."
+        )
+        raise ValueError(msg)
+
     # Ensure the URI ends with a separator so @id values are well-formed.
     # Without a trailing '/' or '#', the ID component merges into the
     # namespace (e.g. "cepi:person" + "123" → "cepi:person123").

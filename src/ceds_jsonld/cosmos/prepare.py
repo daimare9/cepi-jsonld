@@ -30,7 +30,7 @@ def prepare_for_cosmos(
             the document's ``@type`` if not provided.
         id_field: The key in *doc* that holds the document identifier.
             Defaults to ``"@id"``.  The URI prefix is stripped automatically
-            (everything up to and including the last ``/``).
+            (everything up to and including the last ``/`` or ``#``).
 
     Returns:
         A deep copy of *doc* with ``id`` and ``partitionKey`` injected.
@@ -56,8 +56,12 @@ def prepare_for_cosmos(
     cosmos_doc = copy.deepcopy(doc)
 
     # Extract the trailing identifier from the URI.
+    # Split on both '/' and '#' separators — URIs may use either as the
+    # namespace delimiter (e.g. "cepi:person/12345" or "cepi:person#12345").
     raw_id = str(doc[id_field])
-    derived_id = raw_id.rsplit("/", 1)[-1] if "/" in raw_id else raw_id
+    # First split on '#' (fragment), then on '/' (path), taking the last segment.
+    last_segment = raw_id.rsplit("#", 1)[-1] if "#" in raw_id else raw_id
+    derived_id = last_segment.rsplit("/", 1)[-1] if "/" in last_segment else last_segment
 
     if not derived_id:
         msg = (
