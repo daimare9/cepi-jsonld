@@ -136,7 +136,15 @@ class FieldMapper:
                         base_prop = base_props[prop_name]
                         for prop_key, prop_val in prop_def.items():
                             if prop_key == "fields" and "fields" in base_prop:
-                                base_prop["fields"].update(prop_val)
+                                # Deep-merge per field: overlay keys
+                                # override base keys, but unmentioned
+                                # base keys (datatype, optional, target)
+                                # are preserved.
+                                for field_name, field_def in prop_val.items():
+                                    if field_name in base_prop["fields"]:
+                                        base_prop["fields"][field_name].update(field_def)
+                                    else:
+                                        base_prop["fields"][field_name] = copy.deepcopy(field_def)
                             else:
                                 base_prop[prop_key] = prop_val
                     else:
