@@ -4,7 +4,9 @@ ceds-jsonld Documentation
 **Python library for converting education data into standards-compliant JSON-LD
 documents backed by the** `CEDS ontology <https://ceds.ed.gov/>`_.
 
-Read data from CSV, Excel, databases, APIs, or plain dicts. Map it to
+Read data from CSV, Excel, databases, APIs, Google Sheets, SIS platforms
+(Canvas, OneRoster, PowerSchool, Blackbaud), cloud data warehouses
+(Snowflake, BigQuery, Databricks), or plain dicts. Map it to
 SHACL-defined shapes. Get conformant JSON-LD ready for Cosmos DB or any
 downstream system.
 

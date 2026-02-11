@@ -44,10 +44,7 @@ class JSONLDBuilder:
             try:
                 validate_base_uri(base_uri)
             except ValueError as exc:
-                msg = (
-                    f"Shape '{shape_def.name}' has an invalid base_uri in its "
-                    f"mapping config: {exc}"
-                )
+                msg = f"Shape '{shape_def.name}' has an invalid base_uri in its mapping config: {exc}"
                 raise BuildError(msg) from exc
 
         # Pre-build static sub-shapes for performance

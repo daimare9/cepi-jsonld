@@ -4,12 +4,20 @@ from __future__ import annotations
 
 from ceds_jsonld.adapters import (
     APIAdapter,
+    BigQueryAdapter,
+    CanvasAdapter,
     CSVAdapter,
     DatabaseAdapter,
+    DatabricksAdapter,
     DictAdapter,
     ExcelAdapter,
+    GoogleSheetsAdapter,
     NDJSONAdapter,
+    OneRosterAdapter,
+    SnowflakeAdapter,
     SourceAdapter,
+    blackbaud_adapter,
+    powerschool_adapter,
 )
 from ceds_jsonld.builder import JSONLDBuilder
 from ceds_jsonld.cosmos import CosmosLoader, prepare_for_cosmos
@@ -27,19 +35,24 @@ from ceds_jsonld.validator import (
     ValidationResult,
 )
 
-__version__ = "0.9.6"
+__version__ = "0.10.0"
 __all__ = [
     "APIAdapter",
+    "BigQueryAdapter",
+    "CanvasAdapter",
     "CSVAdapter",
     "CosmosLoader",
     "DatabaseAdapter",
+    "DatabricksAdapter",
     "DictAdapter",
     "ExcelAdapter",
     "FieldIssue",
+    "GoogleSheetsAdapter",
     "JSONLDBuilder",
     "FieldMapper",
     "NDJSONAdapter",
     "NodeShapeInfo",
+    "OneRosterAdapter",
     "Pipeline",
     "PipelineResult",
     "PreBuildValidator",
@@ -48,10 +61,13 @@ __all__ = [
     "SHACLValidator",
     "ShapeDefinition",
     "ShapeRegistry",
+    "SnowflakeAdapter",
     "SourceAdapter",
     "ValidationMode",
     "ValidationResult",
+    "blackbaud_adapter",
     "get_logger",
+    "powerschool_adapter",
     "prepare_for_cosmos",
     "sanitize_iri_component",
     "sanitize_string_value",

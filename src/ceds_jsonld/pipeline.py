@@ -511,9 +511,7 @@ class Pipeline:
                         dead.write(raw_row, str(exc))
                         result_errors.append({"row": records_in, "error": str(exc)})
                     else:
-                        raise PipelineError(
-                            f"Pipeline run failed at row {records_in}: {exc}"
-                        ) from exc
+                        raise PipelineError(f"Pipeline run failed at row {records_in}: {exc}") from exc
         finally:
             dead.close()
 
