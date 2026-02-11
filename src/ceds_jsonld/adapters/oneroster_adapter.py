@@ -217,7 +217,7 @@ class OneRosterAdapter(SourceAdapter):
 
     def _fetch_page(self, client: Any, offset: int) -> list[dict[str, Any]]:
         """Fetch one page of records from the OneRoster endpoint."""
-        import httpx as httpx_mod
+        httpx_mod = self._import_httpx()
 
         url = f"{self._base_url}/{self._resource}"
         params: dict[str, Any] = {

@@ -71,6 +71,9 @@ class BigQueryAdapter(SourceAdapter):
         if not query and not table:
             msg = "Provide either 'query' (SQL) or 'table' (project.dataset.table)."
             raise AdapterError(msg)
+        if query and not query.strip():
+            msg = "query must not be empty"
+            raise AdapterError(msg)
 
         self._query = query
         self._table = table
@@ -186,12 +189,12 @@ class BigQueryAdapter(SourceAdapter):
 
         query_params = []
         for name, value in self._params.items():
-            if isinstance(value, int):
+            if isinstance(value, bool):
+                bq_type = "BOOL"
+            elif isinstance(value, int):
                 bq_type = "INT64"
             elif isinstance(value, float):
                 bq_type = "FLOAT64"
-            elif isinstance(value, bool):
-                bq_type = "BOOL"
             else:
                 bq_type = "STRING"
             query_params.append(
