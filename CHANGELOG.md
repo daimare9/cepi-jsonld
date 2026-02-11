@@ -17,6 +17,52 @@ Release cadence: **monthly** (first week of each month), with ad-hoc patch relea
 
 ---
 
+## [0.10.0] — 2026-02-11
+
+### Added — v1.1 Native Adapters
+
+Six new source adapters for education-sector data sources:
+
+- **`GoogleSheetsAdapter`** — Read from Google Sheets via `gspread` v6+. Supports
+  credentials, service account file, or API key authentication. Open by title, key,
+  or URL; select worksheet by name or index. (`pip install ceds-jsonld[sheets]`)
+- **`SnowflakeAdapter`** — Query Snowflake data warehouses via native connector with
+  DictCursor. Supports password, key-pair, and OAuth authentication. Batch streaming
+  via `fetchmany()`. (`pip install ceds-jsonld[snowflake]`)
+- **`BigQueryAdapter`** — Query Google BigQuery or read tables directly. Supports
+  parameterised queries with typed `ScalarQueryParameter`. (`pip install ceds-jsonld[bigquery]`)
+- **`DatabricksAdapter`** — Query Databricks SQL warehouses via `databricks-sql-connector`.
+  Context-manager-based connection management with batch `fetchmany()`.
+  (`pip install ceds-jsonld[databricks]`)
+- **`CanvasAdapter`** — Read from Canvas LMS via `canvasapi`. Supports account-level
+  (users, courses, SIS imports) and course-level (enrollments, students, assignments,
+  sections) resources. (`pip install ceds-jsonld[canvas]`)
+- **`OneRosterAdapter`** — Read from any OneRoster 1.1–compliant SIS (Infinite Campus,
+  ClassLink, Clever, Aeries). OAuth client-credentials flow, offset pagination, nested
+  JSON flattening. (`pip install ceds-jsonld[oneroster]`)
+
+Two factory functions for vendor-specific SIS platforms:
+
+- **`powerschool_adapter()`** — Pre-configured `APIAdapter` for PowerSchool REST API
+  with 5 standard resources and offset pagination.
+- **`blackbaud_adapter()`** — Pre-configured `APIAdapter` for Blackbaud SKY API with
+  6 standard resources and subscription key header.
+
+New extras groups in `pyproject.toml`:
+
+- `[sheets]`, `[canvas]`, `[oneroster]`, `[snowflake]`, `[bigquery]`, `[databricks]`,
+  `[sis]` (canvas + oneroster), `[warehouse]` (snowflake + bigquery + databricks),
+  `[all-adapters]` (all adapter extras combined)
+
+All new adapters are importable from the top-level `ceds_jsonld` package.
+
+### Tests
+
+- 76 new tests across 8 test classes covering all new adapters and factory functions
+- Total test count: **680 passed** (up from 557)
+
+---
+
 ## [0.9.6] — 2026-02-08
 
 ### Summary
@@ -174,6 +220,7 @@ First public release. All core functionality complete across 7 development phase
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 0.10.0 | 2026-02-11 | v1.1: 6 native adapters + 2 SIS factory functions. 680 tests. |
 | 0.9.6 | 2026-02-08 | Patch: 5 bug fixes (pipe handling, transforms, date validation). 557 tests. |
 | 0.9.5 | 2026-02-08 | Patch: fix flaky 100K benchmark on CI Windows runners. |
 | 0.9.4 | 2026-02-08 | Patch: 5 bug fixes (non-finite floats, booleans, None handling, empty lists). |
@@ -184,7 +231,8 @@ First public release. All core functionality complete across 7 development phase
 
 ---
 
-[Unreleased]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.6...HEAD
+[Unreleased]: https://github.com/daimare9/ceds-jsonld/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.6...v0.10.0
 [0.9.6]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.5...v0.9.6
 [0.9.5]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.4...v0.9.5
 [0.9.4]: https://github.com/daimare9/ceds-jsonld/compare/v0.9.3...v0.9.4

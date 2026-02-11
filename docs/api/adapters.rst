@@ -33,3 +33,31 @@ Source Adapters
 .. automodule:: ceds_jsonld.adapters.database_adapter
    :members:
    :show-inheritance:
+
+.. automodule:: ceds_jsonld.adapters.google_sheets_adapter
+   :members:
+   :show-inheritance:
+
+.. automodule:: ceds_jsonld.adapters.snowflake_adapter
+   :members:
+   :show-inheritance:
+
+.. automodule:: ceds_jsonld.adapters.bigquery_adapter
+   :members:
+   :show-inheritance:
+
+.. automodule:: ceds_jsonld.adapters.databricks_adapter
+   :members:
+   :show-inheritance:
+
+.. automodule:: ceds_jsonld.adapters.canvas_adapter
+   :members:
+   :show-inheritance:
+
+.. automodule:: ceds_jsonld.adapters.oneroster_adapter
+   :members:
+   :show-inheritance:
+
+.. automodule:: ceds_jsonld.adapters.sis_factories
+   :members:
+   :show-inheritance:

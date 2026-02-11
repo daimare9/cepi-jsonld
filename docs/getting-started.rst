@@ -16,6 +16,15 @@ With optional extras::
     pip install ceds-jsonld[fast]        # orjson for faster serialization
     pip install ceds-jsonld[excel]       # Excel file support
     pip install ceds-jsonld[cli]         # Command-line interface
+    pip install ceds-jsonld[sheets]      # Google Sheets adapter
+    pip install ceds-jsonld[snowflake]   # Snowflake adapter
+    pip install ceds-jsonld[bigquery]    # BigQuery adapter
+    pip install ceds-jsonld[databricks]  # Databricks adapter
+    pip install ceds-jsonld[canvas]      # Canvas LMS adapter
+    pip install ceds-jsonld[oneroster]   # OneRoster 1.1 SIS adapter
+    pip install ceds-jsonld[warehouse]   # All cloud warehouse adapters
+    pip install ceds-jsonld[sis]         # All SIS adapters (Canvas + OneRoster)
+    pip install ceds-jsonld[all-adapters] # Every adapter extra
     pip install ceds-jsonld[all]         # Everything for production
     pip install ceds-jsonld[dev]         # Development and testing tools
 

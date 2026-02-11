@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ceds-jsonld"
-version = "0.9.6"
+version = "0.10.0"
 description = "Python library for ingesting education data, mapping to CEDS/CEPI ontology SHACL shapes, and outputting conformant JSON-LD"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -58,6 +58,28 @@ cosmos = ["azure-cosmos>=4.7", "azure-identity>=1.15"]
 validation = ["pyshacl>=0.26"]
 api = ["httpx>=0.27"]
 database = ["sqlalchemy>=2.0"]
+sheets = ["gspread>=6.0"]
+canvas = ["canvasapi>=3.0"]
+oneroster = ["httpx>=0.27"]
+snowflake = ["snowflake-connector-python>=3.0"]
+bigquery = ["google-cloud-bigquery>=3.0"]
+databricks = ["databricks-sql-connector>=3.0"]
+sis = ["canvasapi>=3.0", "httpx>=0.27"]
+warehouse = [
+    "snowflake-connector-python>=3.0",
+    "google-cloud-bigquery>=3.0",
+    "databricks-sql-connector>=3.0",
+]
+all-adapters = [
+    "openpyxl>=3.1",
+    "httpx>=0.27",
+    "sqlalchemy>=2.0",
+    "gspread>=6.0",
+    "canvasapi>=3.0",
+    "snowflake-connector-python>=3.0",
+    "google-cloud-bigquery>=3.0",
+    "databricks-sql-connector>=3.0",
+]
 cli = ["click>=8.1"]
 observability = ["structlog>=24.0", "tqdm>=4.60"]
 all = [
@@ -141,6 +163,14 @@ module = [
     "azure.*",
     "tqdm",
     "tqdm.*",
+    "gspread",
+    "gspread.*",
+    "canvasapi",
+    "canvasapi.*",
+    "snowflake.*",
+    "google.cloud.*",
+    "google.oauth2.*",
+    "databricks.*",
 ]
 ignore_missing_imports = true
 

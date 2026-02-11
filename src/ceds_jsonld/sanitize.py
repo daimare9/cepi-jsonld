@@ -165,7 +165,11 @@ def validate_base_uri(base_uri: str) -> str:
 
     # Reject percent-encoded path traversal (e.g. %2E%2E/ which decodes
     # to ../).  This catches double-encoding attacks.
-    if re.search(r"%2[eE]%2[eE][/\\#]", base_uri) or re.search(r"%2[eE]\.", base_uri) or re.search(r"\.%2[eE]", base_uri):
+    if (
+        re.search(r"%2[eE]%2[eE][/\\#]", base_uri)
+        or re.search(r"%2[eE]\.", base_uri)
+        or re.search(r"\.%2[eE]", base_uri)
+    ):
         msg = (
             f"Base URI contains percent-encoded path traversal: {base_uri!r}. "
             "Encoded dot sequences (e.g. %2E%2E/) are not allowed."

@@ -11,10 +11,9 @@ import copy
 
 import pytest
 
-from ceds_jsonld.exceptions import MappingError, PipelineError
+from ceds_jsonld.exceptions import PipelineError
 from ceds_jsonld.logging import _mask_pii, get_logger
 from ceds_jsonld.mapping import FieldMapper
-
 
 # ======================================================================
 # Issue #32 — FieldMapper.compose() must deep-merge field metadata

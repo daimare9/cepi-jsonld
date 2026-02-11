@@ -16,7 +16,6 @@ from ceds_jsonld.cosmos.prepare import prepare_for_cosmos
 from ceds_jsonld.exceptions import BuildError, CosmosError
 from ceds_jsonld.sanitize import validate_base_uri
 
-
 # =====================================================================
 # Issue #31 — prepare_for_cosmos hash separator
 # =====================================================================

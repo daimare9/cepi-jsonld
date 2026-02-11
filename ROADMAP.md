@@ -4,8 +4,8 @@
 mapping it to CEDS/CEPI ontology-backed RDF shapes, outputting conformant JSON-LD, and
 loading it into Azure Cosmos DB.
 
-**Date:** February 9, 2026
-**Current Release:** v1.0 (557 tests, 88% coverage, published to PyPI)
+**Date:** February 11, 2026
+**Current Release:** v1.0 (published to PyPI) · v1.1 in progress (680 tests)
 
 ---
 
@@ -37,7 +37,7 @@ Architectural decisions are documented in [docs/adr/](docs/adr/).
 
 ## v1.1 — Native Adapters
 
-**Status:** ✅ Research Complete
+**Status:** ✅ Code Complete (branch: `feature/native-adapters`, 680 tests passing)
 **Research:** `ResearchFiles/FEATURE7_NATIVE_ADAPTERS_RESEARCH.md`
 **Target extras:** `[sheets]`, `[canvas]`, `[oneroster]`, `[snowflake]`, `[bigquery]`, `[databricks]`
 
@@ -59,28 +59,28 @@ data warehouses (Snowflake, BigQuery, Databricks). All adapters follow the exist
 | # | Task | Effort |
 |---|------|--------|
 | **Phase A — Spreadsheets & Cloud Warehouses** |||
-| 1.1 | `GoogleSheetsAdapter` (`gspread` v6+) | 1-2 days |
-| 1.2 | `SnowflakeAdapter` (`snowflake-connector-python`) | 1-2 days |
-| 1.3 | `BigQueryAdapter` (`google-cloud-bigquery`) | 1-2 days |
-| 1.4 | `DatabricksAdapter` (`databricks-sql-connector`) | 1-2 days |
-| 1.5 | Tests: Phase A adapters | 1-2 days |
+| 1.1 | `GoogleSheetsAdapter` (`gspread` v6+) | ✅ Done |
+| 1.2 | `SnowflakeAdapter` (`snowflake-connector-python`) | ✅ Done |
+| 1.3 | `BigQueryAdapter` (`google-cloud-bigquery`) | ✅ Done |
+| 1.4 | `DatabricksAdapter` (`databricks-sql-connector`) | ✅ Done |
+| 1.5 | Tests: Phase A adapters | ✅ Done |
 | **Phase B — SIS Platforms** |||
-| 1.6 | `CanvasAdapter` (`canvasapi` v3+) | 2-3 days |
-| 1.7 | `OneRosterAdapter` (`httpx`, standard 1.1 endpoints) | 2-3 days |
-| 1.8 | Tests: Phase B adapters | 1-2 days |
+| 1.6 | `CanvasAdapter` (`canvasapi` v3+) | ✅ Done |
+| 1.7 | `OneRosterAdapter` (`httpx`, standard 1.1 endpoints) | ✅ Done |
+| 1.8 | Tests: Phase B adapters | ✅ Done |
 | **Phase C — Templates & Documentation** |||
-| 1.9 | PowerSchool factory function | 0.5 day |
-| 1.10 | Blackbaud factory function | 0.5 day |
-| 1.11 | New extras in `pyproject.toml` | 0.5 day |
-| 1.12 | Sphinx adapter guides + README updates | 2-3 days |
+| 1.9 | PowerSchool factory function | ✅ Done |
+| 1.10 | Blackbaud factory function | ✅ Done |
+| 1.11 | New extras in `pyproject.toml` | ✅ Done |
+| 1.12 | Sphinx adapter guides + README updates | ✅ Done |
 
 ### Deliverables
 
-- [ ] `GoogleSheetsAdapter`, `SnowflakeAdapter`, `BigQueryAdapter`, `DatabricksAdapter`
-- [ ] `CanvasAdapter`, `OneRosterAdapter`
-- [ ] `powerschool_adapter()` and `blackbaud_adapter()` factory functions
-- [ ] New extras groups: `[sheets]`, `[snowflake]`, `[bigquery]`, `[databricks]`, `[canvas]`, `[oneroster]`, `[sis]`, `[warehouse]`, `[all-adapters]`
-- [ ] Tests (unit + integration) and Sphinx docs with auth setup guides
+- [x] `GoogleSheetsAdapter`, `SnowflakeAdapter`, `BigQueryAdapter`, `DatabricksAdapter`
+- [x] `CanvasAdapter`, `OneRosterAdapter`
+- [x] `powerschool_adapter()` and `blackbaud_adapter()` factory functions
+- [x] New extras groups: `[sheets]`, `[snowflake]`, `[bigquery]`, `[databricks]`, `[canvas]`, `[oneroster]`, `[sis]`, `[warehouse]`, `[all-adapters]`
+- [x] 76 new tests (680 total, all passing). Sphinx docs and README updated.
 
 ---
 
@@ -312,6 +312,6 @@ Open questions to investigate as the project progresses:
 | Phase | Status | Key Deliverable |
 |-------|--------|----------------|
 | **v1.0 (Phases 0–8)** | ✅ Complete | Full library: 557 tests, published to PyPI. See [README](README.md). |
-| **v1.1** | ✅ Research Complete | Native Adapters — 6 adapters + 2 factory functions. Est. 10-15 dev days. |
+| **v1.1** | ✅ Code Complete | Native Adapters — 6 adapters + 2 factory functions. 76 new tests (680 total). |
 | **v2.0 Phase 1** | 📋 Planning | Synthetic Data Generator — concept scheme extraction + local LLM. |
 | **v2.0 Phase 2** | ✅ Research Validated | AI-Assisted Mapping Wizard — three-phase matching, 100% PoC accuracy. |
