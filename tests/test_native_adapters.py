@@ -906,9 +906,10 @@ class TestOneRosterAdapter:
         # Nested dict should be flattened
         assert row["user_sourcedId"] == "u1"
         assert row["user_givenName"] == "Alice"
-        # Nested list should flatten first element
-        assert row["org_sourcedId"] == "org1"
-        assert row["org_type"] == "school"
+        # Nested list uses indexed keys to preserve all elements
+        assert row["org_0_sourcedId"] == "org1"
+        assert row["org_0_type"] == "school"
+        assert row["orgs_count"] == 1
         # Scalar fields preserved
         assert row["sourcedId"] == "e1"
         assert row["role"] == "student"

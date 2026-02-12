@@ -17,6 +17,8 @@ from ceds_jsonld.exceptions import AdapterError
 # Standard OneRoster 1.1 resource endpoints
 _ONEROSTER_RESOURCES = {
     "users",
+    "students",
+    "teachers",
     "orgs",
     "enrollments",
     "courses",
@@ -26,6 +28,8 @@ _ONEROSTER_RESOURCES = {
     "lineItems",
     "results",
     "gradingPeriods",
+    "terms",
+    "categories",
 }
 
 
@@ -217,7 +221,7 @@ class OneRosterAdapter(SourceAdapter):
 
     def _fetch_page(self, client: Any, offset: int) -> list[dict[str, Any]]:
         """Fetch one page of records from the OneRoster endpoint."""
-        import httpx as httpx_mod
+        httpx_mod = self._import_httpx()
 
         url = f"{self._base_url}/{self._resource}"
         params: dict[str, Any] = {
@@ -260,22 +264,37 @@ class OneRosterAdapter(SourceAdapter):
     def _flatten_record(record: dict[str, Any]) -> dict[str, Any]:
         """Flatten nested lists/dicts in a OneRoster record.
 
-        For example, ``{"orgs": [{"sourcedId": "1", "type": "school"}]}``
-        becomes ``{"org_sourcedId": "1", "org_type": "school"}``.
+        Nested dicts are flattened with a ``key_subkey`` prefix.
+        Lists of dicts use indexed keys to preserve **all** elements:
+        ``{"orgs": [{"sourcedId": "A"}, {"sourcedId": "B"}]}`` becomes
+        ``{"org_0_sourcedId": "A", "org_1_sourcedId": "B", "orgs_count": 2}``.
+
+        Raises:
+            AdapterError: If a generated key would collide with an
+                existing key in the record.
         """
         flat: dict[str, Any] = {}
+
+        def _safe_set(target: dict[str, Any], k: str, v: Any) -> None:
+            if k in target:
+                msg = (
+                    f"Key collision during record flattening: '{k}' "
+                    f"already exists with value {target[k]!r}. "
+                    f"Cannot overwrite with {v!r}."
+                )
+                raise AdapterError(msg)
+            target[k] = v
+
         for key, value in record.items():
             if isinstance(value, dict):
                 for sub_key, sub_val in value.items():
-                    flat[f"{key}_{sub_key}"] = sub_val
+                    _safe_set(flat, f"{key}_{sub_key}", sub_val)
             elif isinstance(value, list) and value and isinstance(value[0], dict):
-                # Flatten first element with singular prefix
                 singular = key.rstrip("s") if key.endswith("s") else key
-                for sub_key, sub_val in value[0].items():
-                    flat[f"{singular}_{sub_key}"] = sub_val
-                # Store full list count for reference
-                if len(value) > 1:
-                    flat[f"{key}_count"] = len(value)
+                for idx, element in enumerate(value):
+                    for sub_key, sub_val in element.items():
+                        _safe_set(flat, f"{singular}_{idx}_{sub_key}", sub_val)
+                _safe_set(flat, f"{key}_count", len(value))
             else:
-                flat[key] = value
+                _safe_set(flat, key, value)
         return flat

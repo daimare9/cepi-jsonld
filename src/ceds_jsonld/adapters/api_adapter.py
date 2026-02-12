@@ -148,12 +148,19 @@ class APIAdapter(SourceAdapter):
         return resp
 
     def _extract_records(self, data: Any) -> list[dict[str, Any]]:
-        """Pull the record list out of a parsed JSON response."""
+        """Pull the record list out of a parsed JSON response.
+
+        Supports dot-notation paths (e.g. ``"students.student"``) for
+        nested response structures such as PowerSchool's API.
+        """
         if self._results_key:
-            if not isinstance(data, dict) or self._results_key not in data:
-                msg = f"Response missing expected key '{self._results_key}'"
-                raise AdapterError(msg)
-            records = data[self._results_key]
+            obj = data
+            for segment in self._results_key.split("."):
+                if not isinstance(obj, dict) or segment not in obj:
+                    msg = f"Response missing expected key '{self._results_key}'"
+                    raise AdapterError(msg)
+                obj = obj[segment]
+            records = obj
         else:
             records = data
         if not isinstance(records, list):
