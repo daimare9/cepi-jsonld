@@ -24,7 +24,6 @@ import pytest
 from ceds_jsonld.adapters.api_adapter import APIAdapter
 from ceds_jsonld.exceptions import AdapterError
 
-
 # ======================================================================
 # Issue #38 — OneRoster must accept 'students', 'teachers', etc.
 # ======================================================================

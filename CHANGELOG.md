@@ -17,6 +17,32 @@ Release cadence: **monthly** (first week of each month), with ad-hoc patch relea
 
 ---
 
+## [0.10.1] — 2026-02-11
+
+### Summary
+
+Patch release fixing 10 bugs across adapter subsystem — OneRoster data loss, missing standard endpoints, and PowerSchool dot-path extraction. 719 tests passing.
+
+### Fixed
+
+- **OneRoster** — `_flatten_record` now uses indexed keys (`org_0_sourcedId`, `org_1_sourcedId`, …) to preserve **all** list elements instead of silently dropping elements beyond the first (#37)
+- **OneRoster** — `_flatten_record` raises `AdapterError` on key collisions instead of silently overwriting existing keys (#37)
+- **OneRoster** — Added `students`, `teachers`, `terms`, `categories` to `_ONEROSTER_RESOURCES` — these are standard OneRoster 1.1 endpoints (#38)
+- **APIAdapter** — `_extract_records` now supports dot-notation path traversal (e.g. `"students.student"` → `data["students"]["student"]`), fixing all 7 PowerSchool resource types (#39)
+- **BigQuery** — `BigQueryAdapter.__init__` now rejects whitespace-only queries, consistent with Snowflake/Databricks/Database adapters (#40)
+- **OneRoster** — `_fetch_page` now uses `_import_httpx()` instead of bare `import httpx`, preserving the friendly `AdapterError` when httpx is not installed (#40)
+- **BigQuery** — `_build_job_config` checks `isinstance(value, bool)` before `isinstance(value, int)` to correctly type boolean parameters as `BOOL` instead of `INT64` (#36)
+- **Pipeline** — `Pipeline.run()` now wraps mapping/build failures in `PipelineError` with `__cause__` chain, matching `stream()` behaviour (#35)
+- **Builder** — IRI components properly sanitised to prevent injection (#31–34)
+- **Serializer** — `NaN`/`Inf` values handled correctly in JSON output (#25)
+
+### Tests
+
+- 39 new tests across 4 test files covering all fixed issues
+- Total test count: **719 passed** (up from 680)
+
+---
+
 ## [0.10.0] — 2026-02-11
 
 ### Added — Native Adapters
