@@ -215,3 +215,91 @@ class TestBuilderValidatesBaseUri:
         shape_def = self._make_shape_def("cepi:person")
         with pytest.raises(BuildError, match="invalid base_uri"):
             JSONLDBuilder(shape_def)
+
+
+# =====================================================================
+# Issue #34 — validate_base_uri integration in FieldMapper
+# =====================================================================
+
+
+class TestFieldMapperValidatesBaseUri:
+    """FieldMapper.__init__ must validate base_uri for defense-in-depth."""
+
+    def _make_config(self, base_uri: str) -> dict[str, Any]:
+        return {
+            "base_uri": base_uri,
+            "type": "TestType",
+            "id_source": "ID",
+            "properties": {},
+        }
+
+    def test_valid_base_uri_accepted(self) -> None:
+        from ceds_jsonld.mapping import FieldMapper
+
+        mapper = FieldMapper(self._make_config("cepi:person/"))
+        assert mapper is not None
+
+    def test_missing_separator_rejected(self) -> None:
+        from ceds_jsonld.exceptions import MappingError
+        from ceds_jsonld.mapping import FieldMapper
+
+        with pytest.raises(MappingError, match="invalid base_uri"):
+            FieldMapper(self._make_config("cepi:person"))
+
+    def test_whitespace_base_uri_rejected(self) -> None:
+        from ceds_jsonld.exceptions import MappingError
+        from ceds_jsonld.mapping import FieldMapper
+
+        with pytest.raises(MappingError, match="invalid base_uri"):
+            FieldMapper(self._make_config("cepi:per son/"))
+
+    def test_file_scheme_rejected(self) -> None:
+        from ceds_jsonld.exceptions import MappingError
+        from ceds_jsonld.mapping import FieldMapper
+
+        with pytest.raises(MappingError, match="invalid base_uri"):
+            FieldMapper(self._make_config("file:///etc/passwd#"))
+
+    def test_no_base_uri_accepted(self) -> None:
+        """Config without base_uri should not raise."""
+        from ceds_jsonld.mapping import FieldMapper
+
+        config = {"type": "TestType", "id_source": "ID", "properties": {}}
+        mapper = FieldMapper(config)
+        assert mapper is not None
+
+    def test_compose_with_bad_base_uri_rejected(self) -> None:
+        """FieldMapper.compose with a bad overlay base_uri should raise."""
+        from ceds_jsonld.exceptions import MappingError
+        from ceds_jsonld.mapping import FieldMapper
+
+        base_config = self._make_config("cepi:person/")
+        overlay = {"base_uri": "cepi:person"}  # no trailing separator
+        with pytest.raises(MappingError, match="invalid base_uri"):
+            FieldMapper.compose(base_config, overlay)
+
+
+# =====================================================================
+# Issue #34 — validate_base_uri integration in Pipeline
+# =====================================================================
+
+
+class TestPipelineValidatesBaseUri:
+    """Pipeline.__init__ must validate base_uri early."""
+
+    def test_pipeline_with_valid_shape_accepted(self) -> None:
+        """Standard person shape loads without error."""
+        from ceds_jsonld import DictAdapter, Pipeline, ShapeRegistry
+
+        registry = ShapeRegistry()
+        registry.load_shape("person")
+        row = {
+            "FirstName": "Jane",
+            "LastName": "Doe",
+            "Birthdate": "2000-01-01",
+            "Sex": "Female",
+            "PersonIdentifiers": "12345",
+            "IdentificationSystems": "State",
+        }
+        pipe = Pipeline(DictAdapter([row]), "person", registry)
+        assert pipe is not None
