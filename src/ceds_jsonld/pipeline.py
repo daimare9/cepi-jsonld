@@ -18,6 +18,7 @@ from ceds_jsonld.exceptions import PipelineError, ValidationError
 from ceds_jsonld.logging import get_logger
 from ceds_jsonld.mapping import FieldMapper
 from ceds_jsonld.registry import ShapeRegistry
+from ceds_jsonld.sanitize import validate_base_uri
 from ceds_jsonld.serializer import dumps
 from ceds_jsonld.validator import (
     PreBuildValidator,
@@ -199,6 +200,20 @@ class Pipeline:
         except Exception as exc:
             msg = f"Shape '{shape}' not found in registry"
             raise PipelineError(msg) from exc
+
+        # Validate base_uri at the Pipeline level for an early, clear error
+        # message before the FieldMapper or Builder see the config.
+        base_uri = self._shape_def.mapping_config.get("base_uri", "")
+        if base_uri:
+            try:
+                validate_base_uri(base_uri)
+            except ValueError as exc:
+                msg = (
+                    f"Shape '{shape}' has an invalid base_uri: {exc}. "
+                    f"The base_uri must end with '/' or '#' to separate the "
+                    f"namespace from the identifier (e.g. 'cepi:person/')."
+                )
+                raise PipelineError(msg) from exc
 
         self._mapper = FieldMapper(
             self._shape_def.mapping_config,

@@ -17,6 +17,27 @@ Release cadence: **monthly** (first week of each month), with ad-hoc patch relea
 
 ---
 
+## [0.10.2] — 2026-02-12
+
+### Summary
+
+Patch release re-fixing two re-opened bugs: custom transforms returning `None` on required fields now raise instead of silently dropping the field (#30), and `base_uri` is now validated by Pipeline, FieldMapper, and Builder for full defense-in-depth (#34). 727 tests passing.
+
+### Fixed
+
+- **Mapping** — `_map_single` and `_map_multiple` now raise `MappingError` when a custom transform returns `None` on a required field (one without `optional: true`). Previously, `None` results silently dropped the field from output. Optional fields continue to skip silently as before. (#30)
+- **Mapping** — `FieldMapper.__init__()` now calls `validate_base_uri()` on the mapping config's `base_uri`, raising `MappingError` for invalid URIs (missing trailing `/` or `#`, whitespace, dangerous schemes). Catches bad URIs even when FieldMapper is used standalone via `compose()`. (#34)
+- **Pipeline** — `Pipeline.__init__()` now calls `validate_base_uri()` before constructing FieldMapper or Builder, giving an early `PipelineError` with an actionable message. Together with FieldMapper and Builder validation, `base_uri` is now validated at three levels. (#34)
+
+### Tests
+
+- Updated `test_transform_returning_none_skips_field` → `test_transform_returning_none_on_required_field_raises` (expected behaviour changed)
+- Added `test_transform_returning_none_on_optional_field_skips`
+- Added 8 new tests across `TestFieldMapperValidatesBaseUri` and `TestPipelineValidatesBaseUri`
+- Total test count: **727 passed** (up from 719)
+
+---
+
 ## [0.10.1] — 2026-02-11
 
 ### Summary
