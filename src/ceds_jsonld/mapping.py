@@ -12,7 +12,7 @@ from collections.abc import Callable
 from typing import Any
 
 from ceds_jsonld.exceptions import MappingError
-from ceds_jsonld.sanitize import sanitize_string_value
+from ceds_jsonld.sanitize import sanitize_string_value, validate_base_uri
 from ceds_jsonld.transforms import get_transform
 
 
@@ -41,6 +41,20 @@ class FieldMapper:
         """
         self._config = mapping_config
         self._custom_transforms = custom_transforms
+
+        # Validate base_uri early so malformed URIs are caught even when
+        # FieldMapper is used without Builder (e.g. via compose()).
+        base_uri = mapping_config.get("base_uri", "")
+        if base_uri:
+            try:
+                validate_base_uri(base_uri)
+            except ValueError as exc:
+                msg = (
+                    f"Mapping config has an invalid base_uri: {exc}. "
+                    f"The base_uri must end with '/' or '#' to separate the "
+                    f"namespace from the identifier (e.g. 'cepi:person/')."
+                )
+                raise MappingError(msg) from exc
 
     # ------------------------------------------------------------------
     # Mapping flexibility — overrides & composition
@@ -270,7 +284,20 @@ class FieldMapper:
                     prop_name,
                 )
 
-            if value is not None:
+            if value is None:
+                # Transform returned None — check if this is a required field.
+                # None is acceptable for optional fields (signals "skip"),
+                # but required fields must not be silently dropped.
+                if not field_def.get("optional", False):
+                    msg = (
+                        f"Transform '{transform_name or '(none)'}' on required field "
+                        f"'{source}' in property '{prop_name}' produced None. "
+                        f"Required fields cannot be nullified by transforms. "
+                        f"Mark the field as 'optional: true' in the mapping config "
+                        f"if this behaviour is intentional."
+                    )
+                    raise MappingError(msg)
+            else:
                 instance[target] = value
 
         return [instance] if instance else []
@@ -371,6 +398,13 @@ class FieldMapper:
                             )
                             if validated is not None:
                                 transformed.append(validated)
+                            elif not field_def.get("optional", False):
+                                msg = (
+                                    f"Transform '{transform_name}' on required field "
+                                    f"'{source}' in property '{prop_name}' produced None. "
+                                    f"Required fields cannot be nullified by transforms."
+                                )
+                                raise MappingError(msg)
                         sub_values = transformed
                     # Store as list (builder decides single vs array)
                     if sub_values:
@@ -395,7 +429,14 @@ class FieldMapper:
                             prop_name,
                         )
                         if xform_result is None:
-                            continue  # transform says skip this field
+                            if not field_def.get("optional", False):
+                                msg = (
+                                    f"Transform '{transform_name}' on required field "
+                                    f"'{source}' in property '{prop_name}' produced None. "
+                                    f"Required fields cannot be nullified by transforms."
+                                )
+                                raise MappingError(msg)
+                            continue  # optional field — transform says skip
                         value = xform_result
                     if value is not None:
                         instance[target] = value

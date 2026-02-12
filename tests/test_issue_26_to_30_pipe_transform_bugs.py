@@ -253,11 +253,12 @@ class TestIssue29PipeMismatch:
 class TestIssue30PostTransformValidation:
     """Transform results must be validated after execution."""
 
-    def test_transform_returning_none_skips_field(
+    def test_transform_returning_none_on_required_field_raises(
         self,
         person_registry: ShapeRegistry,
         base_row: dict[str, str],
     ) -> None:
+        """A transform returning None on a required field must raise, not skip."""
         pipe = Pipeline(
             DictAdapter([base_row]),
             "person",
@@ -265,10 +266,28 @@ class TestIssue30PostTransformValidation:
             custom_transforms={"nullify": lambda v: None},
             transform_overrides={"hasPersonName": {"FirstName": "nullify"}},
         )
+        # FirstName is required (no 'optional: true') — nullifying must error
+        with pytest.raises(PipelineError, match="required field"):
+            pipe.build_all()
+
+    def test_transform_returning_none_on_optional_field_skips(
+        self,
+        person_registry: ShapeRegistry,
+        base_row: dict[str, str],
+    ) -> None:
+        """A transform returning None on an optional field should skip it."""
+        row = {**base_row, "MiddleName": "M"}
+        pipe = Pipeline(
+            DictAdapter([row]),
+            "person",
+            person_registry,
+            custom_transforms={"nullify": lambda v: None},
+            transform_overrides={"hasPersonName": {"MiddleName": "nullify"}},
+        )
         docs = pipe.build_all()
         name = docs[0]["hasPersonName"]
-        # FirstName should be absent (None transform = skip), not literally None
-        assert name.get("FirstName") is None or "FirstName" not in name
+        # MiddleName is optional — None transform should silently skip
+        assert "MiddleName" not in name
 
     def test_transform_returning_int_coerced_to_string(
         self,
